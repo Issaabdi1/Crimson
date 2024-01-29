@@ -112,5 +112,5 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 class FileForm(forms.Form):
     file = forms.FileField(
         label='Select a file',
-        help_text='max. 42 megabytes'
+        help_text='max. 50 megabytes'
     )

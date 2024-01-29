@@ -15,6 +15,17 @@ from tasks.models import Upload
 
 
 @login_required
+def filelist(request):
+    """Display the current user's uploaded files."""
+
+    current_user = request.user
+    uploads = Upload.objects.filter(owner=current_user)
+    context = {'uploads': uploads,
+               'user': current_user,
+               }
+    return render(request, 'filelist.html', context)
+
+@login_required
 def dashboard(request):
     """Display the current user's dashboard."""
 

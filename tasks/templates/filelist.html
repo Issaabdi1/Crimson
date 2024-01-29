@@ -1,0 +1,17 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>My files:</h1>
+                <ul>
+                    {% for upload in uploads %}
+                        <li>
+                            <a href="{{ upload.file.url }}">{{ upload.file.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
