@@ -31,6 +31,22 @@ Install all required packages:
 $ pip3 install -r requirements.txt
 ```
 
+Create and open .env file:
+
+```
+$ touch .env
+$ open .env
+```
+
+Add the following environment variables to .env file and save:
+
+```
+USE_S3=TRUE
+AWS_ACCESS_KEY_ID=AKIA6GBMCKWKVMOCFXG4
+AWS_SECRET_ACCESS_KEY=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
+AWS_STORAGE_BUCKET_NAME=mypdfbucket01
+```
+
 Migrate the database:
 
 ```
