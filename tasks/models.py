@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
 
+from task_manager.storage_backends import MediaStorage
+
+
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
 
@@ -40,3 +43,14 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+
+
+class Upload(models.Model):
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(storage=MediaStorage())
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+
+    class Meta:
+        """Model options."""
+
+        ordering = ["uploaded_at"]

@@ -108,3 +108,9 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+
+class FileForm(forms.Form):
+    file = forms.FileField(
+        label='Select a file',
+        help_text='max. 42 megabytes'
+    )
