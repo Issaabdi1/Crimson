@@ -1,4 +1,4 @@
-#!/home/airyff/5CCS2SEG/Crimson/venv/bin/python3
+#!/Users/hanson/Documents/Crimson/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
