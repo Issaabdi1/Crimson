@@ -1,8 +1,9 @@
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.dispatch import receiver
 from libgravatar import Gravatar
-
+from django.db.models.signals import post_delete
 from task_manager.storage_backends import MediaStorage
 
 
@@ -54,3 +55,8 @@ class Upload(models.Model):
         """Model options."""
 
         ordering = ["uploaded_at"]
+
+
+@receiver(post_delete, sender=Upload)
+def remove_file_from_s3(sender, instance, **kwargs):
+    instance.file.delete(save=False)
