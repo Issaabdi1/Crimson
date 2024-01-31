@@ -11,7 +11,7 @@ from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, FileForm
 from tasks.helpers import login_prohibited
 from django.core.files.storage import FileSystemStorage
-from tasks.models import Upload
+from tasks.models import User, Upload, SharedFiles
 
 
 @login_required
@@ -50,6 +50,7 @@ def dashboard(request):
         else:
             form = FileForm()
     context['form'] = form
+    context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
     return render(request, 'dashboard.html', context)
 
 
@@ -58,6 +59,39 @@ def home(request):
     """Display the application's start/home screen."""
 
     return render(request, 'home.html')
+
+@login_required
+def share_file(request):
+    """Display form handling shared files"""
+    user = request.user
+    all_users = User.objects.all()
+    uploads = Upload.objects.filter(owner=user)
+
+    if request.method == 'POST':
+        file_id = request.POST.get('file-id')
+        user_id = request.POST.get('user-id')
+
+        if file_id is not None and user_id is not None:
+            shared_file = Upload.objects.get(id=file_id)
+            shared_user = User.objects.get(id=user_id)
+
+            SharedFiles.objects.create(
+                shared_file=shared_file.file,
+                shared_by=user,
+                shared_to=shared_user
+            )
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'File and user must be selected.')
+
+    if not uploads.exists():
+        messages.warning(request, 'You must upload a file before sharing.') 
+
+    context = {
+        'uploads': uploads,
+        'all_users': all_users,
+    }
+    return render(request, 'share_file.html', context)
 
 
 class LoginProhibitedMixin:
