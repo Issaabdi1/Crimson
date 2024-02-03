@@ -13,6 +13,16 @@ from tasks.helpers import login_prohibited
 from django.core.files.storage import FileSystemStorage
 from tasks.models import User, Upload, SharedFiles
 
+@login_required
+def shared_file_list(request):
+    """Display the current user's shared files."""
+
+    current_user = request.user
+    shared_files = SharedFiles.objects.filter(shared_to=current_user)
+    context = {'shared_files': shared_files,
+               'user': current_user,
+               }
+    return render(request, 'shared_file_list.html', context)
 
 @login_required
 def filelist(request):
@@ -74,7 +84,6 @@ def share_file(request):
         if file_id is not None and user_id is not None:
             shared_file = Upload.objects.get(id=file_id)
             shared_user = User.objects.get(id=user_id)
-
             SharedFiles.objects.create(
                 shared_file=shared_file.file,
                 shared_by=user,

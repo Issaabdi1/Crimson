@@ -2,14 +2,14 @@
 {% block content %}
     <div class="container-fluid">
         <div class="row">
-            {%include 'partials/sidebar.html' with in_my_files=True%}
+            {%include 'partials/sidebar.html' with in_shared_files=True%}
             <div class="col-sm p-3 min-vh-100">
                 <div class="col-12">
-                    <h1>My files:</h1>
+                    <h1>Shared files:</h1>
                     <ul>
-                        {% for upload in uploads %}
+                        {% for file in shared_files %}
                             <li>
-                                <a href="{{ upload.file.url }}">{{ upload.file.name }}</a>
+                                <a href="{{ file.shared_file.url }}">{{ file.shared_file.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>

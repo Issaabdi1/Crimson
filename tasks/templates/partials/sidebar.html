@@ -1,0 +1,27 @@
+<div class="col-sm-auto p-3 sticky-top">
+    <!-- A vertical navbar -->
+        <!-- Links -->
+        <ul class="nav flex-column nav-pills nav-fill">
+            <li class="nav-item">
+                {% if in_dashboard %}
+                    <a class="nav-link active text-center" aria-current="page" href="{% url 'dashboard' %}">Home</a>
+                {%else%}
+                    <a class="nav-link text-center" aria-current="page" href="{% url 'dashboard' %}">Home</a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
+                {% if in_my_files %}
+                    <a class="nav-link active text-center" aria-current="page" href="{% url 'filelist' %}">My Files</a>
+                {%else%}
+                    <a class="nav-link text-center" aria-current="page" href="{% url 'filelist' %}">My Files</a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
+                {% if in_shared_files %}
+                    <a class="nav-link active text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
+                {%else%}
+                    <a class="nav-link text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
+                {% endif %}
+            </li>
+        </ul>
+</div>
