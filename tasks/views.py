@@ -1,3 +1,4 @@
+from typing import Any
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -7,11 +8,30 @@ from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
+from django.views.generic import TemplateView
 from django.urls import reverse
 from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, FileForm
 from tasks.helpers import login_prohibited
 from django.core.files.storage import FileSystemStorage
-from tasks.models import User, Upload, SharedFiles
+from tasks.models import User, Upload, SharedFiles, Notification
+from datetime import datetime
+from django.http import HttpResponse
+
+
+@login_required
+def process_notification_delete(request):
+    """Processes a deletion of any notification"""
+    if request.method =="POST":
+        #delete the relevant notifications
+        data = request.POST['delete']
+        if data=="delete-all":
+            #delete all notifications of this user
+            Notification.objects.filter(user = request.user).delete()
+        else:
+            #delete
+            Notification.objects.filter(id=int(data)).delete()
+    return redirect(request.META['HTTP_REFERER'])
+    #don't return anything
 
 @login_required
 def shared_file_list(request):
@@ -19,8 +39,10 @@ def shared_file_list(request):
 
     current_user = request.user
     shared_files = SharedFiles.objects.filter(shared_to=current_user)
+    notifications = reversed(Notification.objects.filter(user = current_user))
     context = {'shared_files': shared_files,
                'user': current_user,
+               'notifications' : notifications,
                }
     return render(request, 'shared_file_list.html', context)
 
@@ -29,18 +51,22 @@ def filelist(request):
     """Display the current user's uploaded files."""
 
     current_user = request.user
+    notifications = reversed(Notification.objects.filter(user = current_user))
     uploads = Upload.objects.filter(owner=current_user)
     context = {'uploads': uploads,
                'user': current_user,
-               }
+               'notifications' : notifications,
+    }
+
     return render(request, 'filelist.html', context)
 
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
-
+    print(request.POST)
     current_user = request.user
     context = {'user': current_user}
+    notifications = reversed(Notification.objects.filter(user = current_user))
     form = FileForm()
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -61,6 +87,7 @@ def dashboard(request):
             form = FileForm()
     context['form'] = form
     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
+    context['notifications'] = notifications
     return render(request, 'dashboard.html', context)
 
 
@@ -84,10 +111,15 @@ def share_file(request):
         if file_id is not None and user_id is not None:
             shared_file = Upload.objects.get(id=file_id)
             shared_user = User.objects.get(id=user_id)
-            SharedFiles.objects.create(
+            shared_file_instance = SharedFiles.objects.create(
                 shared_file=shared_file.file,
                 shared_by=user,
                 shared_to=shared_user
+            )
+            Notification.objects.create(
+                shared_file_instance = shared_file_instance,
+                user = user,
+                time_of_notification = datetime.now()
             )
             return redirect('dashboard')
         else:
@@ -96,9 +128,11 @@ def share_file(request):
     if not uploads.exists():
         messages.warning(request, 'You must upload a file before sharing.') 
 
+    notifications = reversed(Notification.objects.filter(user = user))
     context = {
         'uploads': uploads,
         'all_users': all_users,
+        'notifications' : notifications,
     }
     return render(request, 'share_file.html', context)
 
@@ -174,6 +208,13 @@ class PasswordView(LoginRequiredMixin, FormView):
     template_name = 'password.html'
     form_class = PasswordForm
 
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        notifications = reversed(Notification.objects.filter(user = self.request.user))
+        context['notifications'] = notifications
+        return context    
+
+
     def get_form_kwargs(self, **kwargs):
         """Pass the current user to the password change form."""
 
@@ -206,6 +247,13 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         """Return the object (user) to be updated."""
         user = self.request.user
         return user
+    
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        notifications = reversed(Notification.objects.filter(user = self.request.user))
+        context['notifications'] = notifications
+        return context    
+    
 
     def get_success_url(self):
         """Return redirect URL after successful update."""

@@ -1,0 +1,59 @@
+<style>
+  .notification-card .col-md-1 .delete-button .btn-close {
+    visibility: hidden; 
+    opacity: 0;
+    transition: visibility 0s, opacity 0.1s linear;
+  }
+  .notification-card :hover > .col-md-1 .delete-button .btn-close { 
+    visibility:visible;
+    opacity: 1;
+  }
+</style>
+<!--The other sidebar for notifications-->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasRightLabel">Notifications</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    {%if notifications%}
+    <form action="{%url 'process_notification'%}" method="POST">
+      {%csrf_token%}
+      <div class="float-end p-2 ">
+        <button type="submit" name = "delete" value="delete-all" class="btn" data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
+          <span class="bi bi-bell p-1">        
+            Dismiss all
+          </span>
+        </button>
+      </div>
+    </form>
+    {%endif%}
+    <!--List of notifications-->
+    <div class="all-notifications mt-3">
+      {%for notification in notifications%}
+        <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
+          <div class="row g-0">
+              <div class="col-md-9 p-2">
+                  <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by}} shared a file with you</h5>
+                  <a href="{{notification.shared_file_instance.shared_file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.name}}</a>
+              </div>
+              <div class="col-md-2 mr-2">
+                  <p class="card-text"><small class="text-body-secondary" style="font-size:12px">{{notification.time_of_notification}}</small></p>
+              </div>
+              <div class="col-md-1 ">
+                <form action="{%url 'process_notification'%}" method="POST">
+                  {%csrf_token%}
+                  <div class="delete-button">
+                    <button type="submit" name = "delete" value="{{notification.id}}" class="btn btn-close" data-bs-toggle="alert" data-bs-target="#closeable-card" aria-label="Close">
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+          </div>
+        </div>
+      {%endfor%}
+
+    </div>
+  </div>
+</div>
