@@ -53,6 +53,11 @@ class UploadModelTestCase(TestCase):
                 f'https://mypdfbucket01.s3.amazonaws.com/media/{quote(upload.file.name)}'
             )
 
+    def test_uploaded_file_name(self):
+        """Test the file's name of the Upload model."""
+        for i in range(0, 3):
+            self.assertEqual(self.uploads[i].file.name, f'user_@johndoe/{self.mock_files[i].name}')
+
     def test_upload_delete(self):
         """Test that the upload delete will delete the file in the server"""
         self.skip_tear_down = True
