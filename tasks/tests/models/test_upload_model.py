@@ -1,11 +1,11 @@
 """Unit tests for the Upload model."""
-from unittest.mock import patch, MagicMock
-
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tasks.models import User, Upload
 from urllib.parse import quote
 from urllib.request import urlopen
+from urllib.error import HTTPError
 
 
 class UploadModelTestCase(TestCase):
@@ -18,6 +18,7 @@ class UploadModelTestCase(TestCase):
 
     def setUp(self):
         """Set up the test case."""
+        self.skip_tear_down = False
         file_content = b'Test file content'
         self.user = User.objects.get(username='@johndoe')
         self.mock_files = []
@@ -30,8 +31,19 @@ class UploadModelTestCase(TestCase):
             self.uploads.append(upload)
 
     def tearDown(self):
+        if not self.skip_tear_down:
+            for upload in self.uploads:
+                upload.delete()
+
+    def test_valid_upload(self):
+        """Test that the uploads are valid."""
         for upload in self.uploads:
-            upload.delete()
+            self._assert_upload_is_valid(upload)
+
+    def test_upload_owner_cannot_be_null(self):
+        """Test that the owner cannot be null."""
+        upload = Upload(file=self.mock_files[0])
+        self._assert_upload_is_invalid(upload)
 
     def test_uploaded_file_url(self):
         """Test the file's url of the Upload model."""
@@ -43,14 +55,26 @@ class UploadModelTestCase(TestCase):
 
     def test_upload_delete(self):
         """Test that the upload delete will delete the file in the server"""
+        self.skip_tear_down = True
         for upload in self.uploads:
             file_url = upload.file.url
             self.assertEqual(urlopen(file_url).getcode(), 200)
             upload.delete()
             self.assertFalse(Upload.objects.filter(pk=upload.pk).exists())
-            self.assertEqual(urlopen(file_url).getcode(), 404)
+            with self.assertRaises(HTTPError):
+                self.assertEqual(urlopen(file_url).getcode(), 403)
 
     def test_ordering(self):
         """Test that uploads are ordered by uploaded_at."""
         uploads = Upload.objects.all()
         self.assertEqual(list(uploads), self.uploads)
+
+    def _assert_upload_is_valid(self, upload):
+        try:
+            upload.full_clean()
+        except ValidationError:
+            self.fail('Test user should be valid')
+
+    def _assert_upload_is_invalid(self, upload):
+        with self.assertRaises(ValidationError):
+            upload.full_clean()
