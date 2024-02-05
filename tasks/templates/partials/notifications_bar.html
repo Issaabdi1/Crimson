@@ -16,17 +16,14 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    {%if notifications%}
-    <form action="{%url 'process_notification'%}" method="POST">
-      {%csrf_token%}
-      <div class="float-end p-2 ">
-        <button type="submit" name = "delete" value="delete-all" class="btn" data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
+    {%if notifications|length > 0%}
+      <div class="float-end p-2" id="dismiss-notifications">
+        <button type="submit" id="remove-notification" name = "delete" value="delete-all" class="btn" data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
           <span class="bi bi-bell p-1">        
             Dismiss all
           </span>
         </button>
       </div>
-    </form>
     {%endif%}
     <!--List of notifications-->
     <div class="all-notifications mt-3">
@@ -41,13 +38,10 @@
                   <p class="card-text"><small class="text-body-secondary" style="font-size:12px">{{notification.time_of_notification}}</small></p>
               </div>
               <div class="col-md-1 ">
-                <form action="{%url 'process_notification'%}" method="POST">
-                  {%csrf_token%}
-                  <div class="delete-button">
-                    <button type="submit" name = "delete" value="{{notification.id}}" class="btn btn-close" data-bs-toggle="alert" data-bs-target="#closeable-card" aria-label="Close">
-                    </button>
-                  </div>
-                </form>
+                <div class="delete-button">
+                  <button type="button" id="remove-notification" name = "delete" value="{{notification.id}}" class="btn btn-close" data-bs-dismiss="alert" data-bs-target="#closeable-card" aria-label="Close">
+                  </button>
+                </div>
               </div>
 
           </div>
@@ -57,3 +51,33 @@
     </div>
   </div>
 </div>
+
+<script>
+  function reload_notifications(id){
+    console.log("RELOAD");
+    console.log(id);
+    var parameters = "?notification_id=" + id;
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == XMLHttpRequest.DONE) {
+            var response = JSON.parse(xhttp.response);
+            if(response['notifications'].length <=0){
+              //disable dismiss all
+              var element = document.querySelector('#dismiss-notifications');
+              element.style.display = "none";
+            }
+        }
+    };
+    xhttp.open("GET", "{% url 'process_notification'%}" + parameters); 
+    xhttp.send();
+  }
+  const btns = document.querySelectorAll('#remove-notification');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', event => {
+        reload_notifications(btn.getAttribute("value"));
+    });
+
+  });
+  
+</script>

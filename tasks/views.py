@@ -15,12 +15,25 @@ from tasks.helpers import login_prohibited
 from django.core.files.storage import FileSystemStorage
 from tasks.models import User, Upload, SharedFiles, Notification
 from datetime import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.forms.models import model_to_dict
 
 
 @login_required
 def process_notification_delete(request):
     """Processes a deletion of any notification"""
+    notification_id = request.GET.get('notification_id')
+    if notification_id=="delete-all":
+            #delete all notifications of this user
+            Notification.objects.filter(user = request.user).delete()
+    elif notification_id is not None:
+        #delete
+        Notification.objects.filter(id=int(notification_id)).delete()
+    notifications = list(reversed(Notification.objects.filter(user = request.user)))
+    notifications = list(map(model_to_dict, notifications))
+    data = {'notifications': notifications}
+    return JsonResponse(data)
+    """
     if request.method =="POST":
         #delete the relevant notifications
         data = request.POST['delete']
@@ -32,6 +45,7 @@ def process_notification_delete(request):
             Notification.objects.filter(id=int(data)).delete()
     return redirect(request.META['HTTP_REFERER'])
     #don't return anything
+    """
 
 @login_required
 def shared_file_list(request):
@@ -39,7 +53,7 @@ def shared_file_list(request):
 
     current_user = request.user
     shared_files = SharedFiles.objects.filter(shared_to=current_user)
-    notifications = reversed(Notification.objects.filter(user = current_user))
+    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     context = {'shared_files': shared_files,
                'user': current_user,
                'notifications' : notifications,
@@ -51,7 +65,7 @@ def filelist(request):
     """Display the current user's uploaded files."""
 
     current_user = request.user
-    notifications = reversed(Notification.objects.filter(user = current_user))
+    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     uploads = Upload.objects.filter(owner=current_user)
     context = {'uploads': uploads,
                'user': current_user,
@@ -63,10 +77,9 @@ def filelist(request):
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
-    print(request.POST)
     current_user = request.user
     context = {'user': current_user}
-    notifications = reversed(Notification.objects.filter(user = current_user))
+    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     form = FileForm()
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -128,7 +141,7 @@ def share_file(request):
     if not uploads.exists():
         messages.warning(request, 'You must upload a file before sharing.') 
 
-    notifications = reversed(Notification.objects.filter(user = user))
+    notifications = list(reversed(Notification.objects.filter(user = user)))
     context = {
         'uploads': uploads,
         'all_users': all_users,
@@ -210,7 +223,7 @@ class PasswordView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
-        notifications = reversed(Notification.objects.filter(user = self.request.user))
+        notifications = list(reversed(Notification.objects.filter(user = self.request.user)))
         context['notifications'] = notifications
         return context    
 
@@ -250,7 +263,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
-        notifications = reversed(Notification.objects.filter(user = self.request.user))
+        notifications = list(reversed(Notification.objects.filter(user = self.request.user)))
         context['notifications'] = notifications
         return context    
     
