@@ -1,30 +1,29 @@
-# Team *enter team name here* Small Group project
+# Team _enter team name here_ Small Group project
 
 ## Team members
+
 The members of the team are:
-- *ISSA ABDI*
-- *SAMUEL CHILAKAMARI*
-- *SIMON HA*
-- *VINCENT HA*
-- *Ryan McAree*
-- *HILAL SAHIN*
-- *HONGYI TU*
-- *KAM HING HANSON ZHUANG*
+
+- _ISSA ABDI_
+- _SAMUEL CHILAKAMARI_
+- _SIMON HA_
+- _VINCENT HA_
+- _Ryan McAree_
+- _HILAL SAHIN_
+- _HONGYI TU_
+- _KAM HING HANSON ZHUANG_
 
 ## Project structure
-The project is called `task_manager`.  It currently consists of a single app `tasks`.
+
+The project is called `task_manager`. It currently consists of a single app `tasks`.
 
 ## Deployed version of the application
-The deployed version of the application can be found at [*enter url here*](*enter_url_here*).
 
-## Amazon S3 Bucket
-People can inspect the bucket via [here](https://aws.amazon.com)
-- Account ID: 975050003861
-- IAM user name: hanson
-- Password: ^VkC12-w
+The deployed version of the application can be found at [_enter url here_](*enter_url_here*).
 
 ## Installation instructions
-To install the software and use it in your local development environment, you must first set up and activate a local development environment.  From the root of the project:
+
+To install the software and use it in your local development environment, you must first set up and activate a local development environment. From the root of the project:
 
 ```
 $ virtualenv venv
@@ -48,9 +47,9 @@ Add the following environment variables to .env file and save:
 
 ```
 USE_S3=TRUE
-AWS_ACCESS_KEY_ID=AKIA6GBMCKWKVMOCFXG4
-AWS_SECRET_ACCESS_KEY=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
-AWS_STORAGE_BUCKET_NAME=mypdfbucket01
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_STORAGE_BUCKET_NAME=
 ```
 
 Migrate the database:
@@ -66,13 +65,22 @@ $ python3 manage.py seed
 ```
 
 Run all tests with:
+
 ```
 $ python3 manage.py test
 ```
 
-*The above instructions should work in your version of the application.  If there are deviations, declare those here in bold.  Otherwise, remove this line.*
+Run code coverage:
+
+```
+$ Python -m coverage run manage.py test
+$ coverage html
+```
+
+_The above instructions should work in your version of the application. If there are deviations, declare those here in bold. Otherwise, remove this line._
 
 ## Sources
+
 The packages used by this application are specified in `requirements.txt`
 
-*Declare are other sources here, and remove this line*
+_Declare are other sources here, and remove this line_
