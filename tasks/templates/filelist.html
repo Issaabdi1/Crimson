@@ -12,10 +12,12 @@
                                 <div class="card-body mb-2">
                                     <h5 class="card-title">{{ upload.file.name }}</h5>
                                     <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                                    <!--Placeholder functionality for now-->
+                                    <!--Placeholder for now-->
                                     <p class="card-text">Shared With: "Some people"</p>
                                     <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
                                     <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
+                                    
+                                    <!--Placeholder, doesn't delete PDF-->
                                     <a href="{{ upload.file.url }}" class="btn btn-primary">Delete PDF</a>
                                 </div>
                             </div>

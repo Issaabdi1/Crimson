@@ -2,7 +2,7 @@
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
 
-    <!--Placeholder input-->
+    <!--Lazy way of implementingit-->
     <input type="hidden" name="file-id" value="{{file_id}}">
 
     <div class="row">
