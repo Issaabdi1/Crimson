@@ -8,16 +8,49 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tasks.forms import LogInForm, PasswordForm, UserForm, SignUpForm, FileForm
 from tasks.helpers import login_prohibited
+from django.core.files.storage import FileSystemStorage
+from tasks.models import Upload
 
+
+@login_required
+def filelist(request):
+    """Display the current user's uploaded files."""
+
+    current_user = request.user
+    uploads = Upload.objects.filter(owner=current_user)
+    context = {'uploads': uploads,
+               'user': current_user,
+               }
+    return render(request, 'filelist.html', context)
 
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
+    context = {'user': current_user}
+    form = FileForm()
+    if request.method == 'POST':
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            media_file = request.FILES['file']
+            if settings.USE_S3:
+                upload = Upload(file=media_file, owner=current_user)
+                upload.save()
+                image_url = upload.file.url
+            else:
+                fs = FileSystemStorage()
+                filename = fs.save(media_file.name, media_file)
+                image_url = fs.url(filename)
+                upload = Upload(file=filename, owner=current_user)
+                upload.save()
+            context['image_url'] = image_url
+        else:
+            form = FileForm()
+    context['form'] = form
+    return render(request, 'dashboard.html', context)
 
 
 @login_prohibited

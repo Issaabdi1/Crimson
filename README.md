@@ -2,17 +2,26 @@
 
 ## Team members
 The members of the team are:
-- *enter full name 1 here*
-- *enter full name 2 here*
-- *enter full name 3 here*
-- *enter full name 4 here*
-- *enter full name 5 here*
+- *ISSA ABDI*
+- *SAMUEL CHILAKAMARI*
+- *SIMON HA*
+- *VINCENT HA*
+- *Ryan McAree*
+- *HILAL SAHIN*
+- *HONGYI TU*
+- *KAM HING HANSON ZHUANG*
 
 ## Project structure
 The project is called `task_manager`.  It currently consists of a single app `tasks`.
 
 ## Deployed version of the application
 The deployed version of the application can be found at [*enter url here*](*enter_url_here*).
+
+## Amazon S3 Bucket
+People can inspect the bucket via [here](https://aws.amazon.com)
+- Account ID: 975050003861
+- IAM user name: hanson
+- Password: ^VkC12-w
 
 ## Installation instructions
 To install the software and use it in your local development environment, you must first set up and activate a local development environment.  From the root of the project:
@@ -26,6 +35,22 @@ Install all required packages:
 
 ```
 $ pip3 install -r requirements.txt
+```
+
+Create and open .env file:
+
+```
+$ touch .env
+$ open .env
+```
+
+Add the following environment variables to .env file and save:
+
+```
+USE_S3=TRUE
+AWS_ACCESS_KEY_ID=AKIA6GBMCKWKVMOCFXG4
+AWS_SECRET_ACCESS_KEY=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
+AWS_STORAGE_BUCKET_NAME=mypdfbucket01
 ```
 
 Migrate the database:
