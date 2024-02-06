@@ -7,3 +7,5 @@ class SharedFiles(models.Model):
     shared_file = models.FileField(storage=MediaStorage())
     shared_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="by")
     shared_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="to")
+
+    # Share date = models.DateTimeField(auto_now_add=True)
