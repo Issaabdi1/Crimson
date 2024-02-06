@@ -27,5 +27,9 @@ urlpatterns = [
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
-    path('filelist/', views.filelist, name='filelist')
+    path('filelist/', views.filelist, name='filelist'),
+    path('shared_file_list/', views.shared_file_list, name='shared_file_list'),
+    path('share_file/', views.share_file, name='share_file'),
+    path('process_notification/', views.process_notification_delete, name='process_notification')
+
 ]
