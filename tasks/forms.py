@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
 from .models import User
 
+
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
 
@@ -109,8 +110,9 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         )
         return user
 
+
 class FileForm(forms.Form):
     file = forms.FileField(
         label='Select a file',
-        help_text='max. 50 megabytes'
+        help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
     )
