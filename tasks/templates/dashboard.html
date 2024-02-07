@@ -1,10 +1,12 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_without_message.html' %}
 {% block content %}
     <div class="container-fluid">
         <div class="row">
             {%include 'partials/sidebar.html' with in_dashboard=True%}
+
             <div class="col-sm p-3 min-vh-100">
                 <div class="col-12">
+                    {% include 'partials/messages.html' %}
                     <div class="row">
                         <div class="col-10">
                             <h1>Welcome to your dashboard {{ user.username }}</h1>
