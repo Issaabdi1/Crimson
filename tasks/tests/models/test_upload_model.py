@@ -45,6 +45,15 @@ class UploadModelTestCase(TestCase):
         upload = Upload(file=self.mock_files[0])
         self._assert_upload_is_invalid(upload)
 
+    def test_upload_file_must_not_be_extension_other_than_pdf(self):
+        """Test that the file cannot be other extension."""
+        upload_txt = Upload(owner=self.user, file=SimpleUploadedFile('test_file.txt', b'Test file content'))
+        upload_java = Upload(owner=self.user, file=SimpleUploadedFile('test_file.java', b'Test file content'))
+        upload_python = Upload(owner=self.user, file=SimpleUploadedFile('test_file.py', b'Test file content'))
+        self._assert_upload_is_invalid(upload_txt)
+        self._assert_upload_is_invalid(upload_java)
+        self._assert_upload_is_invalid(upload_python)
+
     def test_uploaded_file_url(self):
         """Test the file's url of the Upload model."""
         for upload in self.uploads:
