@@ -62,11 +62,11 @@ def home(request):
 
 @login_required
 def share_file(request):
-    """Display form handling shared files"""
+    """Display view handling shared files"""
     user = request.user
-    all_users = User.objects.all()
+    # all_users = User.objects.all()
+    all_users = User.objects.exclude(username=user.username)
     uploads = Upload.objects.filter(owner=user)
-
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
         user_id = request.POST.get('user-id')
@@ -74,19 +74,20 @@ def share_file(request):
         if file_id is not None and user_id is not None:
             shared_file = Upload.objects.get(id=file_id)
             shared_user = User.objects.get(id=user_id)
-
-            SharedFiles.objects.create(
-                shared_file=shared_file.file,
+            entry, created = SharedFiles.objects.get_or_create(
+                shared_file=shared_file,
                 shared_by=user,
-                shared_to=shared_user
             )
+            if (entry.shared_to.contains(shared_user)):
+                messages.error(request, 'User has already been shared this file.')
+                return redirect('share_file')
+            entry.shared_to.add(shared_user)
+            entry.save()
             return redirect('dashboard')
         else:
             messages.error(request, 'File and user must be selected.')
-
     if not uploads.exists():
-        messages.warning(request, 'You must upload a file before sharing.') 
-
+        messages.warning(request, 'You must upload a file before sharing.')
     context = {
         'uploads': uploads,
         'all_users': all_users,
