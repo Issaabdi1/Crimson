@@ -1,4 +1,4 @@
-# Team *enter team name here* Small Group project
+# Team Crimson Major Group project
 
 ## Team members
 The members of the team are:
@@ -15,7 +15,22 @@ The members of the team are:
 The project is called `task_manager`.  It currently consists of a single app `tasks`.
 
 ## Deployed version of the application
-The deployed version of the application can be found at [*enter url here*](*enter_url_here*).
+The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](*https://teamcrimson.pythonanywhere.com/*).
+
+## Instructions To access the python anywhere account
+*delete section when submitting*
+
+Login to PythonAnywhere
+```
+Username: TeamCrimson
+Password: UfbnDsjntpo
+```
+
+## Amazon S3 Bucket
+People can inspect the bucket via [here](https://aws.amazon.com)
+- Account ID: 975050003861
+- IAM user name: hanson
+- Password: ^VkC12-w
 
 ## Installation instructions
 To install the software and use it in your local development environment, you must first set up and activate a local development environment.  From the root of the project:

@@ -1,19 +1,10 @@
-{% extends 'base_content.html' %}
 {% block content %}
-<div class="container mt-3">
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
-    <div class="row">
-      <div class="col-12">
-        <select class="form-select" name="file-id">
-          <option selected disabled> Select file: </option>
-          {% for upload in uploads %}
-            <option value="{{ upload.id }}">{{ upload.file.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <br>
+
+    <!--Lazy way of implementingit-->
+    <input type="hidden" name="file-id" value="{{file_id}}">
+
     <div class="row">
       <div class="col-12">
         {% if uploads %}
@@ -41,30 +32,27 @@
       </div>
     </div>
   </form>
-</div>
 
 <script>
   document.getElementById('search').addEventListener('input', function () {
     const search = this.value.toLowerCase();
     const table = document.getElementById('filter');
     const rows = table.getElementsByTagName('tr');
+    console.log();
     for (const row of rows) {
       const username = row.cells[0].textContent;
       if (search.length >= 3) {
         if (username.includes(search)) {
           row.style.display = 'table-row';
-        } else {
+        } 
+        else {
           row.style.display = 'none';
         }
-      } else {
+      }
+      else {
         row.style.display = 'none';
       }
     }
   });
-  document.getElementById('search').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  })
 </script>
 {% endblock %}
