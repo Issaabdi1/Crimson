@@ -30,15 +30,7 @@ def dashboard(request):
                 except ValidationError as e:
                     messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
             else:
-                fs = FileSystemStorage()
-                filename = fs.save(media_file.name, media_file)
-                upload = Upload(file=filename, owner=current_user)
-                try:
-                    upload.full_clean()
-                    upload.save()
-                    image_url = upload.file.url
-                except ValidationError as e:
-                    messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
+                messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
         else:
             form = FileForm()
     if image_url:

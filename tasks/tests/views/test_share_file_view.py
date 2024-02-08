@@ -60,6 +60,7 @@ class ShareFileViewTestCase(TestCase):
         self.assertEqual(after_count, before_count + 1)
         response_url = reverse('dashboard')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        upload.delete()
     
     def test_unsuccessful_file_share_if_file_is_missing(self):
         upload = Upload.objects.create(
@@ -77,6 +78,7 @@ class ShareFileViewTestCase(TestCase):
         self.assertEqual(messages_list[0].level, messages.ERROR)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'share_file.html')
+        upload.delete()
     
     def test_unsuccessful_file_share_if_file_has_been_shared_already(self):
         # Simulate sharing a file first
@@ -97,3 +99,4 @@ class ShareFileViewTestCase(TestCase):
         self.assertEqual(messages_list[0].level, messages.ERROR)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'share_file.html')
+        upload.delete()
