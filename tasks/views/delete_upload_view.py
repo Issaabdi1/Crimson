@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from tasks.models import Upload
 
+
 @login_required
 def delete_upload(request, upload_id):
     if request.method == 'POST':
