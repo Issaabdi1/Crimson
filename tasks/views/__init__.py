@@ -6,3 +6,4 @@ from .mixins import *
 from .notification_view import *
 from .share_file_view import *
 from .static_views import *
+from .rename_upload_view import *
