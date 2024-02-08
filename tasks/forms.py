@@ -31,6 +31,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -41,7 +42,7 @@ class NewPasswordMixin(forms.Form):
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
                     'character and a number'
-            )]
+        )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
@@ -62,7 +63,7 @@ class PasswordForm(NewPasswordMixin):
 
     def __init__(self, user=None, **kwargs):
         """Construct new form instance with a user instance."""
-        
+
         super().__init__(**kwargs)
         self.user = user
 
@@ -116,3 +117,7 @@ class FileForm(forms.Form):
         label='Select a file',
         help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
     )
+
+
+class RenameForm(forms.Form):
+    new_name = forms.CharField(label='New file name')
