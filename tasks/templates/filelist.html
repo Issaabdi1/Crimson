@@ -25,12 +25,8 @@
                                     </form>
                                         <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
                                         <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>
-                                        <form action="{% url 'delete_upload' upload.id %}" method="post">
-                                            {% csrf_token %}
-                                            <button type="button" class="btn btn-info" onclick="showRenameField(this);"><i class="bi bi-pencil"></i>Rename</button>
-                                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Remove</button>
-                                        </form>
-                                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;">
+                                        <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
+                                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
                                         {% csrf_token %}
                                             <label>
                                                 <input type="text" name="new_name" placeholder="New file name" required>
@@ -61,41 +57,54 @@
     {% endfor %}
 
 <script>
-    function showRenameField(button)
-    {
-        button.style.display = 'none';
-        const renameForm = button.parentElement.nextElementSibling;
-        renameForm.style.display = 'block';
-        renameForm.querySelector('input[name="new_name"]').focus();
+    function showRenameField(button) {
+    if (button) {
+        const renameForm = button.nextElementSibling;
+        if (renameForm && renameForm.classList.contains('rename-form')) {
+            button.style.display = 'none';
+            renameForm.style.display = 'block';
+            const inputField = renameForm.querySelector('input[name="new_name"]');
+            if (inputField) {
+                inputField.focus();
+            } else {
+                console.error("Input field not found in the rename form.");
+            }
+        } else {
+            console.error("Rename form not found or incorrect structure.");
+        }
+    } else {
+        console.error("Button element is null or undefined.");
     }
+}
 
-    function hideRenameField(button)
-    {
-        const cardBody = button.parentElement.parentElement;
+    function hideRenameField(button) {
         const renameForm = button.parentElement;
-        const renameButton = cardBody.querySelector('.btn-info');
+        const uploadId = renameForm.getAttribute('data-upload-id');
+        const renameButton = document.querySelector(`#renameButton_${uploadId}`);
 
-        renameForm.style.display = 'none';
-        renameButton.style.display = 'inline-block';
+        if (renameButton) {
+            renameForm.style.display = 'none';
+            renameButton.style.display = 'inline-block';
+        } else {
+            console.error("Unable to find the Rename button.");
+        }
     }
 
-    function confirmRename(form)
-    {
+
+
+     function confirmRename(form) {
         const cardTitle = form.parentElement.querySelector('.card-title');
-        if (cardTitle)
-        {
+        if (cardTitle) {
             const currentName = cardTitle.textContent.trim();
             const newName = form.new_name.value.trim();
-            if (newName && newName !== currentName)
-            {
+            if (newName && newName !== currentName) {
                 form.submit();
-            } else
-
-            {
+            } else if (newName === currentName) {
                 alert("The new name must be different from the current name.");
+            } else {
+                alert("The new name cannot be empty.");
             }
-        } else
-        {
+        } else {
             console.error("Unable to find .card-title element");
         }
     }
