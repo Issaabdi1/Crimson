@@ -9,7 +9,10 @@
     opacity: 1;
   }
 </style>
-
+{%load static%}
+<!--Get notifications from custom tag-->
+{% load notification_tags %}
+{% get_notifications user as notifications %}
 <!--The other sidebar for notifications-->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
   <div class="offcanvas-header">
@@ -53,32 +56,5 @@
   </div>
 </div>
 
-<script>
-  function reload_notifications(id){
-    console.log("RELOAD");
-    console.log(id);
-    var parameters = "?notification_id=" + id;
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == XMLHttpRequest.DONE) {
-            var response = JSON.parse(xhttp.response);
-            if(response['notifications'].length <=0){
-              //disable dismiss all
-              var element = document.querySelector('#dismiss-notifications');
-              element.style.display = "none";
-            }
-        }
-    };
-    xhttp.open("GET", "{% url 'process_notification'%}" + parameters); 
-    xhttp.send();
-  }
-  const btns = document.querySelectorAll('#remove-notification');
-
-  btns.forEach(btn => {
-    btn.addEventListener('click', event => {
-        reload_notifications(btn.getAttribute("value"));
-    });
-
-  });
-  
-</script>
+<!--JavaScript to delete the notifications when their delete button is pressed-->
+<script src="{% static 'js/process_notification.js'%}"></script>

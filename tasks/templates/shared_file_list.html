@@ -1,28 +1,21 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            {%include 'partials/sidebar.html' with in_shared_files=True%}
-            <div class="col-sm p-3 min-vh-100">
-                <div class="col-12 p-2">
-                    <h1>Shared files:</h1>
-                    {% for file in shared_files %}
-                    <div class="col-lg-4 mb-4">
-                        <div class="card">
-                            <div class="card-body mb-2">
-                                <h5 class="card-title">{{ file.shared_file.name }}</h5>
-                                <p class="card-text">Shared By: {{ file.shared_by}}</p>
-                                <p class="card-text">Share Date: {{ file.share_date }}</p>
-                                <a href="{{ file.shared_file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+<div class="col-12 p-2">
+    <h1>Shared files:</h1>
+    {% for file in shared_files %}
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body mb-2">
+                <h5 class="card-title">{{ file.shared_file.name }}</h5>
+                <p class="card-text">Shared By: {{ file.shared_by}}</p>
+                <p class="card-text">Share Date: {{ file.share_date }}</p>
+                <a href="{{ file.shared_file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
 
-                                <!--Placeholder functionality for now, doesn't Remove PDF-->
-                                <a href="{{ upload.file.url }}" class="btn btn-primary">Remove PDF</a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                <!--Placeholder functionality for now, doesn't Remove PDF-->
+                <a href="{{ upload.file.url }}" class="btn btn-primary">Remove PDF</a>
             </div>
         </div>
     </div>
+    {% endfor %}
+</div>
 {% endblock %}

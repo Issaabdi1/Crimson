@@ -23,29 +23,17 @@ from django.forms.models import model_to_dict
 def process_notification_delete(request):
     """Processes a deletion of any notification"""
     notification_id = request.GET.get('notification_id')
+    #If the string passed in is delete-all, delete all notifications. 
+    #Otherwise, use the string as an id for a specific notification to delete
     if notification_id=="delete-all":
-            #delete all notifications of this user
-            Notification.objects.filter(user = request.user).delete()
+        Notification.objects.filter(user = request.user).delete()
     elif notification_id is not None:
-        #delete
         Notification.objects.filter(id=int(notification_id)).delete()
+    #Convert the notifications from a list of models to a dictionary so JSON can handle it
     notifications = list(reversed(Notification.objects.filter(user = request.user)))
     notifications = list(map(model_to_dict, notifications))
     data = {'notifications': notifications}
     return JsonResponse(data)
-    """
-    if request.method =="POST":
-        #delete the relevant notifications
-        data = request.POST['delete']
-        if data=="delete-all":
-            #delete all notifications of this user
-            Notification.objects.filter(user = request.user).delete()
-        else:
-            #delete
-            Notification.objects.filter(id=int(data)).delete()
-    return redirect(request.META['HTTP_REFERER'])
-    #don't return anything
-    """
 
 @login_required
 def shared_file_list(request):
@@ -53,10 +41,8 @@ def shared_file_list(request):
 
     current_user = request.user
     shared_files = SharedFiles.objects.filter(shared_to=current_user)
-    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     context = {'shared_files': shared_files,
                'user': current_user,
-               'notifications' : notifications,
                }
     return render(request, 'shared_file_list.html', context)
 
@@ -66,12 +52,10 @@ def filelist(request):
 
     current_user = request.user
     all_users = User.objects.all()
-    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     uploads = Upload.objects.filter(owner=current_user)
     context = {'uploads': uploads,
                'user': current_user,
                "all_users": all_users,
-               'notifications' : notifications,
     }
 
     return render(request, 'filelist.html', context)
@@ -81,7 +65,6 @@ def dashboard(request):
     """Display the current user's dashboard."""
     current_user = request.user
     context = {'user': current_user}
-    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     form = FileForm()
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -102,7 +85,6 @@ def dashboard(request):
             form = FileForm()
     context['form'] = form
     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
-    context['notifications'] = notifications
     return render(request, 'dashboard.html', context)
 
 
@@ -131,6 +113,7 @@ def share_file(request):
                 shared_by=user,
                 shared_to=shared_user
             )
+            #File shared, so create a notification for this shared action
             Notification.objects.create(
                 shared_file_instance = shared_file_instance,
                 user = user,
@@ -143,11 +126,9 @@ def share_file(request):
     if not uploads.exists():
         messages.warning(request, 'You must upload a file before sharing.') 
 
-    notifications = list(reversed(Notification.objects.filter(user = user)))
     context = {
         'uploads': uploads,
         'all_users': all_users,
-        'notifications' : notifications,
     }
     return render(request, 'share_file.html', context)
 
@@ -223,13 +204,6 @@ class PasswordView(LoginRequiredMixin, FormView):
     template_name = 'password.html'
     form_class = PasswordForm
 
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        notifications = list(reversed(Notification.objects.filter(user = self.request.user)))
-        context['notifications'] = notifications
-        return context    
-
-
     def get_form_kwargs(self, **kwargs):
         """Pass the current user to the password change form."""
 
@@ -262,13 +236,6 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         """Return the object (user) to be updated."""
         user = self.request.user
         return user
-    
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        notifications = list(reversed(Notification.objects.filter(user = self.request.user)))
-        context['notifications'] = notifications
-        return context    
-    
 
     def get_success_url(self):
         """Return redirect URL after successful update."""

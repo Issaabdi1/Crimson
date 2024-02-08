@@ -1,44 +1,37 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            {%include 'partials/sidebar.html' with in_my_files=True%}
-            <div class="col-sm p-3 min-vh-100">
-                <div class="col-12 p-2">
-                    <h1>My files:</h1>
-                    {% for upload in uploads %}
-                        <div class="col-lg-4 mb-4">
-                            <div class="card">
-                                <div class="card-body mb-2">
-                                    <h5 class="card-title">{{ upload.file.name }}</h5>
-                                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                                    <!--Placeholder for now-->
-                                    <p class="card-text">Shared With: "Some people"</p>
-                                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
-                                    
-                                    <!--Placeholder, doesn't delete PDF-->
-                                    <a href="{{ upload.file.url }}" class="btn btn-primary">Delete PDF</a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+<div class="col-12 p-2">
+    <h1>My files:</h1>
+    {% for upload in uploads %}
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body mb-2">
+                    <h5 class="card-title">{{ upload.file.name }}</h5>
+                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
+                    <!--Placeholder for now-->
+                    <p class="card-text">Shared With: "Some people"</p>
+                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
+                    
+                    <!--Placeholder, doesn't delete PDF-->
+                    <a href="{{ upload.file.url }}" class="btn btn-primary">Delete PDF</a>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!--Really bad implementation of this-->
-    {% for upload in uploads %}
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}" aria-labelledby="sharePDFPopup{{ upload.id }}">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Share PDF</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            {% include 'partials/share_file_popup.html' with file_id=upload.id %}
-        </div>
-    </div>
     {% endfor %}
+</div>
+
+<!--Really bad implementation of this-->
+{% for upload in uploads %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}" aria-labelledby="sharePDFPopup{{ upload.id }}">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Share PDF</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% include 'partials/share_file_popup.html' with file_id=upload.id %}
+    </div>
+</div>
+{% endfor %}
 
 {% endblock %}
