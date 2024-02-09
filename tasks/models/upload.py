@@ -28,3 +28,12 @@ class Upload(models.Model):
         storage.save(new_file_name, self.file)
         self.file.name = new_file_name
         self.save()
+    
+
+    def get_shared_users(self):
+        """Returns a query set of all the users who have been shared this file"""
+        
+        if self.sharedfiles_set.exists():
+            return self.sharedfiles_set.all()[0].shared_to.all()
+        else:
+            return None

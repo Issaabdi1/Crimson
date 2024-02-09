@@ -15,7 +15,6 @@ def dashboard(request):
     current_user = request.user
     image_url = None
     context = {'user': current_user}
-    notifications = list(reversed(Notification.objects.filter(user = current_user)))
     form = FileForm()
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
@@ -45,5 +44,4 @@ def dashboard(request):
         context['image_url'] = image_url
     context['form'] = form
     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
-    context['notifications'] = notifications
     return render(request, 'dashboard.html', context)

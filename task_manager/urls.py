@@ -20,6 +20,7 @@ from tasks import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('test/', views.test, name="test"), #This is a test url for now, should probably change this so only super users can see it
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('log_in/', views.LogInView.as_view(), name='log_in'),
@@ -32,6 +33,6 @@ urlpatterns = [
     path('share_file/', views.share_file, name='share_file'),
     path('process_notification/', views.process_notification_delete, name='process_notification'),
     path('delete_upload/<int:upload_id>', views.delete_upload, name='delete_upload'),
-    path('delete/<int:upload_id>/', views.delete_upload, name='delete_upload'),
     path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
+
 ]
