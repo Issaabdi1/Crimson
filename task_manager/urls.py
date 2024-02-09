@@ -33,5 +33,5 @@ urlpatterns = [
     path('process_notification/', views.process_notification_delete, name='process_notification'),
     path('delete_upload/<int:upload_id>', views.delete_upload, name='delete_upload'),
     path('delete/<int:upload_id>/', views.delete_upload, name='delete_upload'),
-    path('filelist/rename/<int:upload_id>', views.rename_upload, name='rename_upload'),
+    path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
 ]

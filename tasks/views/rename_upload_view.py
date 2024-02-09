@@ -1,17 +1,10 @@
 # rename_upload_view.py
-import os
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, get_object_or_404
-from task_manager.storage_backends import MediaStorage
-from tasks.models import Upload
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from tasks.models import Upload
 
 
-def rename_upload(request, upload_id):
+def rename_upload_view(request, upload_id):
     if request.method == 'POST':
         new_name = request.POST.get('new_name')
         upload = Upload.objects.get(id=upload_id)
@@ -22,7 +15,6 @@ def rename_upload(request, upload_id):
             if existing_upload:
                 messages.error(request, "File with this name already exists.")
             else:
-                # Rename the file
                 try:
                     upload.rename_file(new_name)
                     messages.success(request, "File renamed successfully.")
