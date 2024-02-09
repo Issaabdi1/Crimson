@@ -2,7 +2,7 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
-from tasks.models import User, SharedFiles
+from tasks.models import User, SharedFiles, Upload
 
 class SharedFilesViewTestCase(TestCase):
     """Tests of the shared files view."""
@@ -16,9 +16,11 @@ class SharedFilesViewTestCase(TestCase):
         second_user = User.objects.get(username="@janedoe")
         file_content = b'Test file content'
         mock_file = SimpleUploadedFile(f'test_file.pdf', file_content)
-        self.shared_file = SharedFiles.objects.create(shared_file= mock_file, shared_by = second_user, shared_to = self.user)
+        upload = Upload.objects.create(owner=self.user, file=mock_file)
+        self.shared_file = SharedFiles.objects.create(shared_file= upload, shared_by = second_user)
+        self.shared_file.shared_to.add(self.user)
 
-    def test_home_url(self):
+    def test_shared_files_url(self):
         self.assertEqual(self.url,'/shared_file_list/')
 
     def test_get_shared_files(self):
@@ -27,6 +29,7 @@ class SharedFilesViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'shared_file_list.html')
 
     def test_shared_files_passed_in(self):
+        """Test that the list of shared files passed to the template is correct"""
         response = self.client.get(self.url, follow=True)
         user = response.context['user']
         self.assertEqual(self.user, user) 

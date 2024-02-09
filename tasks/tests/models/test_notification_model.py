@@ -2,7 +2,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from tasks.models import User, Notification, SharedFiles
+from tasks.models import User, Notification, SharedFiles, Upload
 from datetime import datetime 
 
 class NotificationModelTestCase(TestCase):
@@ -13,14 +13,17 @@ class NotificationModelTestCase(TestCase):
         'tasks/tests/fixtures/other_users.json'
     ]
 
-
     def setUp(self):
+        """Creates a notification from sharing a file from the second user to the first"""
         self.user = User.objects.get(username='@johndoe')
         second_user = User.objects.get(username="@janedoe")
         file_content = b'Test file content'
         mock_file = SimpleUploadedFile(f'test_file.pdf', file_content)
-        shared_file = SharedFiles.objects.create(shared_file= mock_file, shared_by = second_user, shared_to = self.user)
+        self.upload = Upload.objects.create(owner=self.user, file=mock_file)
+        shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = second_user)
+        shared_file.shared_to.add(self.user)
         self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
+
 
     def test_valid_notification(self):
         self._assert_notification_is_valid()
