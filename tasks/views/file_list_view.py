@@ -1,7 +1,7 @@
 """file list view"""
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from tasks.models import User, Upload, Notification
+from tasks.models import User, Upload, Notification, SharedFiles
 
 
 @login_required
@@ -12,6 +12,7 @@ def filelist(request):
     all_users = User.objects.exclude(username=current_user.username)
     notifications = list(reversed(Notification.objects.filter(user = current_user)))
     uploads = Upload.objects.filter(owner=current_user)
+
     context = {'uploads': uploads,
                'user': current_user,
                "all_users": all_users,

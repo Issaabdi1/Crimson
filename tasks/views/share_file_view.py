@@ -46,6 +46,7 @@ def share_file(request):
             if (entry.shared_to.contains(shared_user)):
                 messages.error(request, 'User has already been shared this file.')
                 return redirect('share_file')
+            
             entry.shared_to.add(shared_user)
             entry.save()
             return redirect('dashboard')
