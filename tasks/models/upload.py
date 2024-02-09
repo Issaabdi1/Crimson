@@ -21,3 +21,10 @@ class Upload(models.Model):
         """Model options."""
 
         ordering = ["uploaded_at"]
+
+    def rename_file(self, new_name):
+        storage = self.file.storage
+        new_file_name = f'user_{self.owner.username}/{new_name}'
+        storage.save(new_file_name, self.file)
+        self.file.name = new_file_name
+        self.save()
