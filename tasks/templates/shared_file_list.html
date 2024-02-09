@@ -6,12 +6,12 @@
     <div class="col-lg-4 mb-4">
         <div class="card">
             <div class="card-body mb-2">
-                <h5 class="card-title">{{ file.shared_file.name }}</h5>
-                <p class="card-text">Shared By: {{ file.shared_by}}</p>
-                <p class="card-text">Share Date: {{ file.share_date }}</p>
-                <a href="{{ file.shared_file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                <h5 class="card-title">{{ file.shared_file.file.name }}</h5>
+                <p class="card-text">Shared By: {{ file.shared_by}} </p>
+                <p class="card-text">Share Date: {{ file.shared_date }} </p>
+                <a href="{{ file.shared_file.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
 
-                <!--Placeholder functionality for now, doesn't Remove PDF-->
+                <!--Placeholder functionality for now, doesn't Remove PDF from Share List-->
                 <a href="{{ upload.file.url }}" class="btn btn-primary">Remove PDF</a>
             </div>
         </div>

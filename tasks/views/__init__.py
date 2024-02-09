@@ -1,6 +1,7 @@
 from .account_views import *
 from .authentication_views import *
 from .dashboard_view import *
+from .delete_upload_view import *
 from .file_list_view import *
 from .mixins import *
 from .notification_view import *
