@@ -17,12 +17,6 @@ class PasswordView(LoginRequiredMixin, FormView):
     template_name = 'password.html'
     form_class = PasswordForm
 
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        notifications = list(reversed(Notification.objects.filter(user=self.request.user)))
-        context['notifications'] = notifications
-        return context
-
     def get_form_kwargs(self, **kwargs):
         """Pass the current user to the password change form."""
 
@@ -55,12 +49,6 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         """Return the object (user) to be updated."""
         user = self.request.user
         return user
-
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        notifications = list(reversed(Notification.objects.filter(user=self.request.user)))
-        context['notifications'] = notifications
-        return context
 
     def get_success_url(self):
         """Return redirect URL after successful update."""

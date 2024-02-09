@@ -50,7 +50,7 @@ class SharedFilesModelTestCase(TestCase):
             shared_file=self.upload,
             shared_by=self.user
         )
-        self.assertAlmostEqual(second_share.date, timezone.now(), delta=timedelta(seconds=1))
+        self.assertAlmostEqual(second_share.shared_date, timezone.now(), delta=timedelta(seconds=1))
 
     def _assert_share_is_valid(self):
         try:

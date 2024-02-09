@@ -9,6 +9,12 @@
     opacity: 1;
   }
 </style>
+{%load static%}
+<!--Get notifications from custom tag only if user is logged in-->
+{%if user.is_authenticated%}
+{% load notification_tags %}
+{% get_notifications user as notifications %}
+{%endif%}
 
 <!--The other sidebar for notifications-->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -32,8 +38,8 @@
         <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
           <div class="row g-0">
               <div class="col-md-9 p-2">
-                  <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by}} shared a file with you</h5>
-                  <a href="{{notification.shared_file_instance.shared_file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.name}}</a>
+                  <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by.username}} shared a file with you</h5>
+                  <a href="{{notification.shared_file_instance.shared_file.file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.file.name}}</a>
               </div>
               <div class="col-md-2 mr-2">
                   <p class="card-text"><small class="text-body-secondary" style="font-size:12px">{{notification.time_of_notification}}</small></p>
@@ -53,32 +59,5 @@
   </div>
 </div>
 
-<script>
-  function reload_notifications(id){
-    console.log("RELOAD");
-    console.log(id);
-    var parameters = "?notification_id=" + id;
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == XMLHttpRequest.DONE) {
-            var response = JSON.parse(xhttp.response);
-            if(response['notifications'].length <=0){
-              //disable dismiss all
-              var element = document.querySelector('#dismiss-notifications');
-              element.style.display = "none";
-            }
-        }
-    };
-    xhttp.open("GET", "{% url 'process_notification'%}" + parameters); 
-    xhttp.send();
-  }
-  const btns = document.querySelectorAll('#remove-notification');
-
-  btns.forEach(btn => {
-    btn.addEventListener('click', event => {
-        reload_notifications(btn.getAttribute("value"));
-    });
-
-  });
-  
-</script>
+<!--JavaScript to delete the notifications when their delete button is pressed-->
+<script src="{% static 'js/process_notification.js'%}"></script>
