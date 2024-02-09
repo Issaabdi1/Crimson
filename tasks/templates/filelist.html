@@ -15,24 +15,17 @@
                                     <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
                                     <!--Placeholder for now-->
                                     <p class="card-text">Shared With: "Some people"</p>
-                                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
-                                    
-                                    <!--Placeholder, doesn't delete PDF-->
-                                    <form action="{% url 'delete_upload' upload.id %}" method="post">
+                                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>
+                                        <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
+                                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Remove</button>
-                                    </form>
-
-                                    <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
-                                    <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
-                                        {% csrf_token %}
-                                        <label>
-                                            <input type="text" name="new_name" placeholder="New file name" required>
-                                        </label>
-                                        <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
-                                        <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
-                                    </form>
+                                            <label>
+                                                <input type="text" name="new_name" placeholder="New file name" required>
+                                            </label>
+                                            <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
+                                            <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
+                                        </form>
                                 </div>
                             </div>
                         </div>
