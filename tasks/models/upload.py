@@ -14,7 +14,7 @@ class Upload(models.Model):
                             upload_to=user_directory_path,
                             validators=[FileExtensionValidator(allowed_extensions=['pdf'],
                                                                message='Only files with the extension .pdf are supported.')]
-                        )
+                            )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
 
     class Meta:
@@ -28,11 +28,10 @@ class Upload(models.Model):
         storage.save(new_file_name, self.file)
         self.file.name = new_file_name
         self.save()
-    
 
     def get_shared_users(self):
         """Returns a query set of all the users who have been shared this file"""
-        
+
         if self.sharedfiles_set.exists():
             return self.sharedfiles_set.all()[0].shared_to.all()
         else:
