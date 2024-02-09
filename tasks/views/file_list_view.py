@@ -9,7 +9,7 @@ def filelist(request):
     """Display the current user's uploaded files."""
 
     current_user = request.user
-    all_users = User.objects.all()
+    all_users = User.objects.exclude(username=current_user.username)
     notifications = list(reversed(Notification.objects.filter(user = current_user)))
     uploads = Upload.objects.filter(owner=current_user)
     context = {'uploads': uploads,

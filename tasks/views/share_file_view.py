@@ -23,7 +23,6 @@ def shared_file_list(request):
 def share_file(request):
     """Display view handling shared files"""
     user = request.user
-    # all_users = User.objects.all()
     all_users = User.objects.exclude(username=user.username)
     uploads = Upload.objects.filter(owner=user)
     if request.method == 'POST':

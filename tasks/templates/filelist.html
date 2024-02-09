@@ -18,7 +18,7 @@
                                     <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
                                     
                                     <!--Placeholder, doesn't delete PDF-->
-                                    <a href="{{ upload.file.url }}" class="btn btn-primary">Delete PDF</a>
+                                    <a href="{% url 'delete_pdf' %}" class="btn btn-primary">Delete PDF</a>
                                 </div>
                             </div>
                         </div>
