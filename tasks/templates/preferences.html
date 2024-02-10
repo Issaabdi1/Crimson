@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Other meta tags, title, etc. -->
+
+    <!-- Link to custom.css for dark mode styles -->
+    <link href="{% static 'custom.css' %}" rel="stylesheet">
+</head>
+
+<body class="{% if dark_mode_preference == 'on' %}dark-mode{% endif %}">
+    <h1>Preferences</h1>
+    <form method="post">
+        {% csrf_token %}
+        <h2>Appearance</h2>
+        <label for="dark_mode">Dark Mode</label>
+        <input type="checkbox" id="dark_mode" name="dark_mode" {% if dark_mode_preference == 'on' %}checked{% endif %}>
+        <input type="submit" value="Save Preferences">
+    </form>
+</body>
+</html>

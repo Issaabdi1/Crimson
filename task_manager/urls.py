@@ -27,6 +27,7 @@ urlpatterns = [
     path('log_out/', views.log_out, name='log_out'),
     path('password/', views.PasswordView.as_view(), name='password'),
     path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
+    path('preferences/', views.preferences_view, name='preferences'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('filelist/', views.filelist, name='filelist'),
     path('shared_file_list/', views.shared_file_list, name='shared_file_list'),

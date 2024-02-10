@@ -113,3 +113,24 @@ h3.profile-title {
   text-decoration: underline;
   color: #0d6efd;
 }
+
+/* Dark mode body background color and text color */
+.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Example of adjusting hyperlink colors in dark mode */
+.dark-mode a {
+  color: #4d94ff; /* A lighter blue color for links in dark mode */
+}
+.dark-mode a:hover {
+  text-decoration: underline;
+  color: #8ac6ff; /* A lighter blue color for links on hover in dark mode */
+}
+
+/* Example of adjusting the cover card background for dark mode */
+.dark-mode .cover-card {
+  background-color: rgba(0, 0, 0, 0.6);  /* Adjust the cover card background for dark mode */
+}
+
