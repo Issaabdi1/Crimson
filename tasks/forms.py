@@ -123,3 +123,8 @@ class CreateTeamForm(forms.ModelForm):
 
         model = Team
         fields = ['name']
+
+
+class AddUserToTeamForm(forms.Form):
+    """Form for adding User to a team"""
+    username = forms.CharField(label='Username')

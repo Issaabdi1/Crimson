@@ -1,0 +1,93 @@
+<style>
+    .popup-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .popup {
+        border-radius: 25px;
+        border: 2px solid white;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        cursor: pointer;
+    }
+</style>
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="col-12 p-2">
+        <div class="row justify-content-around">
+            <div class="col-2">
+                <h1>{{ team.name }}</h1>
+            </div>
+
+            <div class="col-3">
+                <button id="InvitePopup" class="btn btn-primary mt-2">Invite User</button>
+                <a class="btn btn-primary mt-2" href="#" style="margin-left: 15px">Share File</a>
+                <div id="popupContainer" class="popup-container">
+                    <div id="popupForm" class="popup text-center">
+                        <span id="closePopup" class="close-btn">&times;</span>
+                        <form action="{% url 'team_detail' team_id=team.id %}" method="post" >
+                            <h2 class="mb-3">Invite User</h2>
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <input type="submit" class="btn btn-primary mt-3" value="Invite">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container py-5">
+            <h2>Members:</h2>
+            <ul>
+                {% for member in members %}
+                    <li>
+                        <p>{{ member.username }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="container py-5">
+            <h2>Shared Files:</h2>
+            {% if shared_uploads.count > 0 %}
+                <ul>
+                    {% for upload in shared_uploads %}
+                        <li>
+                            <a href="{{ upload.file.url }}">upload.file.name</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="margin-left: 30px">There is no shared files so far</p>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        document.getElementById("InvitePopup").addEventListener("click", function () {
+            document.getElementById("popupContainer").style.display = "block";
+        });
+
+        document.getElementById("closePopup").addEventListener("click", function () {
+            document.getElementById("popupContainer").style.display = "none";
+        });
+    </script>
+{% endblock %}
