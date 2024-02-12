@@ -2,6 +2,8 @@ from django.db import models
 from .user import User
 from task_manager.storage_backends import MediaStorage
 from django.core.validators import FileExtensionValidator
+from django.core.files.base import ContentFile
+import os
 
 
 def user_directory_path(instance, filename):
@@ -24,9 +26,20 @@ class Upload(models.Model):
 
     def rename_file(self, new_name):
         storage = self.file.storage
-        new_file_name = f'user_{self.owner.username}/{new_name}'
-        storage.save(new_file_name, self.file)
-        self.file.name = new_file_name
+
+        with storage.open(self.file.name) as f:
+            content = f.read()
+
+        current_path, current_filename = os.path.split(self.file.name)
+        new_filename, current_extension = os.path.splitext(current_filename)
+
+        new_filename = new_name + current_extension
+        new_path = os.path.join(current_path, new_filename)
+
+        new_file = ContentFile(content)
+        storage.save(new_path, new_file)
+
+        self.file.name = new_path
         self.save()
 
     def get_shared_users(self):

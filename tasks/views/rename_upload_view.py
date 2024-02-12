@@ -11,7 +11,7 @@ def rename_upload_view(request, upload_id):
         current_name = upload.file.name.split('/')[-1]
 
         if new_name != current_name:
-            existing_upload = Upload.objects.filter(file=new_name).first()
+            existing_upload = Upload.objects.filter(file__endswith=new_name).first()
             if existing_upload:
                 messages.error(request, "File with this name already exists.")
             else:
