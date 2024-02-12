@@ -19,7 +19,7 @@ class DashboardViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.get(username='@johndoe')
         self.url = reverse('dashboard')
-        mock_file = SimpleUploadedFile(f'test_file.pdf', b'file_content')
+        mock_file = SimpleUploadedFile(f'test_dashboard_view_file.pdf', b'file_content')
         self.form_input = {
             'file': mock_file
         }
@@ -48,7 +48,7 @@ class DashboardViewTest(TestCase):
         self.assertEqual(after_count, before_count+1)
         self.assertTemplateUsed(response, 'dashboard.html')
         upload_file = Upload.objects.first()
-        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_file.pdf')
+        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_dashboard_view_file.pdf')
         self.assertEqual(upload_file.owner, self.user)
         upload_file.delete()
 

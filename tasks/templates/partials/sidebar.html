@@ -22,6 +22,13 @@
                 {% endif %}
             </li>
             <li class="nav-item">
+                {% if request.path == team_list %}
+                    <a class="nav-link active text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
+                {%else%}
+                    <a class="nav-link text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
                 {% if request.path == shared_file_list %}
                     <a class="nav-link active text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
                 {%else%}
