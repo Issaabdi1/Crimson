@@ -1,9 +1,22 @@
+<style>
+    /* Style for the unordered list */
+    ul.teams-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    /* Style for list items */
+    ul.teams-list li {
+        margin-bottom: 20px;
+        font-size: large;
+    }
+</style>
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
     <div class="col-12 p-2">
         <div class="row">
             <div class="col-10">
-                <h1>My teams:</h1>
+                <h1 class="mb-4">My teams:</h1>
             </div>
             <div class="col-2">
                 <a type="button" class="btn btn-primary text-nowrap mt-2" href="{% url 'create_team' %}">
@@ -14,7 +27,7 @@
 
         <div class="row">
             <div class="col-12">
-                <ul>
+                <ul class="teams-list">
                     {% for team in team_joined %}
                         <li>
                             <a href="{% url 'team_detail' team_id=team.id %}">{{ team.name }}</a>

@@ -21,6 +21,8 @@
         padding: 20px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         z-index: 1000;
+        height: 300px;
+        width: 300px;
     }
 
     .close-btn {
@@ -44,11 +46,13 @@
                 <div id="popupContainer" class="popup-container">
                     <div id="popupForm" class="popup text-center">
                         <span id="closePopup" class="close-btn">&times;</span>
-                        <form action="{% url 'team_detail' team_id=team.id %}" method="post" >
+                        <form action="{% url 'team_detail' team_id=team.id %}" method="post">
                             <h2 class="mb-3">Invite User</h2>
                             {% csrf_token %}
-                            {{ form.as_p }}
-                            <input type="submit" class="btn btn-primary mt-3" value="Invite">
+                            {% include 'partials/create_team_form.html' with form=form %}
+                            <input type="submit" class="btn btn-primary mt-3d-block w-50"
+                                   style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                                   value="Invite">
                         </form>
                     </div>
                 </div>
