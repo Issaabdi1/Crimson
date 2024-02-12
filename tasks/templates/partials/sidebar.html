@@ -1,23 +1,28 @@
 <div class="col-sm-auto bg-light p-3 sticky-top">
     <!-- A vertical navbar -->
         <!-- Links -->
+        {% url 'dashboard' as dashboard %}
+        {% url 'filelist' as filelist %}
+        {% url 'shared_file_list' as shared_file_list %}
+
         <ul class="nav flex-column nav-pills nav-fill">
+            <!--For each item, it highlights the link if in its corresponding page. The page is passed in as a parameter-->
             <li class="nav-item">
-                {% if in_dashboard %}
+                {% if request.path == dashboard %}
                     <a class="nav-link active text-center" aria-current="page" href="{% url 'dashboard' %}">Home</a>
                 {%else%}
                     <a class="nav-link text-center" aria-current="page" href="{% url 'dashboard' %}">Home</a>
                 {% endif %}
             </li>
             <li class="nav-item">
-                {% if in_my_files %}
+                {% if request.path == filelist %}
                     <a class="nav-link active text-center" aria-current="page" href="{% url 'filelist' %}">My Files</a>
                 {%else%}
                     <a class="nav-link text-center" aria-current="page" href="{% url 'filelist' %}">My Files</a>
                 {% endif %}
             </li>
             <li class="nav-item">
-                {% if in_shared_files %}
+                {% if request.path == shared_file_list %}
                     <a class="nav-link active text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
                 {%else%}
                     <a class="nav-link text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
