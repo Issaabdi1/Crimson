@@ -34,6 +34,5 @@ urlpatterns = [
     path('process_notification/', views.process_notification_delete, name='process_notification'),
     path('delete_upload/<int:upload_id>', views.delete_upload, name='delete_upload'),
     path('team_list', views.list_team_view, name='team_list'),
-    path('create_team', views.create_team_view, name='create_team'),
     path('team_detail/<int:team_id>', views.team_detail_view, name='team_detail'),
 ]

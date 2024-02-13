@@ -10,6 +10,39 @@
         margin-bottom: 20px;
         font-size: large;
     }
+
+    .popup-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .popup {
+        border-radius: 25px;
+        border: 2px solid white;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        height: 300px;
+        width: 300px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        cursor: pointer;
+    }
 </style>
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
@@ -19,9 +52,21 @@
                 <h1 class="mb-4">My teams:</h1>
             </div>
             <div class="col-2">
-                <a type="button" class="btn btn-primary text-nowrap mt-2" href="{% url 'create_team' %}">
-                    Create Team
-                </a>
+                <button id="CreateTeamPopup" class="btn btn-primary text-nowrap mt-2">Create Team</button>
+            </div>
+        </div>
+
+        <div id="popupContainer" class="popup-container">
+            <div id="popupForm" class="popup text-center">
+                <span id="closePopup" class="close-btn">&times;</span>
+                <form action="{% url 'team_list' %}" method="post">
+                    <h2 class="mb-3">Create Team</h2>
+                    {% csrf_token %}
+                    {% include 'partials/create_team_form.html' with form=form %}
+                    <input type="submit" class="btn btn-primary mt-3d-block w-50"
+                           style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                           value="Create">
+                </form>
             </div>
         </div>
 
@@ -38,4 +83,15 @@
         </div>
 
     </div>
+        <script>
+        document.getElementById("CreateTeamPopup").addEventListener("click", function () {
+            document.getElementById("popupContainer").style.display = "block";
+            document.getElementById("sidebar").style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+            document.getElementById("sidebar").style.zIndex = "999";
+        });
+
+        document.getElementById("closePopup").addEventListener("click", function () {
+            document.getElementById("popupContainer").style.display = "none";
+        });
+    </script>
 {% endblock %}

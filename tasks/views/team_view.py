@@ -5,8 +5,9 @@ from tasks.models import User
 
 
 @login_required
-def create_team_view(request):
+def list_team_view(request):
     current_user = request.user
+    team_joined = current_user.team_set.all()
     if request.method == 'POST':
         form = CreateTeamForm(request.POST)
         if form.is_valid():
@@ -17,16 +18,8 @@ def create_team_view(request):
     else:
         form = CreateTeamForm()
     context = {'user': current_user,
-               'form': form}
-    return render(request, 'create_team.html', context=context)
-
-
-@login_required
-def list_team_view(request):
-    current_user = request.user
-    team_joined = current_user.team_set.all()
-    context = {'user': current_user,
-               'team_joined': team_joined}
+               'team_joined': team_joined,
+               'form': form,}
     return render(request, 'list_team.html',  context=context)
 
 
