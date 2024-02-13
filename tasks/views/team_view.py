@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm
 from tasks.models import User
@@ -33,8 +34,11 @@ def team_detail_view(request, team_id):
         form = AddUserToTeamForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
-            user_to_add = User.objects.get(username=username)
-            team.members.add(user_to_add)
+            try:
+                user_to_add = User.objects.get(username=username)
+                team.members.add(user_to_add)
+            except User.DoesNotExist:
+                messages.add_message(request, messages.ERROR, f'The user invited is not exist, please try another one.')
     else:
         form = AddUserToTeamForm()
     context = {'user': current_user,
