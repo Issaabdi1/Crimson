@@ -10,4 +10,4 @@ from .static_views import *
 from .rename_upload_view import *
 from .delete_upload_view import *
 from .test_view import *
-
+from .outer_comment_views import *

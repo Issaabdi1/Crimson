@@ -18,6 +18,7 @@ class Upload(models.Model):
                                                                message='Only files with the extension .pdf are supported.')]
                             )
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+    comments = models.TextField(blank=True, null=True)
 
     class Meta:
         """Model options."""
