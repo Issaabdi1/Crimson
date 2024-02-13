@@ -35,54 +35,64 @@
 {% extends 'base_content.html' %}
 {% block content %}
     <div class="col-12 p-2">
-        <div class="row justify-content-around">
-            <div class="col-2">
-                <h1>{{ team.name }}</h1>
+        <div class="row">
+            <div class="col-9">
+                <div class="container py-5">
+                    <h2>Shared Files in {{ team.name }}:</h2>
+                    {% if shared_uploads.count > 0 %}
+                        <ul>
+                            {% for upload in shared_uploads %}
+                                <li>
+                                    <a href="{{ upload.file.url }}">upload.file.name</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="margin-left: 30px">There is no shared files so far</p>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="col-3">
-                <button id="InvitePopup" class="btn btn-primary mt-2">Invite User</button>
-                <a class="btn btn-primary mt-2" href="#" style="margin-left: 15px">Share File</a>
-                <div id="popupContainer" class="popup-container">
-                    <div id="popupForm" class="popup text-center">
-                        <span id="closePopup" class="close-btn">&times;</span>
-                        <form action="{% url 'team_detail' team_id=team.id %}" method="post">
-                            <h2 class="mb-3">Invite User</h2>
-                            {% csrf_token %}
-                            {% include 'partials/create_team_form.html' with form=form %}
-                            <input type="submit" class="btn btn-primary mt-3d-block w-50"
-                                   style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
-                                   value="Invite">
-                        </form>
+                <div class="container py-3">
+                    <div class="row justify-content-center">
+                        <div class="col-5">
+                            <button id="InvitePopup" class="btn btn-primary mt-2">Invite User</button>
+                        </div>
+
+                        <div id="popupContainer" class="popup-container">
+                            <div id="popupForm" class="popup text-center">
+                                <span id="closePopup" class="close-btn">&times;</span>
+                                <form action="{% url 'team_detail' team_id=team.id %}" method="post">
+                                    <h2 class="mb-3">Invite User</h2>
+                                    {% csrf_token %}
+                                    {% include 'partials/create_team_form.html' with form=form %}
+                                    <input type="submit" class="btn btn-primary mt-3d-block w-50"
+                                           style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                                           value="Invite">
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-5" style="margin-left: -20px">
+                            <a class="btn btn-primary mt-2" href="#" style="margin-left: 15px">Share File</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center mt-3">
+                    <div class="col-7">
+                        <h2>Members:</h2>
+                        <ul>
+                            {% for member in members %}
+                                <li>
+                                    <p>{{ member.username }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="container py-5">
-            <h2>Members:</h2>
-            <ul>
-                {% for member in members %}
-                    <li>
-                        <p>{{ member.username }}</p>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="container py-5">
-            <h2>Shared Files:</h2>
-            {% if shared_uploads.count > 0 %}
-                <ul>
-                    {% for upload in shared_uploads %}
-                        <li>
-                            <a href="{{ upload.file.url }}">upload.file.name</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p style="margin-left: 30px">There is no shared files so far</p>
-            {% endif %}
         </div>
     </div>
     <script>
