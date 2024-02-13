@@ -1,5 +1,4 @@
-<!-- filelist.html -->
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
 {% block content %}
     <div class="container-fluid">
         <div class="row">
@@ -81,3 +80,47 @@
         </div>
     {% endfor %}
 {% endblock %}
+<div class="col-12 p-2">
+    <h1>My files:</h1>
+    {% for upload in uploads %}
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body mb-2">
+                    <h5 class="card-title">{{ upload.file.name }}</h5>
+                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
+                    <!--If file has been shared with others-->
+                    {% if upload.get_shared_users %}
+                    <p class="card-text">Shared With: 
+                        {% for user in upload.get_shared_users %} 
+                            {{user}} 
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
+                    <!--Delete PDF-->
+                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!--Really bad implementation of this-->
+{% for upload in uploads %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}" aria-labelledby="sharePDFPopup{{ upload.id }}">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Share PDF</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% include 'partials/share_file_popup.html' with file_id=upload.id %}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+

@@ -35,5 +35,4 @@ urlpatterns = [
     path('delete_upload/<int:upload_id>/', views.delete_upload, name='delete_upload'),
     path('filelist/rename/<int:upload_id>/', views.rename_upload_view, name='rename_upload'),
     path('outer_comment_views/<int:upload_id>', views.outer_comment_views, name='outer_comment_views'),
-
 ]
