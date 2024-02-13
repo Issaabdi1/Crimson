@@ -19,36 +19,36 @@
                                     <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
                                     <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>
                                     <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="upload_id" id="uploadIdField">
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Comment
-                                    </button>
+                                        {% csrf_token %}
+                                        <input type="hidden" name="upload_id" id="uploadIdField">
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
+                                            Comment
+                                        </button>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title fs-7" id="exampleModalLabel">Comment</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="form-floating">
-                                                        <label for="inputComments"></label>
-                                                        <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                                                        <label>Descriptions</label>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-primary" onclick="saveComments()">Save changes</button>
+                                                    <div class="modal-body">
+                                                        <div class="form-floating">
+                                                            <label for="inputComments"></label>
+                                                            <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
+                                                            <label>Descriptions</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
 
                                     <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
                                     <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
@@ -69,16 +69,16 @@
         </div>
     </div>
 
-    {% for upload in uploads %}
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}" aria-labelledby="sharePDFPopup{{ upload.id }}">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Share PDF</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    {% for file_upload in uploads %}
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ file_upload.id }}" aria-labelledby="sharePDFPopup{{ file_upload.id }}">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Share PDF</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                {% include 'partials/share_file_popup.html' with file_id=file_upload.id %}
+            </div>
         </div>
-        <div class="offcanvas-body">
-            {% include 'partials/share_file_popup.html' with file_id=upload.id %}
-        </div>
-    </div>
     {% endfor %}
     <script>
         function showRenameField(button) {

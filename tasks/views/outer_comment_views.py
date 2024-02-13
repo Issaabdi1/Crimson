@@ -11,14 +11,13 @@ from django.contrib import messages
 def outer_comment_views(request, upload_id):
     if request.method == 'POST':
         upload = Upload.objects.get(id=upload_id)
-        # Assuming you're getting comments from the POST data, adjust this according to your form
-        comments = request.POST.get('comments')
+        comments = request.POST.get('comments')  # Assuming 'comments' is the name of your form field
         if comments is not None:
             try:
-                upload.comments = comments  # Update the comments attribute
+                upload.comments = comments  # Update the comments attribute of the correct Upload object
                 upload.save()
                 messages.success(request, 'Comments saved successfully.')
-                return redirect('filelist')  # Fix redirection
+                return redirect('filelist')  # Redirect after saving comments
             except Upload.DoesNotExist:
                 messages.error(request, 'Upload not found.')
     return redirect('filelist')
