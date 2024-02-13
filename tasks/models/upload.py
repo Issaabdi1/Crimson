@@ -36,6 +36,9 @@ class Upload(models.Model):
         new_filename = new_name + current_extension
         new_path = os.path.join(current_path, new_filename)
 
+        if storage.exists(new_path):
+            raise ValueError("File with this name already exists.")
+
         new_file = ContentFile(content)
         storage.save(new_path, new_file)
 
