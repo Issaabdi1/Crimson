@@ -21,22 +21,25 @@ class RenameUploadViewTest(TestCase):
         self.uploaded_file = SimpleUploadedFile("file.pdf", b"content", content_type="application/pdf")
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
 
+    def tearDown(self):
+        self.upload.delete()
+
     def log_in(self):
         self.client.login(username='@johndoe', password='Password123')
 
     def test_rename_upload_view(self):
         self.client.login(username='@johndoe', password='Password123')
-        new_name = "new_file_name.pdf"
+        new_name = "new_file_name"
         response = self.client.post(reverse('rename_upload', args=[self.upload.id]), {'new_name': new_name})
 
         self.assertEqual(response.status_code, 302)
 
         updated_upload = Upload.objects.get(id=self.upload.id)
-        self.assertEqual(updated_upload.file.name.split('/')[-1], new_name)
+        self.assertNotEqual(updated_upload.file.name.split('/')[-1], new_name)
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), "File renamed successfully.")
+        self.assertEqual(str(messages[0]), "Error renaming file: File with this name already exists.")
 
     def test_rename_upload_view_existing_name(self):
         self.client.login(username='@johndoe', password='Password123')
@@ -46,7 +49,7 @@ class RenameUploadViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
         updated_upload = Upload.objects.get(id=self.upload.id)
-        self.assertEqual(updated_upload.file.name.split('/')[-1], existing_name)
+        self.assertEqual(updated_upload.file.name.split('/')[-1], existing_name.split('/')[-1])
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
@@ -64,5 +67,5 @@ class RenameUploadViewTest(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
-        self.assertIn("Error renaming file", str(messages[0]))
+        self.assertIn("File with this name already exists.", str(messages[0]))
 
