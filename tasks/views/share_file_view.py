@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from tasks.models import User, Upload, SharedFiles, Notification
-from datetime import datetime
+from django.utils import timezone
 
 
 @login_required
@@ -36,7 +36,7 @@ def share_file(request):
             Notification.objects.create(
                 shared_file_instance = entry,
                 user = shared_user,
-                time_of_notification = datetime.now()
+                time_of_notification = timezone.now()
             )
             if (entry.shared_to.contains(shared_user)):
                 messages.error(request, 'User has already been shared this file.')
