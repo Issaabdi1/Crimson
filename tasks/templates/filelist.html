@@ -16,8 +16,6 @@
                                     <p class="card-text">Shared With: "Some people"</p>
                                     <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
                                     <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>    
-                                    
-                                    <!--Placeholder, doesn't delete PDF-->
                                     <form action="{% url 'delete_upload' upload.id %}" method="post">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Remove</button>
