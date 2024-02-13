@@ -1,51 +1,6 @@
-<style>
-    /* Style for the unordered list */
-    ul.teams-list {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    /* Style for list items */
-    ul.teams-list li {
-        margin-bottom: 20px;
-        font-size: large;
-    }
-
-    .popup-container {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-
-    .popup {
-        border-radius: 25px;
-        border: 2px solid white;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        height: 300px;
-        width: 300px;
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        cursor: pointer;
-    }
-</style>
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
+{% load static %}
     <div class="col-12 p-2">
         <div class="row">
             <div class="col-10">
@@ -83,15 +38,5 @@
         </div>
 
     </div>
-        <script>
-        document.getElementById("CreateTeamPopup").addEventListener("click", function () {
-            document.getElementById("popupContainer").style.display = "block";
-            document.getElementById("sidebar").style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-            document.getElementById("sidebar").style.zIndex = "999";
-        });
-
-        document.getElementById("closePopup").addEventListener("click", function () {
-            document.getElementById("popupContainer").style.display = "none";
-        });
-    </script>
+    <script src="{% static 'js/popup_window_create_team.js' %}"></script>
 {% endblock %}
