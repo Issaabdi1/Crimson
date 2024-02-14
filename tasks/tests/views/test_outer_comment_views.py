@@ -2,12 +2,10 @@ import os
 
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.messages import get_messages
 
-from tasks.models import User, Upload, SharedFiles
-from tasks.tests.helpers import reverse_with_next
+from tasks.models import User, Upload
 
 
 class OuterCommentViewsTestCase(TestCase):
