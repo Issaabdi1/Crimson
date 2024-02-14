@@ -61,3 +61,6 @@ class SharedFilesModelTestCase(TestCase):
     def _assert_share_is_invalid(self):
         with self.assertRaises(ValidationError):
             self.share.full_clean()
+    
+    def tearDown(self):
+        self.upload.delete()

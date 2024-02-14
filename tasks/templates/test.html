@@ -8,6 +8,13 @@
   <div id="qunit-fixture">
     <!--Notification testing-->
     <div>
+      <!--Notification popup button-->
+      <a class="nav-link" href = "#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><span class="bi bi-bell">
+          <span id= "notification-alert" class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
+            99+
+          </span>
+
+    </span></a>
       <!--Dismiss all button-->
       <div class="float-end p-2" id="dismiss-notifications">
         <button type="submit" id="remove-notification" name = "delete" value="delete-all" class="btn" data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
@@ -56,7 +63,8 @@
 
   </div>
   <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
-  <script src="{% static 'js/process_notification.js'%}"></script>
+  <script src="{% static 'js/process_notification_delete.js'%}"></script>
+  <script src="{% static 'js/set_notifications_read.js'%}"></script>
   <script src="{% static 'js/test_notifications.js'%}"></script>
 
 </body>
