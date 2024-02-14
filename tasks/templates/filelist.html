@@ -1,32 +1,33 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
 <div class="col-12 p-2">
-    <h1>My files:</h1>
-    {% for upload in uploads %}
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-body mb-2">
-                    <h5 class="card-title">{{ upload.file.name }}</h5>
-                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                    <!--If file has been shared with others-->
-                    {% if upload.get_shared_users %}
-                    <p class="card-text">Shared With: 
-                        {% for user in upload.get_shared_users %} 
-                            {{user}} 
-                        {% endfor %}
-                    </p>
-                    {% endif %}
-                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
-                    <!--Delete PDF-->
-                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
-                    </form>
+    <div class="row d-flex justify-content-between">
+        <div class="col-lg-4 col-sm-6">
+        <h1>My files:</h1>
+        {% for upload in uploads %}
+            <div class="row mb-4">
+                <div class="card">
+                    <div class="card-body mb-2">
+                        <h5 class="card-title">{{ upload.file.name }}</h5>
+                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
+                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
+                        <!--Delete PDF-->
+                        <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+        {% endfor %}
         </div>
-    {% endfor %}
+        {% if uploads %}
+            <div class="col-lg-7 col-sm-6">
+                {% include 'unshare_file.html' with uploads=uploads %}
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <!--Really bad implementation of this-->

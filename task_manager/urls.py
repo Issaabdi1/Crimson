@@ -33,4 +33,5 @@ urlpatterns = [
     path('share_file/', views.share_file, name='share_file'),
     path('process_notification/', views.process_notification_delete, name='process_notification'),
     path('delete_upload/<int:upload_id>', views.delete_upload, name='delete_upload'),
+    path('unshare_file/<int:upload_id>/<int:user_id>/', views.unshare_file, name='unshare_file')
 ]

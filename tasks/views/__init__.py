@@ -8,3 +8,4 @@ from .notification_view import *
 from .share_file_view import *
 from .static_views import *
 from .test_view import *
+from .unshare_file_view import *
