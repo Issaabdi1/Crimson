@@ -32,19 +32,21 @@ def share_file(request):
                 shared_file=shared_file,
                 shared_by=user,
             )
-
-            Notification.objects.create(
-                shared_file_instance = entry,
-                user = shared_user,
-                time_of_notification = timezone.now()
-            )
             if (entry.shared_to.contains(shared_user)):
                 messages.error(request, 'User has already been shared this file.')
                 return redirect('share_file')
             
+            else:
+                #Create a new notification if the file has been newly shared
+                Notification.objects.create(
+                    shared_file_instance = entry,
+                    user = shared_user,
+                    time_of_notification = timezone.now(),
+                    notification_message = f'{request.user} shared a file with you'
+                )
             entry.shared_to.add(shared_user)
             entry.save()
-            return redirect('dashboard')
+            return redirect('filelist')
         else:
             messages.error(request, 'File and user must be selected.')
     if not uploads.exists():

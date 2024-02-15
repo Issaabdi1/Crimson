@@ -1,0 +1,33 @@
+<h1>Shared with:</h1>
+<ul class="nav nav-tabs" role="tablist">
+    {% for upload in uploads %}
+        <li class="nav-item">
+            <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ upload.file.name|slugify }}-tab" data-bs-toggle="tab" href="#{{ upload.file.name|slugify }}" role="tab" aria-controls="{{ upload.file.name|slugify }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                {{ upload.file.name|slice:"5:" }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+<div class="tab-content">
+    {% for upload in uploads %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ upload.file.name|slugify }}" role="tabpanel" aria-labelledby="{{ upload.file.name|slugify }}-tab">
+            {% if upload.get_shared_users %}
+                {% for user in upload.get_shared_users %} 
+                    <div class="row">
+                        <div class="col text-center mt-2">
+                            {{ user }}
+                        </div>
+                        <div class="col text-center mt-2">
+                            <form action="{% url 'unshare_file' upload.id user.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-secondary"> Unshare</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+

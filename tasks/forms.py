@@ -128,3 +128,5 @@ class CreateTeamForm(forms.ModelForm):
 class AddUserToTeamForm(forms.Form):
     """Form for adding User to a team"""
     username = forms.CharField(label='Username')
+class RenameForm(forms.Form):
+    new_name = forms.CharField(label='New file name')
