@@ -34,5 +34,6 @@ urlpatterns = [
     path('process_notification_delete/', views.process_notification_delete, name='process_notification_delete'),
     path('set_notifications_as_read/', views.set_notifications_as_read, name='set_notifications_as_read'),
     path('delete_upload/<int:upload_id>', views.delete_upload, name='delete_upload'),
+    path('unshare_file/<int:upload_id>/<int:user_id>/', views.unshare_file, name='unshare_file')
     path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
 ]
