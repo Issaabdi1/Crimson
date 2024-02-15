@@ -3,7 +3,7 @@
 /* This function is run when the delete button or the dismiss all button is pressed
 * Runs view to delete the relevant notifications, and then gets back the updated notification list  
 */ 
-function reload_notifications(id, forTests = false){
+function delete_notifications(id, forTests = false){
     //pass parameters through url
     var parameters = "?notification_id=" + id + "&forTests=" + forTests;
     console.log(forTests);
@@ -19,7 +19,7 @@ function reload_notifications(id, forTests = false){
             }
         }
     };
-    xhttp.open("GET", "/process_notification/" + parameters); 
+    xhttp.open("GET", "/process_notification_delete/" + parameters); 
     xhttp.send();
     return true; //Show the request has been sent successfully
   }
@@ -29,7 +29,7 @@ function reload_notifications(id, forTests = false){
 
   btns.forEach(btn => {
     btn.addEventListener('click', event => {
-        reload_notifications(btn.getAttribute("value"));
+      delete_notifications(btn.getAttribute("value"));
     });
 
   });
