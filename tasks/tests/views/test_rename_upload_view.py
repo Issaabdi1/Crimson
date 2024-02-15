@@ -22,7 +22,8 @@ class RenameUploadViewTest(TestCase):
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
 
     def tearDown(self):
-        self.upload.delete()
+        if self.upload:
+            self.upload.delete()
 
     def log_in(self):
         self.client.login(username='@johndoe', password='Password123')
@@ -39,7 +40,9 @@ class RenameUploadViewTest(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), "Error renaming file: File with this name already exists.")
+        self.assertEqual(str(messages[0]), "File renamed successfully.")
+
+        updated_upload.delete()
 
     def test_rename_upload_view_existing_name(self):
         self.client.login(username='@johndoe', password='Password123')

@@ -26,6 +26,9 @@ class TeamModelTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user1, file=mock_file)
         self.team.shared_uploads.add(self.upload)
 
+    def tearDown(self):
+        self.upload.delete()
+
     def test_valid_upload(self):
         """Test that the team are valid."""
         self._assert_team_is_valid()
