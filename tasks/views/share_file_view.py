@@ -47,7 +47,7 @@ def share_file(request):
                 )
             entry.shared_to.add(shared_user)
             entry.save()
-            return redirect('dashboard')
+            return redirect('filelist')
         else:
             messages.error(request, 'File and user must be selected.')
     if not uploads.exists():
