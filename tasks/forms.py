@@ -116,3 +116,6 @@ class FileForm(forms.Form):
         label='Select a file',
         help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
     )
+
+class RenameForm(forms.Form):
+    new_name = forms.CharField(label='New file name')
