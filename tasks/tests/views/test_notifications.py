@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from tasks.models import User, Notification, SharedFiles, Upload
-from datetime import datetime
+from django.utils import timezone
 
 class NotificationsTestCase(TestCase):
     """Tests of the Notifications side bar."""
@@ -21,9 +21,11 @@ class NotificationsTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user, file=mock_file)
         shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = self.second_user)
         shared_file.shared_to.add(self.user)
-        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
-        self.notification2 = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
+        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user)
+        self.notification2 = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user)
 
+    def tearDown(self):
+        self.upload.delete()
 
     def test_notifications_passed_in(self):
         """Test that the correct notifications list is passed into the template"""
@@ -45,21 +47,34 @@ class NotificationsTestCase(TestCase):
         self.assertEqual(before_count + 1, after_count)
         self.assertIsNotNone(Notification.objects.filter(user=self.user))
 
-    def test_process_notification_deletes_single_notification(self):
+    def test_process_notification_delete_view_deletes_single_notification(self):
         """Goes to the process_notification view, and checks if the notification is deleted when its id is passed to it"""
-        delete_url = reverse('process_notification')
+        delete_url = reverse('process_notification_delete')
         context={'notification_id': self.notification.id}
         before_count = Notification.objects.count()
         self.client.get(delete_url, context)
         after_count = Notification.objects.count()
         self.assertEqual(before_count - 1, after_count)
 
-    def test_process_notification_deletes_all_notifications(self):
+    def test_process_notification_delete_view_deletes_all_notifications(self):
         """Goes to the process_notification view, and checks if all notifications are deleted when delete-all is passed in"""
-        delete_url = reverse('process_notification')
+        delete_url = reverse('process_notification_delete')
         context={'notification_id': 'delete-all'}
         self.client.get(delete_url, context)
         after_count = Notification.objects.count()
         self.assertEqual(after_count, 0)
     
+    def test_set_notifications_as_read_view(self):
+        """Test all notifications are set to read when the view is reached"""
+        set_notifications_read_url = reverse('set_notifications_as_read')
+        before_read_count = Notification.objects.filter(read=True).count()
+        self.assertEqual(before_read_count, 0)
+        self.client.get(set_notifications_read_url)
+        after_read_count = Notification.objects.filter(read=True).count()
+        self.assertEqual(after_read_count, 2)
+    
+
+    
+    def tearDown(self):
+        self.upload.delete()
     

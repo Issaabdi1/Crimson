@@ -38,7 +38,7 @@
         <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
           <div class="row g-0">
               <div class="col-md-9 p-2">
-                  <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by.username}} shared a file with you</h5>
+                  <h5 class="card-title fs-6">{{notification.notification_message}}</h5>
                   <a href="{{notification.shared_file_instance.shared_file.file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.file.name}}</a>
               </div>
               <div class="col-md-2 mr-2">
@@ -60,4 +60,4 @@
 </div>
 
 <!--JavaScript to delete the notifications when their delete button is pressed-->
-<script src="{% static 'js/process_notification.js'%}"></script>
+<script src="{% static 'js/process_notification_delete.js'%}"></script>

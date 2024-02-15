@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload
+from .models import User, Upload, Team
 # Register your models here.
 
 
@@ -16,4 +16,12 @@ class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for uploads"""
     list_display = [
         'uploaded_at', 'owner'
+    ]
+
+
+@admin.register(Team)
+class UploadAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for teams"""
+    list_display = [
+        'name',
     ]

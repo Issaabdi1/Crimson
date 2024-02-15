@@ -2,8 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
-
+from .models import User, Team
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -116,3 +115,18 @@ class FileForm(forms.Form):
         label='Select a file',
         help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
     )
+
+class CreateTeamForm(forms.ModelForm):
+
+    class Meta:
+        """Form options."""
+
+        model = Team
+        fields = ['name']
+
+
+class AddUserToTeamForm(forms.Form):
+    """Form for adding User to a team"""
+    username = forms.CharField(label='Username')
+class RenameForm(forms.Form):
+    new_name = forms.CharField(label='New file name')

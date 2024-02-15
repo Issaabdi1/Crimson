@@ -6,3 +6,5 @@ class Notification(models.Model):
     shared_file_instance = models.ForeignKey(SharedFiles, on_delete=models.CASCADE)
     time_of_notification = models.DateTimeField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read = models.BooleanField(default = False) 
+    notification_message = models.TextField(blank = False)

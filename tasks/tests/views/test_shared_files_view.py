@@ -16,9 +16,12 @@ class SharedFilesViewTestCase(TestCase):
         second_user = User.objects.get(username="@janedoe")
         file_content = b'Test file content'
         mock_file = SimpleUploadedFile(f'test_file.pdf', file_content)
-        upload = Upload.objects.create(owner=self.user, file=mock_file)
-        self.shared_file = SharedFiles.objects.create(shared_file= upload, shared_by = second_user)
+        self.upload = Upload.objects.create(owner=self.user, file=mock_file)
+        self.shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by=second_user)
         self.shared_file.shared_to.add(self.user)
+
+    def tearDown(self):
+        self.upload.delete()
 
     def test_shared_files_url(self):
         self.assertEqual(self.url,'/shared_file_list/')
@@ -36,3 +39,6 @@ class SharedFilesViewTestCase(TestCase):
         shared_files = response.context['shared_files']
         self.assertIsNotNone(shared_files)
         self.assertIn(self.shared_file, shared_files)
+
+    def tearDown(self):
+        self.upload.delete()

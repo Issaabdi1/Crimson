@@ -1,0 +1,42 @@
+{% extends 'base_content_with_sidebar.html' %}
+{% block content %}
+{% load static %}
+    <div class="col-12 p-2">
+        <div class="row">
+            <div class="col-10">
+                <h1 class="mb-4">My teams:</h1>
+            </div>
+            <div class="col-2">
+                <button id="CreateTeamPopup" class="btn btn-primary text-nowrap mt-2">Create Team</button>
+            </div>
+        </div>
+
+        <div id="popupContainer" class="popup-container">
+            <div id="popupForm" class="popup text-center">
+                <span id="closePopup" class="close-btn">&times;</span>
+                <form action="{% url 'team_list' %}" method="post">
+                    <h2 class="mb-3">Create Team</h2>
+                    {% csrf_token %}
+                    {% include 'partials/create_team_form.html' with form=form %}
+                    <input type="submit" class="btn btn-primary mt-3d-block w-50"
+                           style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                           value="Create">
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <ul class="teams-list">
+                    {% for team in team_joined %}
+                        <li>
+                            <a href="{% url 'team_detail' team_id=team.id %}">{{ team.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <script src="{% static 'js/popup_window_create_team.js' %}"></script>
+{% endblock %}

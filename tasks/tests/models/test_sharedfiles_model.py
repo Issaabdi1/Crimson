@@ -30,6 +30,9 @@ class SharedFilesModelTestCase(TestCase):
         )
         self.share.shared_to.add(self.second_user)
 
+    def tearDown(self):
+        self.upload.delete()
+
     def test_valid_share(self):
         self._assert_share_is_valid()
     
@@ -61,3 +64,6 @@ class SharedFilesModelTestCase(TestCase):
     def _assert_share_is_invalid(self):
         with self.assertRaises(ValidationError):
             self.share.full_clean()
+    
+    def tearDown(self):
+        self.upload.delete()

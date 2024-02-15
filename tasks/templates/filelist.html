@@ -1,66 +1,72 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
 <div class="col-12 p-2">
-    <h1>My files:</h1>
-    {% for upload in uploads %}
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-body mb-2">
-                    <h5 class="card-title">{{ upload.file.name }}</h5>
-                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                    <p>Comments: "{{ upload.comments }}"</p>
-
-                    <!--If file has been shared with others-->
-                    {% if upload.get_shared_users %}
-                    <p class="card-text">Shared With:
-                        {% for user in upload.get_shared_users %}
-                            {{user}}
-                        {% endfor %}
-                    </p>
-
-                    {% endif %}
-                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                    <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>
-                    <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="upload_id" id="uploadIdField">
-                    <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
-                        Comment
-                    </button>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="form-floating">
-                                        <label for="inputComments"></label>
-                                        <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                                        <label>Descriptions</label>
+    <div class="row d-flex justify-content-between">
+        <div class="col-lg-4 col-sm-6">
+        <h1>My files:</h1>
+        {% for upload in uploads %}
+            <div class="row mb-4">
+                <div class="card">
+                    <div class="card-body mb-2">
+                        <h5 class="card-title">{{ upload.file.name }}</h5>
+                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
+                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
+                        <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="upload_id" id="uploadIdField">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
+                                Comment
+                            </button>
+        
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="form-floating">
+                                                <label for="inputComments"></label>
+                                                <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
+                                                <label>Descriptions</label>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Save changes</button>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                </form>
-
-                    <!--Delete PDF-->
-                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
-                    </form>
+                        </form>
+                        <!--Delete PDF-->
+                        <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
+                        </form>
+                        <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
+                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
+                            {% csrf_token %}
+                            <label>
+                                <input type="text" name="new_name" placeholder="New file name" required>
+                            </label>
+                            <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
+                        </form>
+                     </div>
                 </div>
             </div>
+        {% endfor %}
         </div>
-    {% endfor %}
+        {% if uploads %}
+            <div class="col-lg-7 col-sm-6">
+                {% include 'unshare_file.html' with uploads=uploads %}
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <!--Really bad implementation of this-->
