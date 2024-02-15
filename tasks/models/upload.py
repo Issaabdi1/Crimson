@@ -32,6 +32,14 @@ class Upload(models.Model):
         else:
             return None
 
+    def get_shared_teams(self):
+        """Returns a query set of all the teams who have been shared this file"""
+
+        if self.team_set.exists():
+            return self.team_set.all()
+        else:
+            return None
+        
     def rename_file(self, new_name):
         storage = self.file.storage
 
