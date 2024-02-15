@@ -58,7 +58,7 @@ class ShareFileViewTestCase(TestCase):
         response = self.client.post(self.url, self.form_input)
         after_count = SharedFiles.objects.count()
         self.assertEqual(after_count, before_count + 1)
-        response_url = reverse('dashboard')
+        response_url = reverse('filelist')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         upload.delete()
     
