@@ -22,7 +22,7 @@ class NotificationModelTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user, file=mock_file)
         shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = second_user)
         shared_file.shared_to.add(self.user)
-        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
+        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user, notification_message="Hello")
 
 
     def test_valid_notification(self):
@@ -39,6 +39,10 @@ class NotificationModelTestCase(TestCase):
     def test_date_cannot_be_blank(self):
         self.notification.time_of_notification = None
         self._assert_notification_is_invalid()
+    
+    def test_message_cannot_be_blank(self):
+        self.notification.notification_message = ""
+        self._assert_notification_is_invalid()
 
     def _assert_notification_is_valid(self):
         try:
@@ -49,3 +53,6 @@ class NotificationModelTestCase(TestCase):
     def _assert_notification_is_invalid(self):
         with self.assertRaises(ValidationError):
             self.notification.full_clean()
+    
+    def tearDown(self):
+        self.upload.delete()

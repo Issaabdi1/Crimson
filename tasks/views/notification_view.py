@@ -27,3 +27,17 @@ def process_notification_delete(request):
     #Return the data as a JsonResponse
     data = {'notifications': notifications}
     return JsonResponse(data)
+
+@login_required
+def set_notifications_as_read(request):
+    """Sets all the notifications of the current user as read"""
+    #get all notifications
+    notifications = Notification.objects.filter(user = request.user)
+    #set all to read
+    for notification in notifications:
+        notification.read = True
+        notification.save()
+
+    return JsonResponse({})
+
+    
