@@ -52,7 +52,8 @@
             }
         });
         
-        recordButton.addEventListener('click',()=>{
+        recordButton.addEventListener('click',(event)=>{
+            event.preventDefault();
             if(!isRecording){
                 isRecording = true;
                 recordButton.textContent = "Stop Recording";
@@ -60,14 +61,15 @@
                 output.innerHTML = 'Recording started! Speak now.';
             }  else{
                 isRecording = false;
-                recordButton.textContent = "Continue Record";
+                recordButton.textContent = "Continue Recording";
                 audioRecorder.stop();
                 output.innerHTML = 'Recording stopped! Click on the play button to play the recorded audio.';
             }
         });
 
         // play the recorded audio when the play button is clicked
-        playButton.addEventListener('click', () => {
+        playButton.addEventListener('click', (event) => {
+            event.preventDefault();
             const blobObj = new Blob(audioChunks, { type: 'audio/webm' });
             const audioUrl = URL.createObjectURL(blobObj);
             const audio = new Audio(audioUrl);
@@ -75,7 +77,8 @@
             output.innerHTML = 'Playing the recorded audio!';
         });
 
-        clearButton.addEventListener('click', () => {
+        clearButton.addEventListener('click', (event) => {
+            event.preventDefault();
             audioChunks = [];
             isRecording = false;
             recordButton.textContent = "Record";
