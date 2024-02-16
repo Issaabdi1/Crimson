@@ -1,0 +1,93 @@
+<div class="modal fade" id="voiceCommentModal{{ upload.id }}" tabindex="-1" aria-labelledby="voiceCommentModalLabel{{ upload.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-7" id="voiceCommentModalLabel{{ upload.id }}">Voice Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-floating">
+                    <!-- <label for="inputComments"></label>
+                    <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
+                    <label>Descriptions</label> -->
+                    <button class="btn btn-primary me-1 " id = "record"> Record </button>
+                    <button class="btn btn-primary me-1 " id = "play" disabled> Play Recorded Audio </button>
+                    <button class="btn btn-primary me-1 " id = "clear" disabled> Clear </button>
+                    <br> 
+                    <div id = "output"> </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button type="submit" class="btn btn-primary">Save changes</button> -->
+                <button class="btn btn-primary me-1 " id = "submit" disabled> Submit </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>  
+    const recordButton = document.getElementById('record');
+    const playButton = document.getElementById('play');
+    const clearButton = document.getElementById('clear');
+    const submitButton = document.getElementById('submit');
+    let output = document.getElementById('output');
+    let audioRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+    
+        // Initialize the media recorder object
+        audioRecorder = new MediaRecorder(stream);
+        
+        // dataavailable event is fired when the recording is stopped
+        audioRecorder.addEventListener('dataavailable', e => {
+            audioChunks.push(e.data);
+            console.log("Length = " + audioChunks.length)
+            if (playButton.disabled == true && audioChunks.length > 0){
+            console.log("enable button")
+            playButton.disabled = false;
+            clearButton.disabled = false;
+            submitButton.disabled = false;
+            }
+        });
+        
+        recordButton.addEventListener('click',()=>{
+            if(!isRecording){
+                isRecording = true;
+                recordButton.textContent = "Stop Recording";
+                audioRecorder.start();
+                output.innerHTML = 'Recording started! Speak now.';
+            }  else{
+                isRecording = false;
+                recordButton.textContent = "Continue Record";
+                audioRecorder.stop();
+                output.innerHTML = 'Recording stopped! Click on the play button to play the recorded audio.';
+            }
+        });
+
+        // play the recorded audio when the play button is clicked
+        playButton.addEventListener('click', () => {
+            const blobObj = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(blobObj);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            output.innerHTML = 'Playing the recorded audio!';
+        });
+
+        clearButton.addEventListener('click', () => {
+            audioChunks = [];
+            isRecording = false;
+            recordButton.textContent = "Record";
+            playButton.disabled = true;
+            clearButton.disabled = true;
+            submitButton.disabled = true;
+        });
+
+        
+    }).catch(err => {
+    
+        // If the user denies permission to record audio, then display an error.
+        console.log('Error: ' + err);
+    });
+</script>
