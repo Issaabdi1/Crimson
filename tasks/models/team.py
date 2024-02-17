@@ -7,3 +7,6 @@ class Team(models.Model):
     name = models.CharField(max_length=50)
     members = models.ManyToManyField(User)
     shared_uploads = models.ManyToManyField(Upload)
+
+    def add_upload(self, upload):
+        self.shared_uploads.add(upload)

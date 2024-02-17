@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from tasks.forms import FileForm
 from django.core.files.storage import FileSystemStorage
-from tasks.models import Upload, SharedFiles, Team
+from tasks.models import Upload, SharedFiles, Notification
 from django.core.exceptions import ValidationError
 
 
@@ -27,11 +27,9 @@ def dashboard(request):
                     upload.save()
                     image_url = upload.file.url
 
-                    # Add upload to team files
-                    team_id = request.POST.get("team_id")
-                    if team_id is not None:
-                        team = Team.objects.get(id=team_id)
-                        team.add_upload(upload)
+                    if (request.POST.get("team_id")):
+                        print(request.POST.get("team_id"))
+                        print("team_id found!")
 
                 except ValidationError as e:
                     messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
