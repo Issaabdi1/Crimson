@@ -2,6 +2,8 @@
  * Alerts
  */
 
+
+
 .alert {
   border-radius: 0px;
 }
@@ -163,4 +165,78 @@ ul.teams-list {
 ul.teams-list li {
     margin-bottom: 20px;
     font-size: large;
+}
+
+
+/* Dark mode body background color and text color */
+.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+
+
+.dark-mode .sidebar {
+  background-color: rgb(147, 147, 147) ;
+  color: red;
+}
+
+/* Example of adjusting hyperlink colors in dark mode */
+.dark-mode a {
+  color: #4d94ff; /* A lighter blue color for links in dark mode */
+}
+
+/* Fire mode body background color and text color */
+.fire-mode {
+  background-color: #FF8F77; /* Light orange */
+  color: #3E1E15; /* Dark brown */
+}
+
+.fire-mode .sidebar{
+  background-color: #d17864; /* Light orange */
+  color: #3E1E15; /* Dark brown */
+}
+/* Example of adjusting hyperlink colors in fire mode */
+.fire-mode a {
+  color: #FFB996; /* Lighter peach */
+}
+
+/* Forest mode body background color and text color */
+.forest-mode {
+  background-color: #A3C1AD; 
+  color: #1E3D22; 
+}
+.forest-mode .dropdown-custom-theme {
+  background-color: #507D60; 
+  color: #c7cec8; 
+}
+
+.forest-mode .sidebar {
+  background-color: #507D60; 
+  color: #1E3D22; 
+}
+/* Example of adjusting hyperlink colors in forest mode */
+.forest-mode a {
+  color: #ffffff; /* Lighter green */
+}
+
+.forest-mode a .btn {
+  background-color: red ; 
+}
+
+
+
+/* Pink mode body background color and text color */
+.pink-mode {
+  background-color: #FFC0CB; /* Pink */
+  color: #6B2737; /* Maroon */
+}
+.pink-mode .sidebar{
+  background-color: #c08e97; /* Pink */
+  color: #6B2737; /* Maroon */
+}
+
+
+/* Example of adjusting hyperlink colors in pink mode */
+.pink-mode a {
+  color: #DB7093; /* Pale violet red */
 }
