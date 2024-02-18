@@ -7,9 +7,6 @@
             </div>
             <div class="modal-body">
                 <div class="form-floating">
-                    <!-- <label for="inputComments"></label>
-                    <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                    <label>Descriptions</label> -->
                     <button class="btn btn-primary me-1 " id = "record"> Record </button>
                     <button class="btn btn-primary me-1 " id = "play" disabled> Play Recorded Audio </button>
                     <button class="btn btn-primary me-1 " id = "clear" disabled> Clear </button>
@@ -18,7 +15,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <!-- <button type="submit" class="btn btn-primary">Save changes</button> -->
                 <button class="btn btn-primary me-1 " id = "submit" disabled> Submit </button>
             </div>
         </div>
@@ -91,12 +87,6 @@
             event.preventDefault();
             reset();
         });
-
-        // submitButton.addEventListener('click',(event) => {
-        //     const blobObj = new Blob(audioChunks, { type: 'audio/webm' });
-        //     const audioUrl = URL.createObjectURL(blobObj);
-        //     const audio = new Audio(audioUrl);
-        // });
 
         submitButton.addEventListener('click', (event) => {
             event.preventDefault();
