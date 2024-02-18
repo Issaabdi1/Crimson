@@ -3,7 +3,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tasks.models import User, Notification, SharedFiles, Upload
-from datetime import datetime 
+from django.utils import timezone
 
 class NotificationModelTestCase(TestCase):
     """Unit tests for the Notification model."""
@@ -22,8 +22,10 @@ class NotificationModelTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user, file=mock_file)
         shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = second_user)
         shared_file.shared_to.add(self.user)
-        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user, notification_message="Hello")
+        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user, notification_message="Hello")
 
+    def tearDown(self):
+        self.upload.delete()
 
     def test_valid_notification(self):
         self._assert_notification_is_valid()

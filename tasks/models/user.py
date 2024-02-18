@@ -18,6 +18,8 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
+    theme_preference = models.CharField(max_length=30, default='default-mode')
+
 
     class Meta:
         """Model options."""

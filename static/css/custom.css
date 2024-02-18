@@ -1,0 +1,258 @@
+/*
+ * Alerts
+ */
+
+
+
+.alert {
+  border-radius: 0px;
+}
+
+
+/*
+ * Cover page
+ */
+
+.content {
+  padding-top: 10px;
+}
+
+.h-100 {
+  min-height: 100vh;
+  height: 100vh;
+}
+
+.vcenter-item{
+    display: flex;
+    align-items: center;
+}
+
+/*
+ * Cover page
+ */
+h1.cover-heading {
+  font-size: 4rem;
+}
+
+p.cover-text {
+  font-size: 1.7rem;
+}
+
+.cover-card {
+  background-color: rgba(245, 245, 245, 0.6);
+  max-width: 30rem;
+  padding-top: 30px;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-bottom: 30px;
+  border-radius: 15%;
+}
+.cover-card-block {
+  opacity: 1
+}
+
+
+/*
+ * forms
+ */
+.nolabel label {
+  display: none;
+}
+
+ul.errorlist {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/*
+ * Typefaces
+ */
+
+.low-key {
+  color: #777777;
+  font-weight: 300;
+}
+
+.list-title {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/*
+ * Profile
+ */
+.profile-image {
+  width: 120px;
+  clear:both;
+  float:left;
+}
+
+.profile-text {
+  overflow:hidden;
+  padding-left:20px
+}
+
+h3.profile-title {
+  margin-bottom: 0px;
+}
+
+.profile-username {
+  color: #777777;
+  font-weight: 300;
+  font-style: italic;
+}
+
+
+/*
+ * Hyperlinks
+ */
+.content a {
+  text-decoration: none;
+  color: #0d6efd;
+}
+.content a:hover {
+  text-decoration: underline;
+  color: #0d6efd;
+}
+
+
+/*
+ * Popup window
+ */
+.popup-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.popup {
+    border-radius: 25px;
+    border: 2px solid white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    height: 300px;
+    width: 300px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+
+/*
+ * Team list style
+ */
+ul.teams-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul.teams-list li {
+    margin-bottom: 20px;
+    font-size: large;
+}
+
+/*  
+Default mode 
+*/
+.default-mode .sidebar {
+  background-color: rgb(239, 239, 239);
+}
+
+/*
+Dark mode  
+*/
+.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+.dark-mode .dropdown-custom-theme  {
+  background-color: rgb(69, 69, 69) ;
+  color: rgb(76, 76, 76) !important;
+}
+
+.dark-mode .sidebar {
+  background-color: rgb(69, 69, 69) ;
+}
+
+.dark-mode a {
+  color: #ffffff; 
+}
+
+/* 
+Orange mode  
+*/
+.orange-mode {
+  background-color: #FFD7BA; 
+  color: #5A2C04;
+}
+
+.orange-mode .sidebar {
+  background-color: #ffc99f; 
+  color: #FFFFFF; 
+}
+.orange-mode a {
+  color: #000000; 
+}
+
+.orange-mode .dropdown-custom-theme {
+  background-color: #ffffff; 
+  color: #5A2C04; 
+}
+
+/* 
+Forest mode 
+*/
+.forest-mode {
+  background-color: #A3C1AD; 
+  color: #1E3D22; 
+}
+.forest-mode .dropdown-custom-theme {
+  background-color: #507D60; 
+  color: #c7cec8; 
+}
+
+.forest-mode .sidebar {
+  background-color: #507D60; 
+  color: #1E3D22; 
+}
+
+.forest-mode a {
+  color: #ffffff; 
+}
+
+.forest-mode a .btn {
+  background-color: red ; 
+}
+
+/* 
+Pink mode 
+*/
+.pink-mode {
+  background-color: #FDE2E4;
+  color: #882D60;
+}
+
+.pink-mode .sidebar {
+  background-color: #F4C2C2; 
+  color: #882D60; 
+}
+
+.pink-mode a {
+  color: #9E5062; 
+}

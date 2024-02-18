@@ -1,9 +1,12 @@
-<div class="col-sm-auto bg-light p-3 sticky-top">
+<div id="sidebar" class=" sidebar col-sm-auto  p-3 sticky-top">
+
     <!-- A vertical navbar -->
         <!-- Links -->
         {% url 'dashboard' as dashboard %}
         {% url 'filelist' as filelist %}
         {% url 'shared_file_list' as shared_file_list %}
+        {% url 'team_list' as team_list %}
+        {% url 'create_team' as create_team %}
 
         <ul class="nav flex-column nav-pills nav-fill">
             <!--For each item, it highlights the link if in its corresponding page. The page is passed in as a parameter-->
@@ -22,6 +25,13 @@
                 {% endif %}
             </li>
             <li class="nav-item">
+                {% if request.path == team_list or request.path == create_team %}
+                    <a class="nav-link active text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
+                {%else%}
+                    <a class="nav-link text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
                 {% if request.path == shared_file_list %}
                     <a class="nav-link active text-center" aria-current="page" href="{% url 'shared_file_list' %}">Shared To Me</a>
                 {%else%}
@@ -29,4 +39,5 @@
                 {% endif %}
             </li>
         </ul>
+
 </div>

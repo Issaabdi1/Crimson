@@ -1,0 +1,25 @@
+{% extends 'base_content.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Other meta tags, title, etc. -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'custom.css' %}" rel="stylesheet">
+</head>
+<body class="{{ selected_theme }}">
+    <div class="container ">
+    <h1>Preferences</h1>
+    <form id="themePreferencesForm" method="post" action="{% url 'preferences' %}">
+        {% csrf_token %}
+        <div id="themeOptions">
+        <!-- Theme selection options here -->
+        </div>
+        <button type="submit" class="btn btn-primary">Save Preferences</button>
+    </form>
+    </div>
+    <script src="{% static 'js/themes.js' %}"></script>
+</body>
+</html>
+{% endblock %}

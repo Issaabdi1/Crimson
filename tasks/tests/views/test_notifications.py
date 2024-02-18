@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from tasks.models import User, Notification, SharedFiles, Upload
-from datetime import datetime
+from django.utils import timezone
 
 class NotificationsTestCase(TestCase):
     """Tests of the Notifications side bar."""
@@ -21,9 +21,11 @@ class NotificationsTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user, file=mock_file)
         shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = self.second_user)
         shared_file.shared_to.add(self.user)
-        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
-        self.notification2 = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=datetime.now(), user=self.user)
+        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user)
+        self.notification2 = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user)
 
+    def tearDown(self):
+        self.upload.delete()
 
     def test_notifications_passed_in(self):
         """Test that the correct notifications list is passed into the template"""
@@ -40,6 +42,16 @@ class NotificationsTestCase(TestCase):
         data = {'file-id': self.upload.id, 'user-id': self.second_user.id}
         before_count = Notification.objects.count()
         response = self.client.post(share_files_url, data)
+        self.assertEqual(response.status_code, 302)
+        after_count = Notification.objects.count()
+        self.assertEqual(before_count + 1, after_count)
+        self.assertIsNotNone(Notification.objects.filter(user=self.user))
+    
+    def test_notification_created_when_file_unshared(self):
+        """Shares a file, and tests if a notification is created"""
+        unshare_files_url = reverse('unshare_file', kwargs={'upload_id':self.upload.id, 'user_id':self.second_user.id})
+        before_count = Notification.objects.count()
+        response = self.client.post(unshare_files_url)
         self.assertEqual(response.status_code, 302)
         after_count = Notification.objects.count()
         self.assertEqual(before_count + 1, after_count)
