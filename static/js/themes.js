@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "themes": [
             "dark-mode",
             "default-mode",
-            "fire-mode",
+            "orange-mode",
             "forest-mode",
             "pink-mode",
         ]
