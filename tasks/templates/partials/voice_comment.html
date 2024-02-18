@@ -24,7 +24,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>  
     const recordButton = document.getElementById('record');
     const playButton = document.getElementById('play');
@@ -36,6 +36,16 @@
     let isRecording = false;
     navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
+
+        function reset(){
+            audioChunks = [];
+            isRecording = false;
+            recordButton.textContent = "Record";
+            playButton.disabled = true;
+            clearButton.disabled = true;
+            submitButton.disabled = true;
+            output.innerHTML = 'Record a Voice Comment!';            
+        }
     
         // Initialize the media recorder object
         audioRecorder = new MediaRecorder(stream);
@@ -79,13 +89,43 @@
 
         clearButton.addEventListener('click', (event) => {
             event.preventDefault();
-            audioChunks = [];
-            isRecording = false;
-            recordButton.textContent = "Record";
-            playButton.disabled = true;
-            clearButton.disabled = true;
-            submitButton.disabled = true;
+            reset();
         });
+
+        // submitButton.addEventListener('click',(event) => {
+        //     const blobObj = new Blob(audioChunks, { type: 'audio/webm' });
+        //     const audioUrl = URL.createObjectURL(blobObj);
+        //     const audio = new Audio(audioUrl);
+        // });
+
+        submitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(document.getElementById('voiceCommentForm'));
+            const blobObj = new Blob(audioChunks, { type: 'audio/wav' });
+            formData.append('audio_file', blobObj, 'voice_comment.wav');
+
+            fetch('{% url "voice_comment_views" upload.id %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Add CSRF token if needed
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server if needed
+                console.log('Voice comment uploaded successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error uploading voice comment:', error);
+            });
+
+            reset();
+            output.innerHTML = 'Submitted! Record another Comment!';
+            $('#voiceCommentModal{{ upload.id }}').modal('hide');
+        });
+
 
         
     }).catch(err => {
