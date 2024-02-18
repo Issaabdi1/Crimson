@@ -1,0 +1,106 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" href="viewer.css">
+<script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.mjs"></script>
+<script src="viewer.js"></script>
+</head>
+<body>
+	<div id="outerContainer">
+
+		<!-- Sidebar -->
+		<div id="sidebar">
+
+			<!-- Sidebar Toolbar -->
+			<div id="sidebarToolbar">
+
+				<!-- Sidebar Toolbar View Buttons -->
+				<button id="viewThumbnails" class="toolbarButton toggled" title="View Thumbnails">
+					<i class="fa-solid fa-grip-vertical"></i>
+				</button>
+				<button id="viewOutline" class="toolbarButton toggled" title="View Outline">
+					<i class="fa-solid fa-bars-staggered"></i>
+				</button>
+				<button id="viewComments" class="toolbarButton toggled" title="View Comments">
+					<i class="fa-regular fa-message"></i>
+				</button>
+				<button id="viewBookmarks" class="toolbarButton toggled" title="View Bookmarks">
+					<i class="fa-regular fa-bookmark"></i>
+				</button>
+			</div>
+
+			<!-- Sidebar Views -->
+			<div id="sidebarViews">
+				<div id="thumbnailView"></div>
+				<div id="outlineView"></div>
+				<div id="commentView"></div>
+				<div id="bookmarksView"></div>
+			</div>
+		</div>
+
+		<!-- Main Container -->
+		<div id="mainContainer">
+			
+			<!-- Toolbar -->
+			<div id="toolbar">
+			
+				<!-- Toolbar Sections -->
+				<div id="toolbarSections">
+				
+					<!-- Left Toolbar Section -->
+					<div id="toolbarLeft" class="toolbarSection">
+						<button id="sidebarToggle" class="toolbarButton toggled" title="Toggle Sidebar">
+							<i class="fa-solid fa-bars"></i>
+						</button>		
+						<button id="previousPage" class="toolbarButton" title="Previous Page">
+							<i class="fa-solid fa-arrow-up"></i>
+						</button>
+						<button id="nextPage" class="toolbarButton" title="Next Page">
+							<i class="fa-solid fa-arrow-down"></i>
+						</button>
+						<input id="pageInput" class="toolbarField" title="Page" placeholder="0"></input>
+						<span id="numberPages" class="toolbarLabel">of 0</span>
+					</div>
+					
+					<!-- Middle Toolbar Section -->
+					<div id="toolbarMiddle" class="toolbarSection">
+						<div id="titleContainer">
+							<div id="documentTitle">Lorem Ipsum</div>
+							<div id="fileName">loremipsum.pdf</div>
+						</div>
+					</div>
+					
+					<!-- Right Toolbar Section -->
+					<div id="toolbarRight" class="toolbarSection">			
+						<select id="selectScale" class="toolbarSelect" title="Zoom">
+							<option id="pageFit" value="fit">Fit Page</option>
+        	                        		<option id="pageWidth" value="width">Fit Width</option>
+                	                		<option value="0.5">50%</option>
+                        	        		<option value="0.75">75%</option>
+                                			<option value="1">100%</option>
+                                			<option value="1.25">125%</option>
+                                			<option value="1.5">150%</option>
+	                                		<option value="2">200%</option>
+        	                        		<option value="3">300%</option>
+                	                		<option value="4">400%</option>
+						</select>		
+						<button id="viewFindbar" class="toolbarButton toggled" title="Find in Document">
+							<i class="fa-solid fa-magnifying-glass"></i>
+						</button>
+						<button id="viewSettingsMenu" class="toolbarButton toggled" title="Options">
+							<i class="fa-solid fa-ellipsis"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		
+			<!-- PDF Viewer -->
+			<div id="viewer">
+				<canvas id="pdf"></canvas>
+			</div>		
+		</div>
+	</div>
+</body>
+</html>
