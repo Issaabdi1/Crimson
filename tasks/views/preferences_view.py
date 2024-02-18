@@ -7,8 +7,6 @@ def preferences_view(request):
         selected_theme = request.POST.get('themeSelection', 'default-mode')
         request.user.theme_preference = selected_theme
         request.user.save()
-        print("selected theme : ")
-        print(selected_theme)  # This should print the selected theme
 
     # If GET or after POST, use user's stored theme preference
     selected_theme = request.user.theme_preference
