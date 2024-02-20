@@ -40,3 +40,10 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
 
         return self.gravatar(size=60)
+
+    def profile_image(self, size=120):
+        """Return a URL to the user's profile image."""
+
+        if self.profileimage_set.all().count() != 0:
+            return self.profileimage_set.all().first().image.url
+        return None

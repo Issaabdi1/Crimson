@@ -1,0 +1,29 @@
+{% extends 'base_content.html' %}
+{% block content %}
+    <div class="col-12">
+        <div class="row justify-content-center mt-5">
+            <div class="col-9">
+                <a href="https://en.gravatar.com/profile/avatars" target="_blank" title="Change your Gravatar">
+                    <img src="{{ user.profile_image }}" alt="Gravatar of {{ user.username }}"
+                         class="rounded-circle profile-image mb-3">
+                </a>
+                <div class="profile-text mt-4">
+                    <h3 class="profile-title">{{ user.full_name }}</h3>
+                    <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-5">
+            <div class="section">
+                <h1>Upload Image</h1>
+                <hr>
+                <br>
+                <form action="{% url 'profile_image' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form }}
+                    <p><input class="btn btn-primary mt-3" type="submit" value="Upload"/></p>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,13 +1,15 @@
 """Account related views."""
 from typing import Any
+from django.shortcuts import render
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tasks.forms import PasswordForm, UserForm, SignUpForm
-from tasks.models import Notification
+from tasks.forms import PasswordForm, UserForm, SignUpForm, UploadProfileImageForm
+from tasks.models import Notification, ProfileImage
 from .mixins import LoginProhibitedMixin
 
 
@@ -70,3 +72,25 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+
+
+@login_required
+def profile_image(request):
+    """Change the current user's profile image."""
+    current_user = request.user
+    form = UploadProfileImageForm()
+    if request.method == 'POST':
+        form = UploadProfileImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = request.FILES['image']
+            if settings.USE_S3:
+                new_image = ProfileImage(image=image, user=current_user)
+                new_image.full_clean()
+                new_image.save()
+            else:
+                messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
+        else:
+            form = UploadProfileImageForm()
+    context = {'user': current_user,
+               'form': form}
+    return render(request, 'profile_image.html', context)

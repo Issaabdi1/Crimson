@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'tasks',
     'storages',
+    'easy_thumbnails',
 ]
 
 MIDDLEWARE = [
