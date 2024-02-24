@@ -1,3 +1,4 @@
+// filelist.js
 function showRenameField(button) {
     if (button) {
         const renameForm = button.nextElementSibling;
@@ -48,6 +49,3 @@ function confirmRename(form) {
     }
 }
 
-function openLink(url) {
-    window.location.href = url;
-}

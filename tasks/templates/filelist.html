@@ -116,30 +116,31 @@
 </div>
 {% endfor %}
 
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var items = document.querySelectorAll("#fileList .list-item");
-        var index = 0;
-        var interval = setInterval(function () {
-            if (index >= items.length) {
-                clearInterval(interval);
-                return;
-            }
-            items[index].style.opacity = "1"; // 显示列表项
-            items[index].style.transform = "translateY(0)";
-            index++;
-        }, 200);
-    });
+    function openLink(url) {
+    window.location.href = url;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    var items = document.querySelectorAll("#fileList .list-item");
+    var index = 0;
+    var interval = setInterval(function () {
+        if (index >= items.length) {
+            clearInterval(interval);
+            return;
+        }
+        items[index].style.opacity = "1"; // 显示列表项
+        items[index].style.transform = "translateY(0)";
+        index++;
+    }, 200);
+});
 </script>
 
 <style>
     .list-item {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
     }
 </style>
-
-
 {% endblock %}
