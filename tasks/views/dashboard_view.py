@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 def dashboard(request):
     """Display the current user's dashboard."""
     current_user = request.user
-    image_url = None
+    file_url = None
     context = {'user': current_user}
     form = FileForm()
     if request.method == 'POST':
@@ -25,7 +25,7 @@ def dashboard(request):
                 try:
                     upload.full_clean()
                     upload.save()
-                    image_url = upload.file.url
+                    file_url = upload.file.url
 
                     # Add upload to team files
                     team_id = request.POST.get("team_id")
@@ -39,8 +39,8 @@ def dashboard(request):
                 messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
         else:
             form = FileForm()
-    if image_url:
-        context['image_url'] = image_url
+    if file_url:
+        context['file_url'] = file_url
     context['form'] = form
     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
     return render(request, 'dashboard.html', context)
