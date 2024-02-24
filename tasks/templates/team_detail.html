@@ -16,7 +16,11 @@
                                     <h5 class="card-title">{{ upload.file.name }}</h5>
                                     <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
                                     <p class="card-text">Comment: {{ upload.comments}}</p>
-                                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                                    <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="upload_id" value="{{ upload.id }}">
+                                        <button type="submit" class="btn btn-primary me-1">View PDF</button>
+                                    </form>
                                     <form method="post" class="d-inline" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="upload_id" id="uploadIdField">
