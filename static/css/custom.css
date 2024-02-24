@@ -41,10 +41,6 @@ p.cover-text {
 .cover-card {
   background-color: rgba(245, 245, 245, 0.6);
   max-width: 30rem;
-  padding-top: 30px;
-  padding-left: 50px;
-  padding-right: 50px;
-  padding-bottom: 30px;
   border-radius: 15%;
 }
 .cover-card-block {
@@ -194,54 +190,54 @@ Dark mode
   color: #ffffff; 
 }
 
-/* 
-Orange mode  
+/*
+Orange mode
 */
 .orange-mode {
-  background-color: #FFD7BA; 
+  background-color: #FFD7BA;
   color: #5A2C04;
 }
 
 .orange-mode .sidebar {
-  background-color: #ffc99f; 
-  color: #FFFFFF; 
+  background-color: #ffc99f;
+  color: #FFFFFF;
 }
 .orange-mode a {
-  color: #000000; 
+  color: #000000;
 }
 
 .orange-mode .dropdown-custom-theme {
-  background-color: #ffffff; 
-  color: #5A2C04; 
+  background-color: #ffffff;
+  color: #5A2C04;
 }
 
-/* 
-Forest mode 
+/*
+Forest mode
 */
 .forest-mode {
-  background-color: #A3C1AD; 
-  color: #1E3D22; 
+  background-color: #A3C1AD;
+  color: #1E3D22;
 }
 .forest-mode .dropdown-custom-theme {
-  background-color: #507D60; 
-  color: #c7cec8; 
+  background-color: #507D60;
+  color: #c7cec8;
 }
 
 .forest-mode .sidebar {
-  background-color: #507D60; 
-  color: #1E3D22; 
+  background-color: #507D60;
+  color: #1E3D22;
 }
 
 .forest-mode a {
-  color: #ffffff; 
+  color: #ffffff;
 }
 
 .forest-mode a .btn {
-  background-color: red ; 
+  background-color: red ;
 }
 
-/* 
-Pink mode 
+/*
+Pink mode
 */
 .pink-mode {
   background-color: #FDE2E4;
@@ -249,11 +245,11 @@ Pink mode
 }
 
 .pink-mode .sidebar {
-  background-color: #F4C2C2; 
-  color: #882D60; 
+  background-color: #F4C2C2;
+  color: #882D60;
 }
 
 .pink-mode a {
-  color: #9E5062; 
+  color: #9E5062;
 }
 

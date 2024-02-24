@@ -1,35 +1,145 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
-<div class="col-12">
-    <div class="row">
-        <div class="col-10">
-            <h1>Welcome to your dashboard {{ user.username }}</h1>
+{% load static %}
+<style>
+    .table-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: auto;
+        margin: 0 auto;
+        overflow: auto;
+    }
+
+    .table {
+        width: 100%;
+    }
+
+    .nav-item {
+        margin-right: 5px;
+    }
+
+    /* 隐藏所有表格 */
+    .table-container table {
+        display: none;
+    }
+</style>
+
+<div class="col-12 text-center">
+    <h1>PDF Upload</h1>
+
+    <div class="table-container shadow p-3 mb-5 bg-body-tertiary rounded" style="display: flex; flex-direction: column; align-items: center;">
+        <ul class="mb-3 justify-center nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation"><button type="button" id="content-selector-tab-zip" role="tab" data-rr-ui-event-key="zip" aria-controls="content-selector-tabpane-zip" aria-selected="true" class="nav-link active">ZIP</button></li>
+            <li class="nav-item" role="presentation"><button type="button" id="content-selector-tab-pdf" role="tab" data-rr-ui-event-key="pdf" aria-controls="content-selector-tabpane-pdf" aria-selected="false" class="nav-link" tabindex="-1">PDF</button></li>
+            <li class="nav-item" role="presentation"><a href="{% url 'share_file' %}" id="content-selector-tab-template" role="tab" data-rr-ui-event-key="template" aria-controls="content-selector-tabpane-template" aria-selected="false" class="nav-link" tabindex="-1">Share</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <table class="table table-hover zip-table" style="margin-bottom: 20px;">
+                <tbody>
+                    <tr>
+                        <td colspan="5" tabindex="0" style="flex: 1 1 0%; display: flex; flex-direction: column; align-items: center; padding: 100px 400px; border-width: 3px; border-radius: 8px; border-color: rgb(220, 155, 255); border-style: dashed; background-color: rgb(250, 250, 250); color: rgb(189, 189, 189); outline: none; transition: border 0.24s ease-in-out 0s; cursor: pointer;">
+                            <input id="zip-file-input" accept="application/zip, application/x-zip-compressed, multipart/x-zip, .html, .htm" multiple="" type="file" autocomplete="off" tabindex="-1" style="display: none;">
+                            <div class="flex" style="width: 70px; height: 70px; overflow: hidden;">
+                                <img class="icon faded p-2" src="{% static '/image/zip-icon.png' %}" alt="ZIP" style="max-width: 100%; max-height: 100%;">
+                            </div>
+
+                            <div class="mt-5">
+                                <div class="section" id="zip-file-upload-section">
+                                    <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <p>{{ form.non_field_errors }}</p>
+                                        {% if file_url %}
+                                            <p>File uploaded at: <a href="{{ file_url }}">{{ file_url|truncatechars:20 }}</a></p>
+                                        {% else %}
+                                            <p>{{ form.file.help_text }}</p>
+                                        {% endif %}
+                                        <p>
+                                            {{ form.file.errors }}
+                                            {{ form.file }}
+                                        </p>
+                                        <p><input id="zip-upload-button" class="mt-3 d-block ps-4 pe-4 btn btn-success" type="submit" value="Upload"/></p>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table class="table table-hover pdf-table" style="margin-bottom: 20px;">
+                <tbody>
+                    <tr>
+                        <td colspan="5" tabindex="0" style="flex: 1 1 0%; display: flex; flex-direction: column; align-items: center; padding: 100px 400px; border-width: 3px; border-radius: 8px; border-color: rgb(220, 155, 255); border-style: dashed; background-color: rgb(250, 250, 250); color: rgb(189, 189, 189); outline: none; transition: border 0.24s ease-in-out 0s; cursor: pointer;">
+                            <input id="pdf-file-input" accept="application/pdf, .pdf" multiple="" type="file" autocomplete="off" tabindex="-1" style="display: none;">
+                            <div class="flex" style="width: 70px; height: 70px; overflow: hidden;">
+                                <img class="icon faded p-2" src="{% static '/image/pdf_icon_svg.png' %}" alt="PDF" style="max-width: 100%; max-height: 100%;">
+                            </div>
+
+                            <div class="mt-5">
+                                <div class="section" id="pdf-file-upload-section">
+                                    <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <p>{{ form.non_field_errors }}</p>
+                                        {% if file_url %}
+                                            <p>File uploaded at: <a href="{{ file_url }}">{{ file_url|truncatechars:20 }}</a></p>
+                                        {% else %}
+                                            <p>{{ form.file.help_text }}</p>
+                                        {% endif %}
+                                        <p>
+                                            {{ form.file.errors }}
+                                            {{ form.file }}
+                                        </p>
+                                        <p><input id="pdf-upload-button" class="mt-3 d-block ps-4 pe-4 btn btn-success" type="submit" value="Upload"/></p>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="col-2">
-            <a type="button" class="btn btn-primary text-nowrap" href="{% url 'share_file' %}">
-                <i class="bi bi-box-arrow-up"></i> Share
-            </a>
-        </div>
-    </div>
-    <div class="container mt-5">
-        <div class="section">
-            <h1>Upload Image</h1>
-            <hr>
-            <br>
-            <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>{{ form.non_field_errors }}</p>
-                <p>{{ form.file.label_tag }} {{ form.file.help_text }}</p>
-                <p>
-                    {{ form.file.errors }}
-                    {{ form.file }}
-                </p>
-                <p><input class="btn btn-primary" type="submit" value="Upload"/></p>
-            </form>
-        </div>
-        {% if image_url %}
-            <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
-        {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(event) {
+    showTable('zip');
+
+    document.getElementById('content-selector-tab-zip').addEventListener('click', function() {
+        showTable('zip');
+    });
+
+    document.getElementById('content-selector-tab-pdf').addEventListener('click', function() {
+        showTable('pdf');
+    });
+
+    function showTable(type) {
+        document.querySelectorAll('.table-container table').forEach(function(table) {
+            table.style.display = 'none';
+        });
+
+        document.querySelector('.' + type + '-table').style.display = 'table';
+    }
+
+    document.getElementById('zip-file-input').addEventListener('click', function() {
+        document.getElementById('file-input').click();
+    });
+
+    document.getElementById('pdf-file-input').addEventListener('click', function() {
+        document.getElementById('file-input').click();
+    });
+
+    document.getElementById('upload-button').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+
+    document.getElementById('file-upload-section').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+});
+</script>
+
 {% endblock %}
