@@ -1,13 +1,13 @@
-const url = 'loremipsum.pdf';
+const url = "{% static 'loremipsum.pdf'%}"; // Adjust the URL here
 
-pdfjsLib.GlobalWorkerOption.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
 
 const loadingTask = pdfjsLib.getDocument(url);
 const pdf = loadingTask.promise;
 
 const page = pdf.getPage(1);
 const scale = 1.5;
-const viewport = page.getViewport({ sclae });
+const viewport = page.getViewport({ scale });
 
 const canvas = document.getElementById("pdf");
 const context = canvas.getContext("2d");

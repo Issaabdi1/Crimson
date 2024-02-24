@@ -1,11 +1,10 @@
 <html>
 <head>
+{%load static%}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
-<link rel="stylesheet" href="viewer.css">
+<link rel="stylesheet" href="{% static 'css/viewer.css'%}">
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.mjs"></script>
-<script src="viewer.js"></script>
 </head>
 <body>
 	<div id="outerContainer">
@@ -67,8 +66,9 @@
 					<!-- Middle Toolbar Section -->
 					<div id="toolbarMiddle" class="toolbarSection">
 						<div id="titleContainer">
-							<div id="documentTitle">Lorem Ipsum</div>
-							<div id="fileName">loremipsum.pdf</div>
+							<!--Showing incomplete info right now-->
+							<div id="documentTitle">{{upload.file.name}}</div>
+							<div id="fileName">{{upload.file.name}}</div>
 						</div>
 					</div>
 					
@@ -102,5 +102,74 @@
 			</div>		
 		</div>
 	</div>
+	<script type="module">
+		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+	
+		document.addEventListener("DOMContentLoaded", async function() {
+			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+	
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+	
+			const canvas = document.getElementById("pdf");
+			const context = canvas.getContext("2d");
+	
+			const scale = 1.5;
+			const outputScale = window.devicePixelRatio || 1;
+			const pageSpacing = 0; // Adjust spacing between pages here
+	
+			const loadingTask = pdfjsLib.getDocument(pdfUrl);
+			const pdf = await loadingTask.promise;
+	
+			let totalHeight = 0;
+			let maxWidth = 0;
+			
+			// Work out required canvas width and height
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				const pageWidth = Math.floor(viewport.width * outputScale);
+				const pageHeight = Math.floor(viewport.height * outputScale);
+	
+				// Calculate total height required to display all pages
+				totalHeight += pageHeight + pageSpacing;
+	
+				// Update maximum width among all pages
+				maxWidth = Math.max(maxWidth, pageWidth);
+			}
+	
+			// Adjust canvas size
+			canvas.width = maxWidth;
+			canvas.height = totalHeight;
+			canvas.style.width = maxWidth / outputScale + "px";
+        	canvas.style.height = totalHeight / outputScale + "px";
+	
+			let offsetY = 0;
+
+			// This increases the size somehow
+			const transform = outputScale !== 1
+					? [outputScale, 0, 0, outputScale, 0, 0]
+					: null;
+
+			
+			// Render every page in pdf
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				const renderContext = {
+					canvasContext: context,
+					transform,
+					viewport,
+				};
+				
+				await page.render(renderContext).promise;
+
+				// Move the correct amount to render the next page below the current one
+				let pageHeight = Math.floor(viewport.height * outputScale)
+				context.translate(0, pageHeight + pageSpacing);
+			}
+		});
+	</script>
+	
 </body>
 </html>
+
