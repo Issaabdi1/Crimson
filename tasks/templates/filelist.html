@@ -3,72 +3,105 @@
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
-        <h1>My files:</h1>
-        {% for upload in uploads %}
-            <div class="row mb-4">
-                <div class="card">
-                    <div class="card-body mb-2">
-                        <h5 class="card-title">{{ upload.file.name }}</h5>
-                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                        <p class="card-text">Comment: {{ upload.comments}}</p>
-                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
-                        <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="upload_id" id="uploadIdField">
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
-                                Comment
-                            </button>
-        
-                            <!-- Modal -->
-                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="form-floating">
-                                                <label for="inputComments"></label>
-                                                <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                                                <label>Descriptions</label>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-primary">Save changes</button>
-                                        </div>
-                                    </div>
+            <h1>My files:</h1>
+            <div class="list-container custom-list-size">
+                <div class="list-group" style="display: flex; flex-wrap: wrap;" id="fileList">
+                    {% for upload in uploads %}
+                    <div class="flex-column flex-md-row list-item" style="margin-bottom: 0; opacity: 0; transform: translateY(20px);">
+                        <a href="{{ upload.file.url }}" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" style="width: 200%;" data-upload-time="{{ upload.uploaded_at }}">
+                            <img src="https://github.com/twbs.png" alt="twbs" width="32" height="32" class="rounded-circle flex-shrink-0">
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0"><strong>{{ upload.file.name }}</strong></h6>
+                                    <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span class="upload-time">{{ upload.uploaded_at }}</span></p>
+                                    <p class="mb-0 opacity-75"><strong>Comment:</strong> {{ upload.comments }}</p>
+                                    <!--Delete PDF-->
+                                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
+                                    </form>
                                 </div>
+                                <small class="opacity-50 text-nowrap" id="uploadTime">Uploaded {{ upload.upload_time_difference}}</small>
+                                <!-- <small>Edited just now</small> -->
                             </div>
-                        </form>
-                        <!--Delete PDF-->
-                        <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
-                        </form>
-                        <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
-                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
-                            {% csrf_token %}
-                            <label>
-                                <input type="text" name="new_name" placeholder="New file name" required>
-                            </label>
-                            <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
-                            <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
-                        </form>
-                     </div>
+                        </a>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-        {% endfor %}
         </div>
-        {% if uploads %}
-            <div class="col-lg-7 col-sm-6">
-                {% include 'unshare_file.html' with uploads=uploads %}
-            </div>
-        {% endif %}
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+{#        {% for upload in uploads %}#}
+{#            <div class="row mb-4">#}
+{#                <div class="card">#}
+{#                    <div class="card-body mb-2">#}
+{#                        <h5 class="card-title">{{ upload.file.name }}</h5>#}
+{#                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>#}
+{#                        <p class="card-text">Comment: {{ upload.comments}}</p>#}
+{#                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>#}
+{#                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>#}
+{#                        <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">#}
+{#                            {% csrf_token %}#}
+{#                            <input type="hidden" name="upload_id" id="uploadIdField">#}
+{#                            <!-- Button trigger modal -->#}
+{#                            <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">#}
+{#                                Comment#}
+{#                            </button>#}
+{##}
+{#                            <!-- Modal -->#}
+{#                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">#}
+{#                                <div class="modal-dialog">#}
+{#                                    <div class="modal-content">#}
+{#                                        <div class="modal-header">#}
+{#                                            <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>#}
+{#                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                                        </div>#}
+{#                                        <div class="modal-body">#}
+{#                                            <div class="form-floating">#}
+{#                                                <label for="inputComments"></label>#}
+{#                                                <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>#}
+{#                                                <label>Descriptions</label>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="modal-footer">#}
+{#                                            <button type="submit" class="btn btn-primary">Save changes</button>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </form>#}
+
+{#                        <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>#}
+{#                        <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">#}
+{#                            {% csrf_token %}#}
+{#                            <label>#}
+{#                                <input type="text" name="new_name" placeholder="New file name" required>#}
+{#                            </label>#}
+{#                            <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>#}
+{#                            <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>#}
+{#                        </form>#}
+{#                     </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        {% endfor %}#}
+{#        {% if uploads %}#}
+{#            <div class="col-lg-7 col-sm-6">#}
+{#                {% include 'unshare_file.html' with uploads=uploads %}#}
+{#            </div>#}
+{#        {% endif %}#}
+{#    </div>#}
 
 <!--Really bad implementation of this-->
 {% for upload in uploads %}
@@ -82,5 +115,31 @@
     </div>
 </div>
 {% endfor %}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var items = document.querySelectorAll("#fileList .list-item");
+        var index = 0;
+        var interval = setInterval(function () {
+            if (index >= items.length) {
+                clearInterval(interval);
+                return;
+            }
+            items[index].style.opacity = "1"; // 显示列表项
+            items[index].style.transform = "translateY(0)";
+            index++;
+        }, 200);
+    });
+</script>
+
+<style>
+    .list-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+</style>
+
 
 {% endblock %}

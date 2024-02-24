@@ -47,3 +47,7 @@ function confirmRename(form) {
         console.error("Unable to find .card-title element");
     }
 }
+
+function openLink(url) {
+    window.location.href = url;
+}
