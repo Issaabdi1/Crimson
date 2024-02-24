@@ -1,16 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from tasks.models import Upload
 
 
 @login_required
-def delete_upload(request, upload_id):
+def delete_all_upload_views(request):
     if request.method == 'POST':
-        upload = get_object_or_404(Upload, pk=upload_id, owner=request.user)
-        upload.file.delete()
+        upload = Upload.objects.all()
         upload.delete()
         return HttpResponseRedirect(reverse('filelist'))
     else:
