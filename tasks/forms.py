@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
 from .models import User, Team
 
+
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
 
@@ -30,6 +31,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -40,7 +42,7 @@ class NewPasswordMixin(forms.Form):
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
                     'character and a number'
-            )]
+        )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
@@ -61,7 +63,7 @@ class PasswordForm(NewPasswordMixin):
 
     def __init__(self, user=None, **kwargs):
         """Construct new form instance with a user instance."""
-        
+
         super().__init__(**kwargs)
         self.user = user
 
@@ -113,11 +115,11 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 class FileForm(forms.Form):
     file = forms.FileField(
         label='Select a file',
-        help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
+        help_text='Drag & Drop single pdf file here, maximum size 100 MB.'
     )
 
-class CreateTeamForm(forms.ModelForm):
 
+class CreateTeamForm(forms.ModelForm):
     class Meta:
         """Form options."""
 
@@ -128,5 +130,7 @@ class CreateTeamForm(forms.ModelForm):
 class AddUserToTeamForm(forms.Form):
     """Form for adding User to a team"""
     username = forms.CharField(label='Username')
+
+
 class RenameForm(forms.Form):
     new_name = forms.CharField(label='New file name')
