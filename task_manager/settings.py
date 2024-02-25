@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'tasks',
     'storages',
-    'easy_thumbnails',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tasks.context_processors.settings_context',
             ],
         },
     },
@@ -165,3 +165,6 @@ REDIRECT_URL_WHEN_LOGGED_IN = 'dashboard'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+# Default profile image for user who not upload own profile image
+DEFAULT_IMAGE_URL = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/profile_image/default_image.png'

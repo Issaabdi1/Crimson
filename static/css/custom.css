@@ -164,3 +164,20 @@ ul.teams-list li {
     margin-bottom: 20px;
     font-size: large;
 }
+
+/*
+ * Profile image style
+ */
+.large_image{
+    height: 120px;
+    width: 120px;
+}
+
+.small_image{
+    height: 20px;
+    width: 20px;
+}
+
+.invert_image{
+    filter: invert(100%);
+}

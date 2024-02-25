@@ -23,7 +23,13 @@
     </li>
     <li class="nav-item dropdown">
       <a class="nav-link" href="#" id="user-account-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="bi-person-circle"></span>
+          {% if user.profile_image %}
+            <img src="{{ user.profile_image }}" alt="Profile image of {{ user.username }}"
+             class="rounded-circle small_image mb-1">
+          {% else %}
+            <img src="{{ settings.DEFAULT_IMAGE_URL }}" alt="Profile image of {{ user.username }}"
+             class="rounded-circle small_image mb-1 invert_image">
+          {% endif %}
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-account-dropdown">
         <li><a class="dropdown-item" href="{% url 'profile_image' %}">Profile image</a></li>

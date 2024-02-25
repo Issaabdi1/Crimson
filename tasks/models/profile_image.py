@@ -1,5 +1,4 @@
 from django.db import models
-from easy_thumbnails.fields import ThumbnailerImageField
 from . import User
 
 
@@ -12,4 +11,4 @@ class ProfileImage(models.Model):
        A user can have many profile image,
        but can only display one of them at one time."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = ThumbnailerImageField(upload_to=user_directory_path)
+    image = models.ImageField(upload_to=user_directory_path)
