@@ -1,30 +1,6 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
 {% load static %}
-<style>
-    .table-container {
-        border: 1px solid #ccc;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: auto;
-        margin: 0 auto;
-        overflow: auto;
-    }
-
-    .table {
-        width: 100%;
-    }
-
-    .nav-item {
-        margin-right: 5px;
-    }
-
-    /* 隐藏所有表格 */
-    .table-container table {
-        display: none;
-    }
-</style>
 
 <div class="col-12 text-center">
     <h1>PDF Upload</h1>
@@ -56,7 +32,7 @@
                                         {% else %}
                                             <p>{{ form.file.help_text }}</p>
                                         {% endif %}
-                                        <p>
+                                        <p style="text-align: center">
                                             {{ form.file.errors }}
                                             {{ form.file }}
                                         </p>
