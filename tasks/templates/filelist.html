@@ -5,12 +5,25 @@
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
             <h1>My files:</h1>
+            <div style="display: flex; align-items: center;">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                    Select All
+                </label>
+                <span style="margin-left: 20px;"></span>
+                <form action="{% url 'delete_all_upload_views' %}" method="post" class="d-all" id="delete-all" style="display: none; ">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i>Delete</button>
+                </form>
+            </div>
+
+            <br>
             <div class="list-container custom-list-size">
                 <div class="list-group" style="display: flex; flex-wrap: wrap;" id="fileList">
                     {% for upload in uploads %}
                     <div class="flex-column flex-md-row list-item" style="margin-bottom: 0; opacity: 0; transform: translateY(20px);">
                         <a href="{{ upload.file.url }}" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" style="width: 200%;" data-upload-time="{{ upload.uploaded_at }}">
-                            <img src="{% static '/image/pdf_icon_svg.png' %}" alt="twbs" width="32" height="32" class="rounded-circle flex-shrink-0">
+                            <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
                             <div class="d-flex gap-2 w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-0"><strong>{{ upload.file.name }}</strong></h6>
@@ -118,14 +131,19 @@
 {% endfor %}
 
 <script>
-    function openLink(url) {
-    window.location.href = url;
-}
-
 document.addEventListener("DOMContentLoaded", function () {
-    var items = document.querySelectorAll("#fileList .list-item");
-    var index = 0;
-    var interval = setInterval(function () {
+    const selectAllCheckbox = document.getElementById('flexCheckDefault');
+    const deleteAllForm = document.getElementById('delete-all');
+    selectAllCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            deleteAllForm.style.display = 'block';
+        } else {
+            deleteAllForm.style.display = 'none';
+        }
+    });
+    const items = document.querySelectorAll("#fileList .list-item");
+    let index = 0;
+    const interval = setInterval(function () {
         if (index >= items.length) {
             clearInterval(interval);
             return;
@@ -135,6 +153,19 @@ document.addEventListener("DOMContentLoaded", function () {
         index++;
     }, 200);
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAllCheckbox = document.getElementById('flexCheckDefault');
+    const deleteAllForm = document.getElementById('delete-all');
+    selectAllCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            deleteAllForm.style.display = 'block';
+        } else {
+            deleteAllForm.style.display = 'none';
+        }
+    });
+});
+
 </script>
 
 <style>
