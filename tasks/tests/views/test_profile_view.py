@@ -18,6 +18,7 @@ class ProfileViewTest(TestCase):
         self.user = User.objects.get(username='@johndoe')
         self.url = reverse('profile')
         self.form_input = {
+            'update_profile': 'True',
             'first_name': 'John2',
             'last_name': 'Doe2',
             'username': '@johndoe2',
@@ -68,7 +69,7 @@ class ProfileViewTest(TestCase):
         self.assertEqual(after_count, before_count)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'profile.html')
-        form = response.context['form']
+        form = response.context['profile_form']
         self.assertTrue(isinstance(form, UserForm))
         self.assertTrue(form.is_bound)
         self.user.refresh_from_db()

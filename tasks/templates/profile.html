@@ -1,17 +1,76 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container mt-3">
-  <div class="row">
-    <div class="col-sm p-3 min-vh-100">
-      <div class="col-12">
-        <h1>Edit profile</h1>
-        <form action="{% url 'profile' %}" method="post">
-          {% csrf_token %}
-          {% include 'partials/bootstrap_form.html' with form=form %}
-          <input type="submit" value="Update" class="btn btn-primary">
-        </form>
-      </div>
+    {% load static %}
+    <div id="popupContainer" class="popup-container">
+        <div id="popupForm" class="popup text-center" style="height: 375px; width: 800px">
+            <span id="closePopup" class="close-btn">&times;</span>
+            <h1>Update Profile Image</h1>
+            <hr>
+            <div class="row justify-content-center">
+                <div class="col-9">
+                    <form action="{% url 'profile' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row justify-content-center">
+                            <div class="col-4 mt-3">
+                                <label for="file-upload" class="custom-file-upload" style="z-index: 10">
+                                    <i class="bi bi-cloud-upload"></i> {{ upload_form.image.label_tag }} {{ upload_form.image }}
+                                </label>
+                            </div>
+                            <p class="col-4"><input class="btn btn-primary mt-3" type="submit"
+                                                    name="upload_image"
+                                                    value="Upload"/></p>
+                        </div>
+                    </form>
+                    <br>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div class="section">
+                    {% if user.profileimage_set.count > 0 %}
+                        <form action="{% url 'profile' %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row justify-content-evenly">
+                                {% for radio in avatar_form.avatar_index %}
+                                    <div class="col-2">
+                                        {{ radio.tag }}
+                                        <img src="{{ radio.choice_label }}" alt="avatar of {{ user.username }}"
+                                             class="rounded-circle profile-image mb-3 medium_image">
+                                    </div>
+                                {% endfor %}
+                                <p class="col-2"><input class="btn btn-primary mt-3" type="submit" name="update_avatar"
+                                                        value="Save"/></p>
+                            </div>
+
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+
+    <div class="container mt-3">
+        <div class="row justify-content-center mt-5">
+            <div class="col-9">
+                <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
+                     class="rounded-circle profile-image mb-3 large_image" id="ProfilePopup" style="cursor: pointer">
+                <div class="profile-text mt-4">
+                    <h3 class="profile-title">{{ user.full_name }}</h3>
+                    <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm p-3 min-vh-100">
+                <div class="col-12">
+                    <h1>Edit profile</h1>
+                    <form action="{% url 'profile' %}" method="post">
+                        {% csrf_token %}
+                        {% include 'partials/bootstrap_form.html' with form=profile_form %}
+                        <input type="submit" name="update_profile" value="Update" class="btn btn-primary">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static "js/popup_window_profile_image.js" %}"></script>
 {% endblock %}

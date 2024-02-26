@@ -1,6 +1,6 @@
 """Account related views."""
 from typing import Any
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
@@ -75,35 +75,62 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
 
 @login_required
-def profile_image(request):
-    """Change the current user's profile image."""
+def profile_update_view(request):
     current_user = request.user
     upload_form = UploadProfileImageForm()
     avatar_form = AvatarForm(user=current_user)
+    profile_form = UserForm(instance=request.user)
+
     if request.method == 'POST':
         if 'upload_image' in request.POST:
-            upload_form = UploadProfileImageForm(request.POST, request.FILES)
-            if upload_form.is_valid():
-                image = request.FILES['image']
-                if settings.USE_S3:
-                    new_image = ProfileImage(image=image, user=current_user)
-                    new_image.full_clean()
-                    new_image.save()
-                    current_user.avatar_url = new_image.image.url
-                    current_user.save()
-                else:
-                    messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
-            else:
-                upload_form = UploadProfileImageForm()
+            handle_upload_image(request, current_user, upload_form)
         elif 'update_avatar' in request.POST:
-            avatar_form = AvatarForm(request.POST, user=current_user)
-            if avatar_form.is_valid():
-                url = avatar_form.clean()['avatar_index']
-                current_user.avatar_url = url
-                current_user.save()
-            else:
-                avatar_form = AvatarForm(user=current_user)
-    context = {'user': current_user,
-               'upload_form': upload_form,
-               'avatar_form': avatar_form,}
-    return render(request, 'profile_image.html', context)
+            handle_update_avatar(request, current_user, avatar_form)
+        elif 'update_profile' in request.POST:
+            profile_form = UserForm(request.POST, instance=current_user)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated!")
+                return redirect(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+
+    context = {
+        'user': current_user,
+        'upload_form': upload_form,
+        'avatar_form': avatar_form,
+        'profile_form': profile_form,
+    }
+
+    return render(request, "profile.html", context)
+
+
+def handle_upload_image(request, current_user, upload_form):
+    """Handle the upload image form submission."""
+    upload_form = UploadProfileImageForm(request.POST, request.FILES)
+    if upload_form.is_valid():
+        image = request.FILES['image']
+        if settings.USE_S3:
+            save_image_to_s3(image, current_user)
+        else:
+            messages.add_message(request, messages.ERROR, 'The Amazon S3 service is not connected.')
+    else:
+        messages.add_message(request, messages.ERROR, 'Invalid image upload form.')
+
+
+def handle_update_avatar(request, current_user, avatar_form):
+    """Handle the update avatar form submission."""
+    avatar_form = AvatarForm(request.POST, user=current_user)
+    if avatar_form.is_valid():
+        url = avatar_form.clean()['avatar_index']
+        current_user.avatar_url = url
+        current_user.save()
+    else:
+        messages.add_message(request, messages.ERROR, 'Invalid avatar update form.')
+
+
+def save_image_to_s3(image, current_user):
+    """Save image to S3 and update current user's avatar URL."""
+    new_image = ProfileImage(image=image, user=current_user)
+    new_image.full_clean()
+    new_image.save()
+    current_user.avatar_url = new_image.image.url
+    current_user.save()

@@ -26,7 +26,7 @@ urlpatterns = [
     path('log_in/', views.LogInView.as_view(), name='log_in'),
     path('log_out/', views.log_out, name='log_out'),
     path('password/', views.PasswordView.as_view(), name='password'),
-    path('profile/', views.ProfileUpdateView.as_view(), name='profile'),
+    path('profile/', views.profile_update_view, name='profile'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('filelist/', views.filelist, name='filelist'),
     path('shared_file_list/', views.shared_file_list, name='shared_file_list'),
@@ -39,5 +39,4 @@ urlpatterns = [
     path('team_detail/<int:team_id>', views.team_detail_view, name='team_detail'),
     path('unshare_file/<int:upload_id>/<int:user_id>/', views.unshare_file, name='unshare_file'),
     path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
-    path('profile_image', views.profile_image, name='profile_image'),
 ]
