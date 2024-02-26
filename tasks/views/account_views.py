@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tasks.forms import PasswordForm, UserForm, SignUpForm, UploadProfileImageForm
+from tasks.forms import PasswordForm, UserForm, SignUpForm, UploadProfileImageForm, AvatarForm
 from tasks.models import Notification, ProfileImage
 from .mixins import LoginProhibitedMixin
 
@@ -78,19 +78,32 @@ class SignUpView(LoginProhibitedMixin, FormView):
 def profile_image(request):
     """Change the current user's profile image."""
     current_user = request.user
-    form = UploadProfileImageForm()
+    upload_form = UploadProfileImageForm()
+    avatar_form = AvatarForm(user=current_user)
     if request.method == 'POST':
-        form = UploadProfileImageForm(request.POST, request.FILES)
-        if form.is_valid():
-            image = request.FILES['image']
-            if settings.USE_S3:
-                new_image = ProfileImage(image=image, user=current_user)
-                new_image.full_clean()
-                new_image.save()
+        if 'upload_image' in request.POST:
+            upload_form = UploadProfileImageForm(request.POST, request.FILES)
+            if upload_form.is_valid():
+                image = request.FILES['image']
+                if settings.USE_S3:
+                    new_image = ProfileImage(image=image, user=current_user)
+                    new_image.full_clean()
+                    new_image.save()
+                    current_user.avatar_url = new_image.image.url
+                    current_user.save()
+                else:
+                    messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
             else:
-                messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
-        else:
-            form = UploadProfileImageForm()
+                upload_form = UploadProfileImageForm()
+        elif 'update_avatar' in request.POST:
+            avatar_form = AvatarForm(request.POST, user=current_user)
+            if avatar_form.is_valid():
+                url = avatar_form.clean()['avatar_index']
+                current_user.avatar_url = url
+                current_user.save()
+            else:
+                avatar_form = AvatarForm(user=current_user)
     context = {'user': current_user,
-               'form': form}
+               'upload_form': upload_form,
+               'avatar_form': avatar_form,}
     return render(request, 'profile_image.html', context)

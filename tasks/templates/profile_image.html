@@ -4,13 +4,8 @@
     <div class="col-12">
         <div class="row justify-content-center mt-5">
             <div class="col-9">
-                {% if user.profile_image %}
-                    <img src="{{ user.profile_image }}" alt="Profile image of {{ user.username }}"
-                         class="rounded-circle profile-image mb-3 large_image" >
-                {% else %}
-                    <img src="{{ settings.DEFAULT_IMAGE_URL }}" alt="Profile image of {{ user.username }}"
-                         class="rounded-circle profile-image mb-3 large_image" >
-                {% endif %}
+                <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
+                     class="rounded-circle profile-image mb-3 large_image">
                 <div class="profile-text mt-4">
                     <h3 class="profile-title">{{ user.full_name }}</h3>
                     <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
@@ -24,9 +19,29 @@
                 <br>
                 <form action="{% url 'profile_image' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form }}
-                    <p><input class="btn btn-primary mt-3" type="submit" value="Upload"/></p>
+                    {{ upload_form.as_p }}
+                    <p><input class="btn btn-primary mt-3" type="submit" name="upload_image" value="Upload"/></p>
                 </form>
+                <br>
+
+                {% if user.profileimage_set.count > 0 %}
+                    <h1>Update Avatar</h1>
+                    <hr>
+                    <br>
+                    <form action="{% url 'profile_image' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row justify-content-evenly">
+                            {% for radio in avatar_form.avatar_index %}
+                                <div class="col-2">
+                                    {{ radio.tag }}
+                                    <img src="{{ radio.choice_label }}" alt="avatar of {{ user.username }}"
+                                         class="rounded-circle profile-image mb-3 large_image">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <p><input class="btn btn-primary mt-3" type="submit" name="update_avatar" value="Save"/></p>
+                    </form>
+                {% endif %}
             </div>
         </div>
     </div>

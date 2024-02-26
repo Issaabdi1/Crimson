@@ -137,3 +137,16 @@ class RenameForm(forms.Form):
 class UploadProfileImageForm(forms.Form):
     """Form for uploading profile image"""
     image = forms.ImageField(label='Profile image')
+
+
+class AvatarForm(forms.Form):
+    """Form for updating profile image"""
+    user = None
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        avatars = self.user.profileimage_set.all()
+        profile_image_urls = [(avatars[index].image.url, avatars[index].image.url) for index in range(avatars.count())]
+        self.fields['avatar_index'] = forms.ChoiceField(choices=profile_image_urls, widget=forms.RadioSelect)

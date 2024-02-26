@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -18,6 +19,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
+    avatar_url = models.TextField(default=settings.DEFAULT_IMAGE_URL, blank=False)
 
     class Meta:
         """Model options."""
@@ -40,10 +42,3 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
 
         return self.gravatar(size=60)
-
-    def profile_image(self, size=120):
-        """Return a URL to the user's profile image."""
-
-        if self.profileimage_set.all().count() != 0:
-            return self.profileimage_set.all().first().image.url
-        return None

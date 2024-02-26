@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from . import User
 
 
@@ -12,3 +13,10 @@ class ProfileImage(models.Model):
        but can only display one of them at one time."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=user_directory_path)
+
+    def save(self, *args, **kwargs):
+        """A user can only have 5 avatars at one time"""
+        if self.user.profileimage_set.count() >= 5:
+            oldest_avatar = self.user.profileimage_set.order_by('id').first()
+            oldest_avatar.delete()
+        super().save(*args, **kwargs)
