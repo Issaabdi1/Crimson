@@ -49,3 +49,52 @@ function confirmRename(form) {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAllCheckbox = document.getElementById('flexCheckDefault');
+    const deleteAllForm = document.getElementById('delete-all');
+    selectAllCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            deleteAllForm.style.display = 'block';
+        } else {
+            deleteAllForm.style.display = 'none';
+        }
+    });
+    const items = document.querySelectorAll("#fileList .list-item");
+    let index = 0;
+    const interval = setInterval(function () {
+        if (index >= items.length) {
+            clearInterval(interval);
+            return;
+        }
+        items[index].style.opacity = "1";
+        items[index].style.transform = "translateY(0)";
+        index++;
+    }, 200);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAllCheckbox = document.getElementById('flexCheckDefault');
+    const deleteAllForm = document.getElementById('delete-all');
+    selectAllCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            deleteAllForm.style.display = 'block';
+        } else {
+            deleteAllForm.style.display = 'none';
+        }
+    });
+});
+
+/**
+ *  comment controller
+ */
+$('.open-modal').click(function(){
+    var uploadId = $(this).data('upload-id');
+    var modalId = '#exampleModal_' + uploadId;
+    $(modalId).modal('show');
+});
+
+$('.save-button').click(function(){
+    var uploadId = $(this).data('upload-id');
+    var formId = '#commentForm_' + uploadId;
+    $(formId).submit();
+});
