@@ -4,11 +4,12 @@
 <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
 <script src="{% static '/js/filelist.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
             <h1>My files:</h1>
+        <span class="badge badge-info">Info</span>
+
             <div style="display: flex; align-items: center;">
                 <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
                 <label class="form-check-label" for="flexCheckDefault">
@@ -33,10 +34,12 @@
                                             <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
                                         </div>
                                         <small class="opacity-50 justify-content-md-end" id="uploadTime">Uploaded {{ upload.upload_time_difference}}</small>
+
                                     </div>
                                     <h6 class="mb-0"><strong>{{ upload.file.name }}</strong></h6>
                                     <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span class="upload-time">{{ upload.uploaded_at }}</span></p>
-                                    <p class="mb-0 opacity-75"><strong>Comment:</strong> {{ upload.comments }}</p>
+                                    <p class="mb-0 opacity-75"><strong>Comment:</strong>{{ upload.comments }}</p>
+
                                 </div>
                             </a>
                         </div>
@@ -62,8 +65,6 @@
                     {% endfor %}
                 </div>
             </div>
-
-
         </div>
     </div>
 </div>
