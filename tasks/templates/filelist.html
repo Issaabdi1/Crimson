@@ -1,6 +1,10 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
+<script src="{% static '/js/filelist.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
@@ -19,36 +23,69 @@
 
             <br>
             <div class="list-container custom-list-size">
-                <div class="list-group" style="display: flex; flex-wrap: wrap;" id="fileList">
+                <div class="list-group" id="fileList">
                     {% for upload in uploads %}
-                    <div class="flex-column flex-md-row list-item" style="margin-bottom: 0; opacity: 0; transform: translateY(20px);">
-                        <a href="{{ upload.file.url }}" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" style="width: 200%;" data-upload-time="{{ upload.uploaded_at }}">
-                            <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
+                    <div class="flex-column flex-md-row list-item" aria-current="true">
+                        <a href="{{ upload.file.url }}" class="list-group-item" data-upload-time="{{ upload.uploaded_at }}" target="_blank">
+                            <div class="d-flex gap-2 w-100">
+                                <div class="item-content">
+                                    <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
                                     <h6 class="mb-0"><strong>{{ upload.file.name }}</strong></h6>
                                     <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span class="upload-time">{{ upload.uploaded_at }}</span></p>
                                     <p class="mb-0 opacity-75"><strong>Comment:</strong> {{ upload.comments }}</p>
-                                    <!--Delete PDF-->
-                                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
-                                    </form>
                                 </div>
-                                <small class="opacity-50 text-nowrap" id="uploadTime">Uploaded {{ upload.upload_time_difference}}</small>
-                                <!-- <small>Edited just now</small> -->
+                                <small class="opacity-50 justify-content-md-end" id="uploadTime">Uploaded {{ upload.upload_time_difference}}</small>
                             </div>
                         </a>
+                        <div class="button-container">
+                            <!--Delete PDF-->
+                            <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger equal-size"><i class="bi bi-trash-fill"></i></button>
+                            </form>
+                            <!-- Share PDF -->
+                            <a class="btn btn-warning equal-size" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512" class="icon faded p-2">
+                                    <path d="M288 298.1v92.3L448 256 288 112v80C100.8 192 64 400 64 400c53-93 122.4-101.9 224-101.9z"></path>
+                                </svg>
+                            </a>
+                            <!-- Comment PDF -->
+                            <button type="button" class="btn btn-success equal-size open-modal" data-upload-id="{{ upload.id }}">
+                                <i class="bi bi-chat-dots"></i>
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 
-
+{% for upload in uploads %}
+<div class="modal fade" id="exampleModal_{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Description</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="commentForm_{{ upload.id }}" action="{% url 'outer_comment_views' upload.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="upload_id" id="uploadIdField">
+                    <textarea name="comments" placeholder="This file is about..."></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary save-button" data-upload-id="{{ upload.id }}">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 
 
@@ -63,7 +100,6 @@
 {#                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>#}
 {#                        <p class="card-text">Comment: {{ upload.comments}}</p>#}
 {#                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>#}
-{#                        <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>#}
 {#                        <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">#}
 {#                            {% csrf_token %}#}
 {#                            <input type="hidden" name="upload_id" id="uploadIdField">#}
@@ -72,7 +108,7 @@
 {#                                Comment#}
 {#                            </button>#}
 {##}
-{#                            <!-- Modal -->#}
+{#                            <!-- Comment Modal -->#}
 {#                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">#}
 {#                                <div class="modal-dialog">#}
 {#                                    <div class="modal-content">#}
@@ -131,48 +167,23 @@
 {% endfor %}
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const selectAllCheckbox = document.getElementById('flexCheckDefault');
-    const deleteAllForm = document.getElementById('delete-all');
-    selectAllCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            deleteAllForm.style.display = 'block';
-        } else {
-            deleteAllForm.style.display = 'none';
-        }
+    /**
+     *  comment controller
+     */
+    $('.open-modal').click(function(){
+        var uploadId = $(this).data('upload-id');
+        var modalId = '#exampleModal_' + uploadId;
+        $(modalId).modal('show');
     });
-    const items = document.querySelectorAll("#fileList .list-item");
-    let index = 0;
-    const interval = setInterval(function () {
-        if (index >= items.length) {
-            clearInterval(interval);
-            return;
-        }
-        items[index].style.opacity = "1";
-        items[index].style.transform = "translateY(0)";
-        index++;
-    }, 200);
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    const selectAllCheckbox = document.getElementById('flexCheckDefault');
-    const deleteAllForm = document.getElementById('delete-all');
-    selectAllCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            deleteAllForm.style.display = 'block';
-        } else {
-            deleteAllForm.style.display = 'none';
-        }
+    $('.save-button').click(function(){
+        var uploadId = $(this).data('upload-id');
+        var formId = '#commentForm_' + uploadId;
+        $(formId).submit();
     });
-});
-
 </script>
 
-<style>
-    .list-item {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-</style>
+
+
+
 {% endblock %}

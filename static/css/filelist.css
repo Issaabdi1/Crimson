@@ -1,0 +1,79 @@
+.list-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.list-item {
+    margin-bottom: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    width: 140%;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    border: 1px solid #ccc;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+}
+
+#delete-all {
+    display: none;
+}
+
+.modal-body {
+    border-radius: 20px;
+}
+
+.list-group{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+    border: 10px;
+}
+
+.list-item{
+    border: 10px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: block;
+    margin: 10px;
+}
+
+.list-group-item {
+    padding: 0;
+    text-decoration: none;
+    border: none;
+    display: block;
+}
+
+.equal-size {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    margin-right: 5px;;
+}
+
+.button-container {
+    display: flex;
+    position: relative;
+}
+
+.d-flex{
+    margin:5px;
+}
+
+textarea{
+  width: 100%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+}
+
+
