@@ -11,7 +11,7 @@
                     <form action="{% url 'profile' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="row justify-content-center">
-                            <div class="col-4 mt-3">
+                            <div class="col-4 mt-3 input-file">
                                 <label for="file-upload" class="custom-file-upload" style="z-index: 10">
                                     <i class="bi bi-cloud-upload"></i> {{ upload_form.image.label_tag }} {{ upload_form.image }}
                                 </label>

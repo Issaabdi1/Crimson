@@ -111,9 +111,11 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
 
 class FileForm(forms.Form):
+
     file = forms.FileField(
-        label='Select a file',
-        help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.'
+        label='Select a File',
+        help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.',
+        label_suffix=''
     )
 
 class CreateTeamForm(forms.ModelForm):
@@ -136,7 +138,8 @@ class RenameForm(forms.Form):
 
 class UploadProfileImageForm(forms.Form):
     """Form for uploading profile image"""
-    image = forms.ImageField(label='Profile image')
+    image = forms.ImageField(label='Profile Image',
+                             label_suffix='')
 
 
 class AvatarForm(forms.Form):
