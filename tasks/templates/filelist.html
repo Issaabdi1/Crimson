@@ -10,8 +10,12 @@
                     <div class="card-body mb-2">
                         <h5 class="card-title">{{ upload.file.name }}</h5>
                         <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                        <p class="card-text">Comment: {{ upload.comments}}</p>
-                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                        <p class="card-text">Comment: {{ upload.comments }}</p>
+                        <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank">
+                            {% csrf_token %}
+                            <input type="hidden" name="upload_id" value="{{ upload.id }}">
+                            <button type="submit" class="btn btn-primary me-1">View PDF</button>
+                        </form>
                         <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
                         <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
                             {% csrf_token %}

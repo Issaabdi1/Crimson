@@ -40,7 +40,11 @@
               <div class="col-md-9 p-2">
                   <h5 class="card-title fs-6">{{notification.notification_message}}</h5>
                   {%if user in notification.shared_file_instance.shared_to.all%}
-                    <a href="{{notification.shared_file_instance.shared_file.file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.file.name}}</a>
+                    <form method="post" action="{% url 'pdf_viewer' %}" target="_blank">
+                      {% csrf_token %}
+                      <input type="hidden" name="upload_id" value="{{ notification.shared_file_instance.shared_file.id }}">
+                      <button type="submit" class="btn btn-link">{{notification.shared_file_instance.shared_file.file.name}}</button>
+                    </form>
                   {%else%}
                     {{notification.shared_file_instance.shared_file.file.name}}
                   {%endif%}

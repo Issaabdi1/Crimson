@@ -13,4 +13,5 @@ from .team_view import *
 from .unshare_file_view import *
 from .rename_upload_view import *
 from .delete_upload_view import *
+from .pdf_viewer_view import *
 from .preferences_view import *
