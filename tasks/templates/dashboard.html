@@ -19,7 +19,7 @@
                 <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row justify-content-start">
-                        <div class="col-2 input-file">
+                        <div class="col-3 input-file">
                             <label for="file-upload" class="custom-file-upload mt-3">
                                 <i class="bi bi-cloud-upload" style="cursor: pointer"></i>
                                 {{ form.file.label_tag }}{{ form.file }}
