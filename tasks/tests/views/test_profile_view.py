@@ -134,6 +134,10 @@ class ProfileViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'profile.html')
         self.assertEqual(self.user.avatar_url, self.profile_image.image.url)
+        messages_list = list(response.context['messages'])
+        self.assertEqual(len(messages_list), 1)
+        self.assertEqual(messages_list[0].level, messages.SUCCESS)
+        self.assertEqual(str(messages_list[0]), f'Avatar updated successfully!')
 
     def test_unsuccessful_avatar_update(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -164,6 +168,10 @@ class ProfileViewTest(TestCase):
         self.assertTemplateUsed(response, 'profile.html')
         form = response.context['upload_form']
         self.assertTrue(isinstance(form, UploadProfileImageForm))
+        messages_list = list(response.context['messages'])
+        self.assertEqual(len(messages_list), 1)
+        self.assertEqual(messages_list[0].level, messages.SUCCESS)
+        self.assertEqual(str(messages_list[0]), f'Image uploaded successfully!')
         upload_image = ProfileImage.objects.all()[1]
         self.assertEqual(self.user.avatar_url, upload_image.image.url)
         self.assertEqual(upload_image.image.name, f'profile_image/user_@johndoe/test_profile_view_upload_image.png')

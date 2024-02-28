@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from tasks.models import User, ProfileImage
 from django.conf import settings
+from tasks.tests.helpers import create_test_image
 
 
 class ProfileImageModelTestCase(TestCase):
@@ -24,7 +25,11 @@ class ProfileImageModelTestCase(TestCase):
         self.images = []
 
         for i in range(1, 6):
-            mock_image = SimpleUploadedFile(f'test_profile_image_model_image_{i}.png', b'test_image')
+            mock_image = SimpleUploadedFile(
+                f'test_profile_image_model_image_{i}.png',
+                create_test_image().read(),
+                content_type='image/png'
+            )
             image = ProfileImage.objects.create(user=self.user, image=mock_image)
             self.mock_images.append(mock_image)
             self.images.append(image)

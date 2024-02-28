@@ -77,13 +77,13 @@ class SignUpView(LoginProhibitedMixin, FormView):
 @login_required
 def profile_update_view(request):
     current_user = request.user
-    upload_form = UploadProfileImageForm()
+    upload_form = UploadProfileImageForm(user=current_user)
     avatar_form = AvatarForm(user=current_user)
     profile_form = UserForm(instance=request.user)
 
     if request.method == 'POST':
         if 'upload_image' in request.POST:
-            upload_form = UploadProfileImageForm(request.POST, request.FILES)
+            upload_form = UploadProfileImageForm(request.POST, request.FILES, user=current_user)
             handle_upload_image(request, current_user, upload_form)
         elif 'update_avatar' in request.POST:
             avatar_form = AvatarForm(request.POST, user=current_user)
@@ -110,7 +110,8 @@ def handle_upload_image(request, current_user, upload_form):
     if upload_form.is_valid():
         image = request.FILES['image']
         if settings.USE_S3:
-            save_image_to_s3(image, current_user)
+            upload_form.save(image=image)
+            messages.success(request, "Image uploaded successfully!")
         else:
             messages.add_message(request, messages.ERROR, 'The Amazon S3 service is not connected.')
     else:
@@ -120,17 +121,7 @@ def handle_upload_image(request, current_user, upload_form):
 def handle_update_avatar(request, current_user, avatar_form):
     """Handle the update avatar form submission."""
     if avatar_form.is_valid():
-        url = avatar_form.clean()['avatar_url']
-        current_user.avatar_url = url
-        current_user.save()
+        avatar_form.save()
+        messages.success(request, "Avatar updated successfully!")
     else:
         messages.add_message(request, messages.ERROR, 'Avatar update unsuccessfully.')
-
-
-def save_image_to_s3(image, current_user):
-    """Save image to S3 and update current user's avatar URL."""
-    new_image = ProfileImage(image=image, user=current_user)
-    new_image.full_clean()
-    new_image.save()
-    current_user.avatar_url = new_image.image.url
-    current_user.save()

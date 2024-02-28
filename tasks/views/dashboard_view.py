@@ -15,16 +15,14 @@ def dashboard(request):
     current_user = request.user
     image_url = None
     context = {'user': current_user}
-    form = FileForm()
+    form = FileForm(user=current_user)
     if request.method == 'POST':
-        form = FileForm(request.POST, request.FILES)
+        form = FileForm(request.POST, request.FILES, user=current_user)
         if form.is_valid():
             media_file = request.FILES['file']
             if settings.USE_S3:
-                upload = Upload(file=media_file, owner=current_user)
                 try:
-                    upload.full_clean()
-                    upload.save()
+                    upload = form.save(media_file)
                     image_url = upload.file.url
                 except ValidationError as e:
                     messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
