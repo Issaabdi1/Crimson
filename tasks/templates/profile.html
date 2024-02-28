@@ -12,7 +12,7 @@
                         {% csrf_token %}
                         <div class="row justify-content-center">
                             <div class="col-4 mt-3 input-file">
-                                <label for="file-upload" class="custom-file-upload" style="z-index: 10">
+                                <label class="custom-file-upload" style="z-index: 10">
                                     <i class="bi bi-cloud-upload"></i> {{ upload_form.image.label_tag }} {{ upload_form.image }}
                                 </label>
                             </div>
@@ -30,7 +30,7 @@
                         <form action="{% url 'profile' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row justify-content-evenly">
-                                {% for radio in avatar_form.avatar_index %}
+                                {% for radio in avatar_form.avatar_url %}
                                     <div class="col-2">
                                         {{ radio.tag }}
                                         <img src="{{ radio.choice_label }}" alt="avatar of {{ user.username }}"
@@ -40,8 +40,9 @@
                                 <p class="col-2"><input class="btn btn-primary mt-3" type="submit" name="update_avatar"
                                                         value="Save"/></p>
                             </div>
-
                         </form>
+                    {% else %}
+                        <h3>No avatars uploaded</h3>
                     {% endif %}
                 </div>
             </div>
@@ -72,5 +73,5 @@
             </div>
         </div>
     </div>
-    <script src="{% static "js/popup_window_profile_image.js" %}"></script>
+    <script src="{% static "js/popup_window.js" %}"></script>
 {% endblock %}

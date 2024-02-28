@@ -40,22 +40,22 @@ class PasswordView(LoginRequiredMixin, FormView):
         return reverse('dashboard')
 
 
-class ProfileUpdateView(LoginRequiredMixin, UpdateView):
-    """Display user profile editing screen, and handle profile modifications."""
-
-    model = UserForm
-    template_name = "profile.html"
-    form_class = UserForm
-
-    def get_object(self):
-        """Return the object (user) to be updated."""
-        user = self.request.user
-        return user
-
-    def get_success_url(self):
-        """Return redirect URL after successful update."""
-        messages.add_message(self.request, messages.SUCCESS, "Profile updated!")
-        return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+# class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+#     """Display user profile editing screen, and handle profile modifications."""
+#
+#     model = UserForm
+#     template_name = "profile.html"
+#     form_class = UserForm
+#
+#     def get_object(self):
+#         """Return the object (user) to be updated."""
+#         user = self.request.user
+#         return user
+#
+#     def get_success_url(self):
+#         """Return redirect URL after successful update."""
+#         messages.add_message(self.request, messages.SUCCESS, "Profile updated!")
+#         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
 
 
 class SignUpView(LoginProhibitedMixin, FormView):
@@ -83,8 +83,10 @@ def profile_update_view(request):
 
     if request.method == 'POST':
         if 'upload_image' in request.POST:
+            upload_form = UploadProfileImageForm(request.POST, request.FILES)
             handle_upload_image(request, current_user, upload_form)
         elif 'update_avatar' in request.POST:
+            avatar_form = AvatarForm(request.POST, user=current_user)
             handle_update_avatar(request, current_user, avatar_form)
         elif 'update_profile' in request.POST:
             profile_form = UserForm(request.POST, instance=current_user)
@@ -105,7 +107,6 @@ def profile_update_view(request):
 
 def handle_upload_image(request, current_user, upload_form):
     """Handle the upload image form submission."""
-    upload_form = UploadProfileImageForm(request.POST, request.FILES)
     if upload_form.is_valid():
         image = request.FILES['image']
         if settings.USE_S3:
@@ -113,18 +114,17 @@ def handle_upload_image(request, current_user, upload_form):
         else:
             messages.add_message(request, messages.ERROR, 'The Amazon S3 service is not connected.')
     else:
-        messages.add_message(request, messages.ERROR, 'Invalid image upload form.')
+        messages.add_message(request, messages.ERROR, 'Image upload unsuccessfully.')
 
 
 def handle_update_avatar(request, current_user, avatar_form):
     """Handle the update avatar form submission."""
-    avatar_form = AvatarForm(request.POST, user=current_user)
     if avatar_form.is_valid():
-        url = avatar_form.clean()['avatar_index']
+        url = avatar_form.clean()['avatar_url']
         current_user.avatar_url = url
         current_user.save()
     else:
-        messages.add_message(request, messages.ERROR, 'Invalid avatar update form.')
+        messages.add_message(request, messages.ERROR, 'Avatar update unsuccessfully.')
 
 
 def save_image_to_s3(image, current_user):

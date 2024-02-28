@@ -152,4 +152,4 @@ class AvatarForm(forms.Form):
 
         avatars = self.user.profileimage_set.all()
         profile_image_urls = [(avatars[index].image.url, avatars[index].image.url) for index in range(avatars.count())]
-        self.fields['avatar_index'] = forms.ChoiceField(choices=profile_image_urls, widget=forms.RadioSelect)
+        self.fields['avatar_url'] = forms.ChoiceField(choices=profile_image_urls, widget=forms.RadioSelect)

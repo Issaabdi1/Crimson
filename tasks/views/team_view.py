@@ -47,8 +47,3 @@ def team_detail_view(request, team_id):
                'shared_uploads': shared_uploads,
                'form': form}
     return render(request, 'team_detail.html', context=context)
-
-
-@login_required
-def list_team_file_view(request):
-    return render(request, 'list_team_file.html')

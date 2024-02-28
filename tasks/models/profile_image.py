@@ -16,7 +16,8 @@ class ProfileImage(models.Model):
 
     def save(self, *args, **kwargs):
         """A user can only have 5 avatars at one time"""
-        if self.user.profileimage_set.count() >= 5:
-            oldest_avatar = self.user.profileimage_set.order_by('id').first()
-            oldest_avatar.delete()
+        if self.pk is None:
+            if self.user.profileimage_set.count() >= 5:
+                oldest_avatar = self.user.profileimage_set.order_by('id').first()
+                oldest_avatar.delete()
         super().save(*args, **kwargs)
