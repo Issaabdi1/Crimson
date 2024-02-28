@@ -34,6 +34,9 @@ class UnshareFileViewTestCase(TestCase):
         self.share.shared_to.add(self.second_user)
         self.url = reverse('unshare_file', args=[self.upload.id, self.second_user.id])
 
+    def tearDown(self):
+        self.upload.delete()
+
 
     def test_unshare_file_url(self):
         self.assertEqual(self.url,'/unshare_file/1/2/')

@@ -9,8 +9,11 @@
                 <h5 class="card-title">{{ file.shared_file.file.name }}</h5>
                 <p class="card-text">Shared By: {{ file.shared_by}} </p>
                 <p class="card-text">Share Date: {{ file.shared_date }} </p>
-                <a href="{{ file.shared_file.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-
+                <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank">
+                    {% csrf_token %}
+                    <input type="hidden" name="upload_id" value="{{ file.shared_file.id }}">
+                    <button type="submit" class="btn btn-primary me-1">View PDF</button>
+                </form>
                 <!--Placeholder functionality for now, doesn't Remove PDF from Share List-->
                 <a href="{{ upload.file.url }}" class="btn btn-primary">Remove PDF</a>
             </div>

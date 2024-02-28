@@ -18,7 +18,6 @@ class UploadModelTestCase(TestCase):
 
     def setUp(self):
         """Set up the test case."""
-        self.skip_tear_down = False
         file_content = b'Test file content'
         self.user = User.objects.get(username='@johndoe')
         self.mock_files = []
@@ -31,7 +30,7 @@ class UploadModelTestCase(TestCase):
             self.uploads.append(upload)
 
     def tearDown(self):
-        if not self.skip_tear_down:
+        if self.uploads:
             for upload in self.uploads:
                 upload.delete()
 
@@ -47,9 +46,12 @@ class UploadModelTestCase(TestCase):
 
     def test_upload_file_must_not_be_extension_other_than_pdf(self):
         """Test that the file cannot be other extension."""
-        upload_txt = Upload(owner=self.user, file=SimpleUploadedFile('test_upload_model_file.txt', b'Test file content'))
-        upload_java = Upload(owner=self.user, file=SimpleUploadedFile('test_upload_model_file.java', b'Test file content'))
-        upload_python = Upload(owner=self.user, file=SimpleUploadedFile('test_upload_model_file.py', b'Test file content'))
+        upload_txt = Upload(owner=self.user,
+                            file=SimpleUploadedFile('test_upload_model_file.txt', b'Test file content'))
+        upload_java = Upload(owner=self.user,
+                             file=SimpleUploadedFile('test_upload_model_file.java', b'Test file content'))
+        upload_python = Upload(owner=self.user,
+                               file=SimpleUploadedFile('test_upload_model_file.py', b'Test file content'))
         self._assert_upload_is_invalid(upload_txt)
         self._assert_upload_is_invalid(upload_java)
         self._assert_upload_is_invalid(upload_python)
@@ -69,7 +71,6 @@ class UploadModelTestCase(TestCase):
 
     def test_upload_delete(self):
         """Test that the upload delete will delete the file in the server"""
-        self.skip_tear_down = True
         self.assertEqual(Upload.objects.count(), 3)
         for upload in self.uploads:
             file_url = upload.file.url
@@ -79,6 +80,7 @@ class UploadModelTestCase(TestCase):
             with self.assertRaises(HTTPError):
                 self.assertEqual(urlopen(file_url).getcode(), 403)
         self.assertEqual(Upload.objects.count(), 0)
+        self.uploads.clear()
 
     def test_ordering(self):
         """Test that uploads are ordered by uploaded_at."""

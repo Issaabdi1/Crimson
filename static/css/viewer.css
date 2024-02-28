@@ -1,0 +1,131 @@
+* {
+	padding: 0;
+	margin: 0;
+	font: Helvetica;
+}
+
+html,
+body {
+	height: 100%;
+	width: 100%;
+}
+
+body {
+	background-color: white;
+}
+
+#outerContainer {
+	width: 100%;
+	height: 100%;
+}
+
+#mainContainer {
+	position: absolute;
+	inset: 0;
+}
+
+/* Sidebar */
+
+#sidebar {
+	position: absolute;
+	inset: 32px 0 0;
+	height: 100%;
+	width: 200px;
+	z-index: 100;
+	background-color: #ECEFF4;
+}
+
+#sidebarToolbar {
+	position: absolute;
+	height: 32px;
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+	background-color: #D8DEE9;
+}
+
+#sidebarViews {
+	position: absolute;
+	inset: 32px 0 0;
+	height: 100%;
+	width: 100%;
+	overflow: auto;
+}
+
+
+
+/* Toolbar */
+
+#toolbar {
+	position: absolute;
+	height: 32px;
+	width: 100%;
+	z-index: 999;
+	background-color: #ECEFF4;
+}
+
+#toolbarSections {
+	position: absolute;
+	height: 32px;
+	width: 100%;
+	padding: auto 4px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.toolbarSection {
+	display: flex;
+	flex-direction: row;
+}
+
+/* Viewer */
+
+#viewer {
+	position: absolute;
+	height: 100%;
+	inset: 32px 0 0 200px;
+	overflow: auto;
+}
+
+/* Buttons, Fields, Labels, Selects */
+
+.toolbarButton {
+	height: 28px;
+	width: 28px;
+	font-size: 12px;
+	margin: 2px;
+}
+
+.toolbarField {
+	height: 28px;
+	width: 32px;
+	text-align: center;
+	font-size: 16px;
+	padding: 4px 7px;
+	margin: 2px;
+}
+
+.toolbarLabel {
+	display: flex;
+	align-items: center;
+	margin: 2px;
+	font-size: 16px;
+	user-select: none;
+}
+
+#documentTitle {
+	text-align: center;
+	font-size: 16px;
+}
+
+#fileName {
+	text-align: center;
+	font-size: 10px;
+}
+
+.toolbarSelect {
+	height: 28px;
+	font-size: 16px;
+	margin: 2px;
+}
