@@ -1,16 +1,27 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
+{% load static %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/share_file.css' %}">
 <div class="container mt-3">
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
     <div class="row">
       <div class="col-12">
-        <select class="form-select" name="file-id">
+        <select id="file-select" class="form-select d-none" name="file-id">
           <option selected disabled> Select file: </option>
           {% for upload in uploads %}
             <option value="{{ upload.id }}">{{ upload.file.name }}</option>
           {% endfor %}
         </select>
+        <h2> Select file: </h2>
+        <div class="thumbnail-container">
+          {% for upload in uploads %}
+            <div class="thumbnail p-2" file-id="{{ upload.id }}">
+              <img class="pdf-image p-2" src="{% static '/image/pdf_icon_svg.png' %}">
+              <div class="file-name">{{ upload.file.name }}</div>
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
     <br>
@@ -43,28 +54,5 @@
   </form>
 </div>
 
-<script>
-  document.getElementById('search').addEventListener('input', function () {
-    const search = this.value.toLowerCase();
-    const table = document.getElementById('filter');
-    const rows = table.getElementsByTagName('tr');
-    for (const row of rows) {
-      const username = row.cells[0].textContent;
-      if (search.length >= 3) {
-        if (username.includes(search)) {
-          row.style.display = 'table-row';
-        } else {
-          row.style.display = 'none';
-        }
-      } else {
-        row.style.display = 'none';
-      }
-    }
-  });
-  document.getElementById('search').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  })
-</script>
+<script src="{% static 'js/share_file.js' %}"></script>
 {% endblock %}

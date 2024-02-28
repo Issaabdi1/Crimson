@@ -1,0 +1,29 @@
+.thumbnail-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+.thumbnail {
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 10px; 
+    margin-bottom: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.thumbnail:hover {
+    border-color: lightblue;
+    box-shadow: 0 0 10px 0 lightblue;
+}
+.thumbnail.selected {
+    border-color: blue;
+    box-shadow: 0 0 5px 0 blue, inset 0 0 0 1000px rgba(0, 0, 255, 0.2);
+}
+.pdf-image {
+    width: 70px; 
+    height: 80px;
+}
+.file-name {
+    margin-top: 5px;
+}
