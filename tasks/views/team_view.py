@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from tasks.forms import CreateTeamForm, AddUserToTeamForm
+from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm
 from tasks.models import User
 
 
@@ -41,9 +41,12 @@ def team_detail_view(request, team_id):
                 messages.add_message(request, messages.ERROR, f'The user invited is not exist, please try another one.')
     else:
         form = AddUserToTeamForm()
+
+    upload_form =  FileForm()
     context = {'user': current_user,
                'team': team,
                'members': members,
                'shared_uploads': shared_uploads,
-               'form': form}
+               'form': form,
+               'upload_form': upload_form}
     return render(request, 'team_detail.html', context=context)

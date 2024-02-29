@@ -46,6 +46,16 @@ class NotificationsTestCase(TestCase):
         after_count = Notification.objects.count()
         self.assertEqual(before_count + 1, after_count)
         self.assertIsNotNone(Notification.objects.filter(user=self.user))
+    
+    def test_notification_created_when_file_unshared(self):
+        """Shares a file, and tests if a notification is created"""
+        unshare_files_url = reverse('unshare_file', kwargs={'upload_id':self.upload.id, 'user_id':self.second_user.id})
+        before_count = Notification.objects.count()
+        response = self.client.post(unshare_files_url)
+        self.assertEqual(response.status_code, 302)
+        after_count = Notification.objects.count()
+        self.assertEqual(before_count + 1, after_count)
+        self.assertIsNotNone(Notification.objects.filter(user=self.user))
 
     def test_process_notification_delete_view_deletes_single_notification(self):
         """Goes to the process_notification view, and checks if the notification is deleted when its id is passed to it"""

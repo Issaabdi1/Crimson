@@ -15,7 +15,7 @@ The members of the team are:
 The project is called `task_manager`.  It currently consists of a single app `tasks`.
 
 ## Deployed version of the application
-The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](*https://teamcrimson.pythonanywhere.com/*).
+The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](https://teamcrimson.pythonanywhere.com/).
 
 ## Instructions To access the python anywhere account
 *delete section when submitting*

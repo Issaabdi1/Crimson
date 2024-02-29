@@ -1,0 +1,24 @@
+{% block content %}
+    <div class="container mt-5">
+        <div class="section">
+            <h1>Upload File</h1>
+            <hr>
+            <br>
+            <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <input type="hidden" name="team_id" value="{{team_id}}">
+                <p>{{ form.non_field_errors }}</p>
+                <p>{{ form.file.label_tag }} {{ form.file.help_text }}</p>
+                <p>
+                    {{ form.file.errors }}
+                    {{ form.file }}
+                </p>
+                <p><input class="btn btn-primary" type="submit" value="Upload"/></p>
+            </form>
+        </div>
+        {% if image_url %}
+            <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
+        {% endif %}
+    </div>
+{% endblock %}

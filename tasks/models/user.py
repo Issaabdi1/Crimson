@@ -20,6 +20,7 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
     avatar_url = models.TextField(default=settings.DEFAULT_IMAGE_URL, blank=False)
+    theme_preference = models.CharField(max_length=30, default='default-mode')
 
     class Meta:
         """Model options."""

@@ -2,21 +2,21 @@
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
 
-    <!--Lazy way of implementingit-->
+    <!--Lazy way of implementing it-->
     <input type="hidden" name="file-id" value="{{file_id}}">
 
     <div class="row">
       <div class="col-12">
         {% if uploads %}
           <h2> Share to: </h2>
-          <input type="text" id="search" class="col-md-6 form-control" placeholder="Search for username">
+          <input type="text" id="search{{file_id}}" class="col-md-6 form-control" placeholder="Search for username">
         {% endif %}
       </div>
     </div>
     <div class="row">
       <div class="col-md-6">
         <table class="table mt-3">
-          <tbody id="filter">
+          <tbody id="filter{{file_id}}">
             {% for user in all_users %}
               <tr style="display: none">
                 <td class="align-middle">{{ user.username }}</td>
@@ -33,26 +33,36 @@
     </div>
   </form>
 
-<script>
-  document.getElementById('search').addEventListener('input', function () {
-    const search = this.value.toLowerCase();
-    const table = document.getElementById('filter');
-    const rows = table.getElementsByTagName('tr');
-    console.log();
-    for (const row of rows) {
-      const username = row.cells[0].textContent;
-      if (search.length >= 3) {
-        if (username.includes(search)) {
-          row.style.display = 'table-row';
-        } 
-        else {
-          row.style.display = 'none';
+
+
+  <script>
+    // Temporary Fix for Now
+    document.getElementById("search{{file_id}}").addEventListener('input', function () {
+        const search = this.value.toLowerCase();
+        const table = document.getElementById('filter{{file_id}}');
+        console.log(table);
+        const rows = table.getElementsByTagName('tr');
+        for (const row of rows) {
+            const username = row.cells[0].textContent;
+            if (search.length >= 3) {
+                if (username.includes(search)) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+                } 
+            else {
+                row.style.display = 'none';
+            }
         }
-      }
-      else {
-        row.style.display = 'none';
-      }
-    }
-  });
-</script>
+        }); 
+
+    document.getElementById("search{{file_id}}").addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    })
+
+  </script>
+
 {% endblock %}
