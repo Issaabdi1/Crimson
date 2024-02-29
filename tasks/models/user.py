@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -18,8 +19,8 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     email = models.EmailField(unique=True, blank=False)
+    avatar_url = models.TextField(default=settings.DEFAULT_IMAGE_URL, blank=False)
     theme_preference = models.CharField(max_length=30, default='default-mode')
-
 
     class Meta:
         """Model options."""
