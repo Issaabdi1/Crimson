@@ -1,14 +1,21 @@
 .table-container {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    width: 80%;
+    height: 80%;
 }
-.table-container .section {
-    flex: 1 1 0;
+
+.pdf-table {
+    width: 80%;
+    height: 80%;
+}
+
+.pdf-upload-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 100px 400px;
+    padding: 50px;
     border-width: 3px;
     border-radius: 8px;
     border-color: rgb(220, 155, 255);
@@ -18,15 +25,46 @@
     outline: none;
     transition: border 0.24s ease-in-out 0s;
     cursor: pointer;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+    overflow: auto;
 }
+
+
+
+
+
+/*.table-container .section {*/
+/*    flex: 1 1 0;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    align-items: center;*/
+/*    !*padding: 100px 400px;*!*/
+/*    border-width: 3px;*/
+/*    border-radius: 8px;*/
+/*    !*border-color: rgb(255, 192, 203);*!*/
+/*    !*border-style: dashed;*!*/
+/*    !*background-color: rgb(250, 250, 250);*!*/
+/*    !*color: rgb(189, 189, 189);*!*/
+/*    outline: none;*/
+/*    transition: border 0.24s ease-in-out 0s;*/
+/*    cursor: pointer;*/
+/*}*/
+
+
 .table-container .section input[type='file'] {
     display: none;
 }
+
 .table-container .section .flex {
     width: 70px;
     height: 70px;
     overflow: hidden;
 }
+
 .table-container .section .icon {
     max-width: 100%;
     max-height: 100%;
