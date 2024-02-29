@@ -15,20 +15,17 @@ def dashboard(request):
     current_user = request.user
     file_url = None
     context = {'user': current_user}
-    form = FileForm(user=current_user)
+    form = FileForm()
     if request.method == 'POST':
-        form = FileForm(request.POST, request.FILES, user=current_user)
+        form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             media_file = request.FILES['file']
             if settings.USE_S3:
+                upload = Upload(file=media_file, owner=current_user)
                 try:
-
-                    upload = form.save(media_file)
                     upload.full_clean()
                     upload.save()
                     file_url = upload.file.url
-
-
 
                     # Add upload to team files
                     team_id = request.POST.get("team_id")
