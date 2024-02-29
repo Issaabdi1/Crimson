@@ -15,9 +15,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 50px;
+    padding: 120px;
     border-width: 3px;
-    border-radius: 8px;
+    border-radius: 10px;
     border-color: rgb(220, 155, 255);
     border-style: dashed;
     background-color: rgb(250, 250, 250);

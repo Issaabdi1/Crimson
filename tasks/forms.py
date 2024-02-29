@@ -115,7 +115,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 class FileForm(forms.Form):
     file = forms.FileField(
         label='Select a file',
-        help_text='Drag & Drop single pdf file here, maximum size 100 MB.',
+        help_text='Click to upload, Maximum 100Mb',
         label_suffix="",
     )
 
