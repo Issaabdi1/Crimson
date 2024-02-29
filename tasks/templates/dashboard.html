@@ -1,35 +1,37 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
-<div class="col-12">
-    <div class="row">
-        <div class="col-10">
-            <h1>Welcome to your dashboard {{ user.username }}</h1>
+    <div class="col-12">
+        <div class="row">
+            <div class="col-10">
+                <h1>Welcome to your dashboard {{ user.username }}</h1>
+            </div>
+            <div class="col-2">
+                <a type="button" class="btn btn-primary text-nowrap" href="{% url 'share_file' %}">
+                    <i class="bi bi-box-arrow-up"></i> Share
+                </a>
+            </div>
         </div>
-        <div class="col-2">
-            <a type="button" class="btn btn-primary text-nowrap" href="{% url 'share_file' %}">
-                <i class="bi bi-box-arrow-up"></i> Share
-            </a>
+        <div class="container mt-5">
+            <div class="section">
+                <h1>Upload Image</h1>
+                <hr>
+                <br>
+                <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row justify-content-start">
+                        <div class="col-3 input-file">
+                            <label class="custom-file-upload mt-3">
+                                <i class="bi bi-cloud-upload" style="cursor: pointer"></i>
+                                {{ form.file.label_tag }}{{ form.file }}
+                            </label>
+                        </div>
+                        <p class="mt-3 col-1"><input class="btn btn-primary" type="submit" value="Upload"/></p>
+                    </div>
+                </form>
+            </div>
+            {% if image_url %}
+                <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
+            {% endif %}
         </div>
     </div>
-    <div class="container mt-5">
-        <div class="section">
-            <h1>Upload Image</h1>
-            <hr>
-            <br>
-            <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>{{ form.non_field_errors }}</p>
-                <p>{{ form.file.label_tag }} {{ form.file.help_text }}</p>
-                <p>
-                    {{ form.file.errors }}
-                    {{ form.file }}
-                </p>
-                <p><input class="btn btn-primary" type="submit" value="Upload"/></p>
-            </form>
-        </div>
-        {% if image_url %}
-            <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
-        {% endif %}
-    </div>
-</div>
 {% endblock %}
