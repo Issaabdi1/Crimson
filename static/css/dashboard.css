@@ -7,9 +7,10 @@ table#dataTable {
     width: 100%;
 }
 
-.btn {
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    padding: 0;
+.icon-btn {
+    width: 1em;
+    height: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
