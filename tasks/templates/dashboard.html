@@ -1,41 +1,50 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static '/css/dashboard.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static '/js/dashboard.js' %}"></script>
 
-
-<div class="col-12 text-center">
-    <h1>PDF Upload</h1>
-</div>
-<div class="table-container shadow p-3 mb-5 bg-body-tertiary rounded" style='margin-left: 140px; margin-top: 50px'>
-    <table class="pdf-table">
-        <tbody>
+<a class="btn btn-outline" href="#" role="button">
+<div class="container text-center">
+  <div class="row">
+      <table class="table table-light table-bordered" id="dataTable">
+        <thead>
             <tr>
-                <td class="pdf-upload-area" colspan="5" id="pdf-upload-area" tabindex="0">
-                    <div class="flex" style="width: 70px; height: 70px; overflow: hidden;">
-                        <img class="icon faded p-2" src="{% static '/image/pdf_icon_svg.png' %}" alt="PDF" style="max-width: 100%; max-height: 100%;">
-                    </div>
-                    <div class="mt-5">
-                        <div class="section" id="pdf-file-upload-section">
-                            <form id="pdf-upload-form" action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <p>{{ form.non_field_errors }}</p>
-                                {% if file_url %}
-                                    <p>File uploaded at: <a href="{{ file_url }}">{{ file_url|truncatechars:20 }}</a></p>
-                                {% else %}
-                                    <p>{{ form.file.help_text }}</p>
-                                {% endif %}
-                                <div class="col-3 input-file" style="display: none;">
-                                    {{ form.file }}
-                                </div>
-{#                                <p><input id="pdf-upload-button" class="mt-3 d-block ps-4 pe-4 btn btn-success" type="submit" value="Upload"/></p>#}
-                            </form>
-                        </div>
-                    </div>
-                </td>
+                <th scope="col">
+                    <input class="form-check-input" type="checkbox" value="" id="selectAll">
+                </th>
+                <th scope="col">ID</th>
+                <th scope="col">File Name</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Uploaded At</th>
+                <th scope="col">Comment</th>
+                <th scope="col">Size</th>
             </tr>
+        </thead>
+        <tbody>
+        {% for upload in uploads %}
+            <tr>
+                <td scope="row">
+                    <input class="form-check-input row-checkbox" type="checkbox">
+                </td>
+                <td scope="row">{{ forloop.counter }}</td>
+                <td>{{ upload.get_simple_file_name}}</td>
+                <td>{{ upload.owner }}</td>
+                <td>{{ upload.uploaded_at }}</td>
+                {% if upload.comments %}
+                    <td>{{ upload.comments }}</td>
+                    {% else %}
+                    <td>-</td>
+                {% endif %}
+                <td>{{ upload.file_size_mb }} Mb</td>
+
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
+  </div>
 </div>
+</a>
+
+
 {% endblock %}

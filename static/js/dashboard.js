@@ -1,22 +1,45 @@
+// dashboard.js
+
 /**
- * form file utility
+ * double click active
  */
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('pdf-upload-area').addEventListener('click', function() {
-        document.querySelector('.input-file input[type=file]').click();
+$(document).ready(function(){
+    $('#selectAll').change(function(){
+        if(this.checked){
+            $('.row-checkbox').prop('checked', true);
+            $('tbody tr').addClass('table-active');
+        } else {
+            $('.row-checkbox').prop('checked', false);
+            $('tbody tr').removeClass('table-active');
+        }
     });
 
-    document.querySelector('.input-file input[type=file]').addEventListener('change', function() {
-        document.getElementById('pdf-upload-form').submit();
+    $('.row-checkbox').change(function(){
+        if(this.checked){
+            $(this).closest('tr').addClass('table-active');
+            if($('.row-checkbox:checked').length == $('.row-checkbox').length){
+                $('#selectAll').prop('checked', true);
+            }
+        } else {
+            $(this).closest('tr').removeClass('table-active');
+            $('#selectAll').prop('checked', false);
+        }
     });
-});
 
-    document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('pdf-upload-area').addEventListener('click', function() {
-        document.getElementById('pdf-file-input').click();
+    $('tbody tr').dblclick(function(){
+        var checkbox = $(this).find('.row-checkbox');
+        if (checkbox.prop('checked')) {
+            checkbox.prop('checked', false);
+            $(this).removeClass('table-active');
+        } else {
+            checkbox.prop('checked', true);
+            $(this).addClass('table-active');
+        }
     });
 
-    document.getElementById('pdf-upload-area').addEventListener('change', function() {
-        document.getElementById('pdf-upload-form').submit();
+    $('tbody tr').hover(function(){
+        $(this).addClass('table-active');
+    }, function(){
+        $(this).removeClass('table-active');
     });
 });
