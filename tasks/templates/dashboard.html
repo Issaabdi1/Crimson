@@ -5,82 +5,93 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static '/js/dashboard.js' %}"></script>
 
-<div class="container text-center">
-  <div class="row">
-    <div class="table-responsive">
-      <table class="table table-light table-bordered" id="dataTable">
-        <thead>
-            <tr>
-                <th scope="col">
-                    <input class="form-check-input" type="checkbox" value="" id="selectAll">
-                </th>
-                <th scope="col">
-                    ID
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-                <th scope="col">
-                    File Name
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-                <th scope="col">
-                    Owner
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-                <th scope="col">
-                    Uploaded At
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-                <th scope="col">
-                    Comment
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-                <th scope="col">
-                    Size
-                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
-                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for upload in uploads %}
-            <tr>
-                <td scope="row">
-                    <input class="form-check-input row-checkbox" type="checkbox">
-                </td>
-                <td scope="row">{{ forloop.counter }}</td>
-                <td>{{ upload.get_simple_file_name}}</td>
-                <td>{{ upload.owner }}</td>
-                <td>{{ upload.uploaded_at }}</td>
-                {% if upload.comments %}
-                    <td>{{ upload.comments }}</td>
-                    {% else %}
-                    <td>-</td>
-                {% endif %}
-                <td>{{ upload.file_size_mb }} Mb</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    </div>
-  </div>
+<head>
+    <title>Dashboard</title>
+    <h1><strong>Dashboard</strong></h1>
+    <br>
+    <h6><strong>Details:</strong></h6>
+</head>
+<a href="#" class="btn-outline-light" role="presentation">
+    <div class="container text-center">
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table table-light table-bordered" id="dataTable">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        <input class="form-check-input" type="checkbox" value="" id="selectAll">
+                    </th>
+
+                    <th scope="col">
+                        ID
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                    <th scope="col">
+                        File Name
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                    <th scope="col">
+                        Owner
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                    <th scope="col">
+                        Uploaded At
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                    <th scope="col">
+                        Comment
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                    <th scope="col">
+                        Size
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                            <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for upload in uploads %}
+                <tr>
+                    <td scope="row">
+                        <input class="form-check-input row-checkbox" type="checkbox">
+                    </td>
+                    <td scope="row">{{ forloop.counter }}</td>
+                    <td>{{ upload.get_simple_file_name}}</td>
+                    <td>{{ upload.owner }}</td>
+                    <td>{{ upload.uploaded_at }}</td>
+                    {% if upload.comments %}
+                        <td>{{ upload.comments }}</td>
+                        {% else %}
+                        <td>-</td>
+                    {% endif %}
+                    <td>{{ upload.file_size_mb }} Mb</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+      </div>
 </div>
+</a>
+
+
 
 
 {% endblock %}

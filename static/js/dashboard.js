@@ -78,8 +78,8 @@ $(document).ready(function() {
 
     // Click event handler for the sort buttons
     $('.icon-btn').click(function() {
-        var columnIndex = $(this).closest('th').index();
-        var order = $(this).hasClass('asc') ? 'desc' : 'asc';
+        const columnIndex = $(this).closest('th').index();
+        const order = $(this).hasClass('asc') ? 'desc' : 'asc';
 
         // Remove 'asc' and 'desc' classes from all buttons
         $('.icon-btn').removeClass('asc desc');

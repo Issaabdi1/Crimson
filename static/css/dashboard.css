@@ -3,6 +3,10 @@ a.btn{
     width: 100px;
 }
 
+a{
+    text-decoration: none;
+}
+
 table#dataTable {
     width: 100%;
 }
@@ -13,4 +17,21 @@ table#dataTable {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+to {
+  opacity: 1;
+  transform: translateY(0);
+}
+}
+
+/* Apply slide-in animation to table rows */
+tbody tr {
+animation: slideIn 0.5s ease-in-out;
 }
