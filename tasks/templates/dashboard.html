@@ -1,10 +1,11 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
 {% load static %}
+<link rel="stylesheet" type="text/css" href="{% static '/css/dashboard.csschang' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static '/js/dashboard.js' %}"></script>
 
-<a class="btn btn-outline" href="#" role="button">
+<a class="btn btn-lik btn-lg" href="#" role="button">
 <div class="container text-center">
   <div class="row">
       <table class="table table-light table-bordered" id="dataTable">
