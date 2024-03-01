@@ -14,11 +14,11 @@
 }
 .thumbnail:hover {
     border-color: lightblue;
-    box-shadow: 0 0 10px 0 lightblue;
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3);
 }
 .thumbnail.selected {
-    border-color: blue;
-    box-shadow: 0 0 5px 0 blue, inset 0 0 0 1000px rgba(0, 0, 255, 0.2);
+    border-color: lightblue;
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1000px rgba(173, 216, 230, 0.3);
 }
 .pdf-image {
     width: 70px; 
@@ -26,4 +26,33 @@
 }
 .file-name {
     margin-top: 5px;
+}
+
+.search-bar {
+    border-radius: 100px;
+}
+.share-btn {
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+}
+.bi-box-arrow-up {
+    margin-right: 3px;
+}
+
+.search-filter {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+.search-filter:hover {
+    border-color: lightblue;
+}
+.search-filter.selected {
+    border-color: lightblue;
+    background-color: rgba(173, 216, 230, 0.3);
+}
+.pfp {
+    font-size: 50px;
 }

@@ -8,7 +8,7 @@
     <div class="row">
       <div class="col-12">
         <select id="file-select" class="form-select d-none" name="file-id">
-          <option selected disabled> Select file: </option>
+          <option selected disabled></option>
           {% for upload in uploads %}
             <option value="{{ upload.id }}">{{ upload.file.name }}</option>
           {% endfor %}
@@ -24,32 +24,32 @@
         </div>
       </div>
     </div>
-    <br>
-    <div class="row">
-      <div class="col-12">
-        {% if uploads %}
+    {% if uploads %}
+      <div class="row">
+        <div class="col">
           <h2> Share to: </h2>
-          <input type="text" id="search" class="col-md-6 form-control" placeholder="Search for username">
-        {% endif %}
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <table class="table mt-3">
-          <tbody id="filter">
-            {% for user in all_users %}
-              <tr style="display: none">
-                <td class="align-middle">{{ user.username }}</td>
-                <td class="text-end">
-                  <button type="submit" name="user-id" value="{{ user.id }}" class="btn btn-primary">
-                    <i class="bi bi-box-arrow-up"></i> Share
-                  </button>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="row">
+        <div class="col-sm-10 col-md-8 px-0">
+          <input type="text" id="search" class="form-control search-bar" placeholder="Search for username">
+        </div>
+        <div class="col-sm-2 col-md-4">
+          <button type="submit" name="user-ids" class="share-btn btn btn-primary">
+            <i class="bi bi-box-arrow-up"></i> Share
+          </button>
+        </div>
       </div>
+    {% endif %}
+    <div class="row mt-1">
+      {% for user in all_users %}
+        <div class="col-sm-4 col-md-3 col-lg-2 d-none search-filter" value="{{ user.id }}">
+          <div class="row text-center">
+            <i class="bi bi-person-circle pfp"></i>
+          </div>
+          <div class="row text-center username"><p>{{ user.username }}</p></div>
+        </div>
+      {% endfor %}
     </div>
   </form>
 </div>
