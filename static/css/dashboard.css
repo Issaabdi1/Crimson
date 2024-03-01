@@ -1,0 +1,15 @@
+a.btn{
+    display: block;
+    width: 100px;
+}
+
+table#dataTable {
+    width: 100%;
+}
+
+.btn {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
