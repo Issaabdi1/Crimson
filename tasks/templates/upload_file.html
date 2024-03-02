@@ -4,40 +4,100 @@
 <link rel="stylesheet" type="text/css" href="{% static '/css/upload_file.css' %}">
 <script src="{% static '/js/upload_file.js' %}"></script>
 
+<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+<div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative items-center" style="background-color: white">
+	<div class="absolute bg-black opacity-5 inset-0 z-0"></div>
+	<div class="sm:max-w-lg w-full p-10 bg-white rounded-xl z-10">
+		<div class="text-center">
+			<h2 class="mt-5 text-3xl font-bold text-gray-900">
+				Upload
+			</h2>
+			<p class="mt-2 text-sm text-gray-400">File size no more than 100M</p>
+		</div>
 
-<head>
-    <title>Uploader</title>
-    <h1><strong>Uploader</strong></h1>
-</head>
+    <div class="container mt-8 space-y-2">
+        <div class="grid grid-cols-1 space-y-2">
+            <label class="text-sm font-bold text-gray-500 tracking-wide">Share To (optional)</label>
+            <input class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" type="" placeholder="mail@gmail.com">
+        </div>
 
-<div class="table-container shadow p-3 mb-5 bg-body-tertiary rounded" style='margin-left: 140px; margin-top: 50px'>
-    <table class="pdf-table table-hover">
-        <tbody>
-            <tr>
-                <td class="pdf-upload-area" colspan="5" id="pdf-upload-area" tabindex="0">
-                    <div style="max-width: 70%; max-height: 70%;">
-                        <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" style="max-height: 50%; max-width: 50%">
-                    </div>
-                    <div class="mt-5">
-                        <div class="section" id="pdf-file-upload-section">
-                            <form id="pdf-upload-form" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <p>{{ form.non_field_errors }}</p>
-                                {% if file_url %}
-                                    <p>File uploaded at: <a href="{{ file_url }}">{{ file_url|truncatechars:20 }}</a></p>
-                                {% else %}
-                                    <p>{{ form.file.help_text }}</p>
-                                {% endif %}
-                                <div class="col-3 input-file" style="display: none;">
-                                    {{ form.file }}
-                                </div>
-                            </form>
+        <div class="grid grid-cols-1 space-y-2">
+            <label class="text-sm font-bold text-gray-500 tracking-wide">Attach Document</label>
+            <form class="mt-2 space-y-2" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">
+                        <div class="h-full w-full text-center flex flex-col items-center justify-center items-center">
+                            <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-2 p-4">
+                                <svg t="1709394247559" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6773" width="70" height="70"><path d="M131.3 376.7H64.2v483.2c0 37.1 30.3 67.3 67.1 67.3H892c37 0 67.1-30.3 67.1-67.3V376.7H131.3z m768.3-164.1H798.2c-2 0-4 0.1-6.1 0.3h-306v-54.6c0-33.2-26.9-60.1-60-60.1H124.5c-33.2 0-60 27-60 60.1v174h894.9V272.4c-0.1-32.9-27-59.8-59.8-59.8z" fill="" p-id="6774"></path></svg>
+                            </div>
+                            <p class="pointer-none text-gray-500 "><span class="text-sm">Drag & Drop</span> files here <br/></p>
+                            <div style="display: none">
+                                {{ form.file }}
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+                    </label>
+                </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300">
+                        Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+
+{#        <form class="mt-8 space-y-3" id="pdf-upload-form" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">#}
+{#            {% csrf_token %}#}
+{#                    <div class="grid grid-cols-1 space-y-2">#}
+{#                                    <label class="text-sm font-bold text-gray-500 tracking-wide">Attach Document</label>#}
+{#                        <div class="flex items-center justify-center w-full">#}
+{#                            <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">#}
+{#                                <div class="h-full w-full text-center flex flex-col items-center justify-center items-center" id="pdf-upload-area">#}
+{#                                    <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-2 p-4">#}
+{#                                        <svg t="1709394247559" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6773" width="70" height="70"><path d="M131.3 376.7H64.2v483.2c0 37.1 30.3 67.3 67.1 67.3H892c37 0 67.1-30.3 67.1-67.3V376.7H131.3z m768.3-164.1H798.2c-2 0-4 0.1-6.1 0.3h-306v-54.6c0-33.2-26.9-60.1-60-60.1H124.5c-33.2 0-60 27-60 60.1v174h894.9V272.4c-0.1-32.9-27-59.8-59.8-59.8z" fill="" p-id="6774"></path></svg>#}
+{#                                    </div>#}
+{#                                    <p class="pointer-none text-gray-500 "><span class="text-sm">Drag & Drop</span> files here <br/></p>#}
+{#                                </div>#}
+{#                            </label>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <p class="text-sm text-gray-300">#}
+{#                        <span>File type: only pdf types of files</span>#}
+{#                    </p>#}
+{#        </form>#}
+{#	</div>#}
+{#</div>#}
+
+
+{#<div class="table-container shadow p-3 mb-5 bg-body-tertiary rounded" style='margin-left: 140px; margin-top: 50px'>#}
+{#    <table class="pdf-table table-hover">#}
+{#        <tbody>#}
+{#            <tr>#}
+{#                <td class="pdf-upload-area" colspan="5" id="pdf-upload-area" tabindex="0">#}
+{#                    <div style="max-width: 70%; max-height: 70%;">#}
+{#                        <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" style="max-height: 50%; max-width: 50%">#}
+{#                    </div>#}
+{#                    <div class="mt-5">#}
+{#                        <div class="section" id="pdf-file-upload-section">#}
+{#                            <form id="pdf-upload-form" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">#}
+{#                                {% csrf_token %}#}
+{#                                <p>{{ form.non_field_errors }}</p>#}
+{#                                {% if file_url %}#}
+{#                                    <p>File uploaded at: <a href="{{ file_url }}">{{ file_url|truncatechars:20 }}</a></p>#}
+{#                                {% else %}#}
+{#                                    <p>{{ form.file.help_text }}</p>#}
+{#                                {% endif %}#}
+{#                                <div class="col-3 input-file" style="display: none;">#}
+{#                                    {{ form.file }}#}
+{#                                </div>#}
+{#                            </form>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </td>#}
+{#            </tr>#}
+{#        </tbody>#}
+{#    </table>#}
+{#</div>#}
 {% endblock %}
