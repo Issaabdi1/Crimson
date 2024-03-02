@@ -13,8 +13,8 @@
         <tbody>
             <tr>
                 <td class="pdf-upload-area" colspan="5" id="pdf-upload-area" tabindex="0">
-                    <div class="flex" style="width: 70px; height: 70px; overflow: hidden;">
-                        <img class="icon faded p-2" src="{% static '/image/pdf_icon_svg.png' %}" alt="PDF" style="max-width: 100%; max-height: 100%;">
+                    <div style="max-width: 70%; max-height: 70%;">
+                        <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" style="max-height: 50%; max-width: 50%">
                     </div>
                     <div class="mt-5">
                         <div class="section" id="pdf-file-upload-section">
@@ -29,7 +29,6 @@
                                 <div class="col-3 input-file" style="display: none;">
                                     {{ form.file }}
                                 </div>
-{#                                <p><input id="pdf-upload-button" class="mt-3 d-block ps-4 pe-4 btn btn-success" type="submit" value="Upload"/></p>#}
                             </form>
                         </div>
                     </div>

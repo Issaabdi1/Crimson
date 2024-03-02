@@ -37,22 +37,22 @@
 
 
 
-/*.table-container .section {*/
-/*    flex: 1 1 0;*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    align-items: center;*/
-/*    !*padding: 100px 400px;*!*/
-/*    border-width: 3px;*/
-/*    border-radius: 8px;*/
-/*    !*border-color: rgb(255, 192, 203);*!*/
-/*    !*border-style: dashed;*!*/
-/*    !*background-color: rgb(250, 250, 250);*!*/
-/*    !*color: rgb(189, 189, 189);*!*/
-/*    outline: none;*/
-/*    transition: border 0.24s ease-in-out 0s;*/
-/*    cursor: pointer;*/
-/*}*/
+.table-container .section {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /*padding: 100px 400px;*/
+    border-width: 3px;
+    border-radius: 8px;
+    /*border-color: rgb(255, 192, 203);*/
+    /*border-style: dashed;*/
+    /*background-color: rgb(250, 250, 250);*/
+    /*color: rgb(189, 189, 189);*/
+    outline: none;
+    transition: border 0.24s ease-in-out 0s;
+    cursor: pointer;
+}
 
 
 .table-container .section input[type='file'] {
@@ -70,4 +70,5 @@
     max-height: 100%;
 }
 
+html, body{background: rgb(236, 240, 241);}
 
