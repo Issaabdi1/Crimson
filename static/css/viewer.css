@@ -30,7 +30,7 @@ body {
 	position: absolute;
 	inset: 32px 0 0;
 	height: 100%;
-	width: 200px;
+	width: 300px;
 	z-index: 100;
 	background-color: #ECEFF4;
 }
@@ -128,4 +128,33 @@ body {
 	height: 28px;
 	font-size: 16px;
 	margin: 2px;
+}
+
+/*Thumbnails view*/
+.thumbnailContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 10px;
+	width: 270px;
+	background-color: transparent;
+}
+
+.pageNumberElement {
+	font-size: 14px;
+	color: #333;
+	padding-bottom: 15px;
+	padding-top: 5px;
+}
+
+.thumbnailContainer .thumbnailCanvas {
+	max-width: 100%;
+	height: auto;
+	border: 1px solid transparent;
+}
+
+.thumbnailContainer[aria-selected="true"] .thumbnailCanvas {
+	max-width: 100%;
+	height: auto;
+	border: 5px solid #ACCEF7;
 }

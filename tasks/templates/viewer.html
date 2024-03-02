@@ -32,7 +32,9 @@
 
 			<!-- Sidebar Views -->
 			<div id="sidebarViews">
-				<div id="thumbnailView"></div>
+				<div id="thumbnailView">
+                    <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
+                </div>
 				<div id="outlineView"></div>
 				<div id="commentView"></div>
 				<div id="bookmarksView"></div>
@@ -135,6 +137,24 @@
 	
 				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
+
+                // Generate thumbnail for each page
+                const thumbnailCanvas = await makeThumb(page);
+                thumbnailCanvas.classList.add("thumbnailCanvas")
+                const thumbnailContainer = document.createElement("div");
+                thumbnailContainer.classList.add("thumbnailContainer");
+                thumbnailContainer.setAttribute("role", "tab");
+                if (pageNumber === 1) {
+                    thumbnailContainer.setAttribute("aria-selected", "true");
+                } else {
+                    thumbnailContainer.setAttribute("aria-selected", "false");
+                }
+                thumbnailContainer.appendChild(thumbnailCanvas);
+                const pageNumberElement = document.createElement("span");
+                pageNumberElement.textContent = pageNumber.toString(10);
+                pageNumberElement.classList.add("pageNumberElement")
+                thumbnailContainer.appendChild(pageNumberElement);
+                document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
 			}
 	
 			// Adjust canvas size
@@ -168,6 +188,28 @@
 				context.translate(0, pageHeight + pageSpacing);
 			}
 		});
+
+        async function makeThumb(page) {
+            const vp = page.getViewport({scale: 1});
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(108 / vp.width, 140 / vp.height);
+            canvas.width = vp.width * scale;
+            canvas.height = vp.height * scale;
+            const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
+            await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
+            return canvas;
+        }
+
+        document.getElementById("thumbnailsContainer").addEventListener("click", function(event) {
+            const clickedThumbnail = event.target.closest(".thumbnailContainer");
+            if (clickedThumbnail) {
+                const allThumbnails = document.querySelectorAll(".thumbnailContainer");
+                allThumbnails.forEach(thumbnail => {
+                    thumbnail.setAttribute("aria-selected", "false");
+                });
+                clickedThumbnail.setAttribute("aria-selected", "true");
+            }
+        });
 	</script>
 	
 </body>
