@@ -92,10 +92,8 @@ animation: slideIn 0.5s ease-in-out;
   color: #111;
 }
 
-html, body{background: rgb(236, 240, 241);}
-
   section.container{
-    min-width: 500px;
+    min-width: 600px;
     margin: 10% auto;
     text-align: center;
   }
@@ -141,3 +139,4 @@ html, body{background: rgb(236, 240, 241);}
         font-size: .8em;
         transition: all .3s ease-in-out;
       }
+
