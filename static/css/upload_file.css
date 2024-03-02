@@ -6,6 +6,14 @@
     height: 80%;
 }
 
+.header-bar{
+    box-sizing: border-box;
+    padding: 0; margin: 0;
+    font: 300 1em/1.5 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    text-decoration: none;
+    color: #111;
+}
+
 .pdf-table {
     width: 80%;
     height: 80%;
@@ -18,7 +26,7 @@
     padding: 120px;
     border-width: 3px;
     border-radius: 10px;
-    border-color: rgb(220, 155, 255);
+    border-color: rgb(236,138,164);
     border-style: dashed;
     background-color: rgb(250, 250, 250);
     color: rgb(189, 189, 189);
@@ -31,27 +39,6 @@
     max-height: 100%;
     box-sizing: border-box;
     overflow: auto;
-}
-
-
-
-
-
-.table-container .section {
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /*padding: 100px 400px;*/
-    border-width: 3px;
-    border-radius: 8px;
-    /*border-color: rgb(255, 192, 203);*/
-    /*border-style: dashed;*/
-    /*background-color: rgb(250, 250, 250);*/
-    /*color: rgb(189, 189, 189);*/
-    outline: none;
-    transition: border 0.24s ease-in-out 0s;
-    cursor: pointer;
 }
 
 

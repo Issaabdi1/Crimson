@@ -4,6 +4,8 @@
 <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
 <script src="{% static '/js/filelist.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<body>
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
@@ -48,11 +50,12 @@
                                 <button type="submit" class="btn btn-danger equal-size"><i class="bi bi-trash-fill"></i></button>
                             </form>
                             <!-- Share PDF -->
-                            <a class="btn btn-warning equal-size" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512" class="icon faded p-2">
-                                    <path d="M288 298.1v92.3L448 256 288 112v80C100.8 192 64 400 64 400c53-93 122.4-101.9 224-101.9z"></path>
+                            <a class="btn btn-warning equal-size" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}" style="display: flex; justify-content: center; align-items: center;">
+                                <svg t="1709341311392" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1661" width="30" height="30">
+                                    <path d="M601.6 699.733333l-200.533333-110.933333C375.466667 618.666667 341.333333 640 298.666667 640c-72.533333 0-128-55.466667-128-128s55.466667-128 128-128c42.666667 0 81.066667 21.333333 106.666666 55.466667L640 320V298.666667c0-72.533333 55.466667-128 128-128s128 55.466667 128 128-55.466667 128-128 128c-46.933333 0-89.6-25.6-110.933333-64l-234.666667 115.2c4.266667 8.533333 4.266667 21.333333 4.266667 34.133333 0 12.8-4.266667 29.866667-8.533334 42.666667l196.266667 106.666666c25.6-38.4 64-64 110.933333-64 72.533333 0 128 55.466667 128 128s-55.466667 128-128 128-128-55.466667-128-128c0-8.533333 0-17.066667 4.266667-25.6zM298.666667 597.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333333-85.333333 38.4-85.333334 85.333333 38.4 85.333333 85.333334 85.333333z m469.333333-213.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333334-85.333333 38.4-85.333333 85.333334 38.4 85.333333 85.333333 85.333333z m-42.666667 426.666667c46.933333 0 85.333333-38.4 85.333334-85.333334s-38.4-85.333333-85.333334-85.333333-85.333333 38.4-85.333333 85.333333 38.4 85.333333 85.333333 85.333334z" fill="#333333" p-id="1662"></path>
                                 </svg>
                             </a>
+
                             <!-- Comment PDF -->
                             <button type="button" class="btn btn-success equal-size open-modal" data-upload-id="{{ upload.id }}">
                                 <i class="bi bi-chat-dots"></i>
@@ -168,6 +171,8 @@
     </div>
 </div>
 {% endfor %}
+</body>
+
 
 <script>
     /**
