@@ -35,9 +35,17 @@
 				<div id="thumbnailView">
                     <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
                 </div>
-				<div id="outlineView"></div>
-				<div id="commentView"></div>
-				<div id="bookmarksView"></div>
+				<div id="outlineView">
+                    <h3>This is the outline view</h3>
+                </div>
+
+				<div id="commentView">
+                    <h3>This is the comment view</h3>
+                </div>
+
+				<div id="bookmarksView">
+                    <h3>This is the bookmark view</h3>
+                </div>
 			</div>
 		</div>
 
@@ -199,19 +207,9 @@
             await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
             return canvas;
         }
-
-        document.getElementById("thumbnailsContainer").addEventListener("click", function(event) {
-            const clickedThumbnail = event.target.closest(".thumbnailContainer");
-            if (clickedThumbnail) {
-                const allThumbnails = document.querySelectorAll(".thumbnailContainer");
-                allThumbnails.forEach(thumbnail => {
-                    thumbnail.setAttribute("aria-selected", "false");
-                });
-                clickedThumbnail.setAttribute("aria-selected", "true");
-            }
-        });
 	</script>
 	
 </body>
+<script src="{% static "js/viewer_sidebar.js" %}"></script>
 </html>
 
