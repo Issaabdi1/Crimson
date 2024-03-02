@@ -149,6 +149,7 @@
                 // Generate thumbnail for each page
                 const thumbnailCanvas = await makeThumb(page);
                 thumbnailCanvas.classList.add("thumbnailCanvas")
+
                 const thumbnailContainer = document.createElement("div");
                 thumbnailContainer.classList.add("thumbnailContainer");
                 thumbnailContainer.setAttribute("role", "tab");
@@ -158,10 +159,18 @@
                     thumbnailContainer.setAttribute("aria-selected", "false");
                 }
                 thumbnailContainer.appendChild(thumbnailCanvas);
+
                 const pageNumberElement = document.createElement("span");
                 pageNumberElement.textContent = pageNumber.toString(10);
                 pageNumberElement.classList.add("pageNumberElement")
                 thumbnailContainer.appendChild(pageNumberElement);
+
+                thumbnailContainer.addEventListener("click", function() {
+                    const viewer = document.getElementById("viewer");
+                    const pageHeight = viewer.scrollHeight / pdf.numPages;
+                    viewer.scrollTop = (pageNumber - 1) * pageHeight;
+                });
+
                 document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
 			}
 	
