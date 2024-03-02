@@ -125,6 +125,7 @@ h3.profile-title {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
+    opacity: 0;
 }
 
 .popup {
@@ -138,10 +139,26 @@ h3.profile-title {
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1000;
-    height: 300px;
-    width: 300px;
+    height: auto;
+    width: 80%;
+    max-width: 300px;
 }
 
+.popup-container.active {
+    opacity: 1;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translate(0%, 10%) scale(1.2);
+  }
+  to {
+      opacity: 1;
+      transform: translate(0%, 0%) scale(1);
+  }
+}
 .close-btn {
     position: absolute;
     top: 10px;
@@ -153,15 +170,51 @@ h3.profile-title {
 /*
  * Team list style
  */
-ul.teams-list {
+.teams-list {
     list-style-type: none;
     padding: 0;
 }
 
-ul.teams-list li {
-    margin-bottom: 20px;
-    font-size: large;
+.team-item {
+    margin-top: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
+.team-link {
+    display: block;
+    text-decoration: none;
+}
+
+.team-box {
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+    transition: color 0.3s ease;
+}
+
+.team-link:hover .team-box:hover {
+    color: navy;
+}
+
+.team-name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: inherit;
+}
+
+.team-members {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: inherit;
+}
+.team-text {
+    font-family: 'IBM Plex Serif', serif;
+}
+
 
 /*  
 Default mode 

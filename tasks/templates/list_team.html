@@ -3,40 +3,59 @@
 {% load static %}
     <div class="col-12 p-2">
         <div class="row">
-            <div class="col-10">
-                <h1 class="mb-4">My teams:</h1>
-            </div>
-            <div class="col-2">
-                <button id="CreateTeamPopup" class="btn btn-primary text-nowrap mt-2">Create Team</button>
+            <div class="col-12 text-center">
+                <h5 class="team-text fw-light">Create or join a group to share files with others easier.</h5>
             </div>
         </div>
-
+        <div class="row">
+            <div class="col-12 text-center">
+                <button id="CreateTeamPopup" class="btn btn-outline-primary text-nowrap mx-1 mt-2 px-4">
+                    <small class="team-text">Create Group</small>
+                </button>
+                <button id="JoinTeamPopup" class="btn btn-primary text-nowrap mx-1 mt-2 px-4">
+                    <small class="team-text">Join Group</small>
+                </button>
+            </div>
+        </div>
         <div id="popupContainer" class="popup-container">
             <div id="popupForm" class="popup text-center">
                 <span id="closePopup" class="close-btn">&times;</span>
                 <form action="{% url 'team_list' %}" method="post">
-                    <h2 class="mb-3">Create Team</h2>
+                    <h3 class="team-text">Create group name</h3>
                     {% csrf_token %}
                     {% include 'partials/create_team_form.html' with form=form %}
-                    <input type="submit" class="btn btn-primary mt-3d-block w-50"
-                           style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                    <input type="submit" class="team-text btn btn-primary mt-3d-block w-50"
+                           style="height: 40px; border-radius: 70px;background: #0d6efd;"
                            value="Create">
                 </form>
             </div>
         </div>
-
         <div class="row">
-            <div class="col-12">
+            <div class="col-sm-12 col-md-9 col-lg-6">
+                <h1 class="mt-4 mb-0">Groups You Belong To</h1>
                 <ul class="teams-list">
-                    {% for team in team_joined %}
-                        <li>
-                            <a href="{% url 'team_detail' team_id=team.id %}">{{ team.name }}</a>
+                    {% if team_joined %}
+                        {% for team in team_joined %}
+                            <li class="team-item">
+                                <a href="{% url 'team_detail' team_id=team.id %}" class="team-link">
+                                    <div class="team-box">
+                                        <h3 class="team-name team-text">{{ team.name }}</h3>
+                                        <p class="team-members team-text">Members: {{ team.members.count }}</p>
+                                    </div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="team-item">
+                            <span style="font-weight: 50;">You are not currently a member of any group.</span>
                         </li>
-                    {% endfor %}
+                        <li class="team-item m-0">
+                            <span style="font-weight: 50;">Click the "Create Group" or "Join Group" above to get started.</span>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
-
     </div>
     <script src="{% static 'js/popup_window_create_team.js' %}"></script>
 {% endblock %}

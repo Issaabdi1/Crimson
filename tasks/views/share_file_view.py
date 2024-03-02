@@ -25,7 +25,7 @@ def share_file(request):
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
         user_ids = request.POST.get('user-ids')
-        if file_id is not None and user_ids is not None:
+        if file_id is not None and user_ids:
             shared_file = Upload.objects.get(id=file_id)
             user_list = user_ids.split(',')
             for user_id in user_list:
