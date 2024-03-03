@@ -102,22 +102,16 @@
      *  form upload listener
     */
         document.addEventListener('DOMContentLoaded', function () {
-        // 获取元素
         var fileIcon = document.getElementById('file-icon');
         var successIcon = document.getElementById('success-icon');
         var uploadInstruction = document.getElementById('upload-instruction');
         var successAlert = document.getElementById('success-alert');
         var fileInput = document.querySelector('input[type="file"]');
 
-        // 隐藏成功图标和成功提示
         successIcon.style.display = 'none';
         successAlert.style.display = 'none';
-
-        // 监听文件选择事件
         fileInput.addEventListener('change', function () {
-            // 如果有文件被选择
             if (fileInput.files.length > 0) {
-                // 隐藏文件图标和上传提示，显示成功图标和成功提示
                 fileIcon.style.display = 'none';
                 successIcon.style.display = 'block';
                 uploadInstruction.style.display = 'none';
@@ -125,11 +119,8 @@
             }
         });
 
-        // 监听表单提交事件
         document.querySelector('form').addEventListener('submit', function () {
-            // 检查是否有文件被选择
             if (fileInput.files.length === 0) {
-                // 如果没有文件被选择，则阻止表单提交
                 alert('Please select a file!');
                 event.preventDefault();
             }
