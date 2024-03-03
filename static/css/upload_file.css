@@ -57,3 +57,32 @@
 /*    max-height: 100%;*/
 /*}*/
 
+.uploaded-file {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(192,192,192, 20%);
+}
+
+.file-content {
+    display: flex;
+    align-items: center;
+}
+
+.file-icon {
+    margin-right: 10px;
+}
+
+.progress {
+    flex: 0;
+}
+
+.uploaded-file {
+    width: 300px;
+    padding: 10px;
+}
+
+.btn-close {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.875rem;
+}

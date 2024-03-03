@@ -39,6 +39,12 @@ def upload_file_view(request):
             form = FileForm()
     if file_url:
         context['file_url'] = file_url
+
+    uploaded_file = Upload.objects.last()
+    if uploaded_file:
+        simple_file_name = uploaded_file.get_simple_file_name()
+        context['simple_file_name'] = simple_file_name
+
     context['form'] = form
     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
     return render(request, 'upload_file.html', context)

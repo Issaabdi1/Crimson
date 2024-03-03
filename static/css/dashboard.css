@@ -5,7 +5,7 @@
 }
 
 .start-button {
-  background-color: rgb(236,138,164);
+  background-color: rgb(155,35,33);
   border: 0;
   border-radius: 56px;
   color: #fff;
@@ -114,7 +114,6 @@ animation: slideIn 0.5s ease-in-out;
       padding: 15px 50px;
       overflow: hidden;
     }
-
     /*button:before (attr data-hover)*/
     button:hover:before{opacity: 1; transform: translate(0,0);}
     button:before{
