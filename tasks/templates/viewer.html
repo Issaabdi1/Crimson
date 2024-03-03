@@ -153,6 +153,7 @@
                 const thumbnailContainer = document.createElement("div");
                 thumbnailContainer.classList.add("thumbnailContainer");
                 thumbnailContainer.setAttribute("role", "tab");
+                thumbnailContainer.setAttribute("data-page", pageNumber);
                 if (pageNumber === 1) {
                     thumbnailContainer.setAttribute("aria-selected", "true");
                 } else {
@@ -160,11 +161,13 @@
                 }
                 thumbnailContainer.appendChild(thumbnailCanvas);
 
+                // Add a page indicator
                 const pageNumberElement = document.createElement("span");
                 pageNumberElement.textContent = pageNumber.toString(10);
                 pageNumberElement.classList.add("pageNumberElement")
                 thumbnailContainer.appendChild(pageNumberElement);
 
+                // Naive approach
                 thumbnailContainer.addEventListener("click", function() {
                     const viewer = document.getElementById("viewer");
                     const pageHeight = viewer.scrollHeight / pdf.numPages;
@@ -172,7 +175,25 @@
                 });
 
                 document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
-			}
+            }
+
+            // Scrolling will also change the thumbnail aria selected effect
+            const viewer = document.getElementById("viewer");
+            viewer.addEventListener("scroll", function() {
+                let totalPages = pdf.numPages
+                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
+                const pageHeight = maxScrollTop / (totalPages - 1);
+                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
+                thumbnailContainers.forEach(container => {
+                    const page = parseInt(container.getAttribute("data-page"));
+                    if (page === currentPage) {
+                        container.setAttribute("aria-selected", "true");
+                    } else {
+                        container.setAttribute("aria-selected", "false");
+                    }
+                });
+            });
 	
 			// Adjust canvas size
 			canvas.width = maxWidth;
