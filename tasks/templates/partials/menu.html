@@ -26,10 +26,10 @@
       <a class="nav-link" href="#" id="user-account-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           {% if user.avatar_url == settings.DEFAULT_IMAGE_URL %}
             <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
-             class="rounded-circle small_image mb-1 invert_image">
+             class="rounded-circle small-image mb-1 invert_image">
           {% else %}
             <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
-             class="rounded-circle small_image mb-1">
+             class="rounded-circle small-image mb-1">
           {% endif %}
       </a>
       <ul class="dropdown-custom-theme dropdown-menu dropdown-menu-end" aria-labelledby="user-account-dropdown">
