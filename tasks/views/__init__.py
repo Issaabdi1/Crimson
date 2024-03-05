@@ -15,3 +15,5 @@ from .rename_upload_view import *
 from .delete_upload_view import *
 from .preferences_view import *
 from .delete_all_upload_views import *
+from .pdf_viewer_view import *
+from .upload_file_view import *
