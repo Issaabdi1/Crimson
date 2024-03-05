@@ -46,10 +46,6 @@ def share_file(request):
                     )
                 entry.shared_to.add(shared_user)
                 entry.save()
-        else:
-            messages.error(request, 'File and user must be selected.')
-    if not uploads.exists():
-        messages.warning(request, 'You must upload a file before sharing.')
     
     context = {
         'uploads': uploads,
