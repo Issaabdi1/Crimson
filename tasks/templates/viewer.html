@@ -104,25 +104,31 @@
 	</div>
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
-	
+
+		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+
+		const viewer = document.getElementById("viewer");
+		const canvas = document.getElementById("pdf");
+		const context = canvas.getContext("2d");
+
+		const scale = 1.5;
+		const outputScale = window.devicePixelRatio || 1;
+		const pageSpacing = 0; // Adjust spacing between pages here
+
+		// Scales output if device pixel ratio is not 1
+		const transform = outputScale !== 1
+			? [outputScale, 0, 0, outputScale, 0, 0]
+			: null;
+
+		let totalHeight = 0;
+		let maxWidth = 0;
+		
 		document.addEventListener("DOMContentLoaded", async function() {
-			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
-	
-			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
-	
-			const canvas = document.getElementById("pdf");
-			const context = canvas.getContext("2d");
-	
-			const scale = 1.5;
-			const outputScale = window.devicePixelRatio || 1;
-			const pageSpacing = 0; // Adjust spacing between pages here
-	
+
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			const pdf = await loadingTask.promise;
 	
-			let totalHeight = 0;
-			let maxWidth = 0;
-			
 			// Work out required canvas width and height
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
@@ -136,13 +142,110 @@
 				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
+
+			canvas.width = viewer.clientWidth;
+			canvas.height = totalHeight;
+			canvas.style.width = canvas.width + "px";
+			canvas.style.height = canvas.height + "px";
+
+			var checkDimensionsInterval = setInterval(function() {			
+				if (viewer.offsetWidth != viewer.clientWidth) {
+					clearInterval(checkDimensionsInterval); // Clear the interval
+					renderDocument(pdf); // Render pages once dimensions have been set 
+				}
+			}, 100); // Check every 100 milliseconds
+
+
+		});
+
+		window.addEventListener('resize', async function() {
+
+			/*
+            // Adjust canvas size when the window is resized
+            canvas.width = window.innerWidth;
+            canvas.height = totalHeight * (window.innerWidth / maxWidth);
+            canvas.style.width = window.innerWidth + "px";
+            canvas.style.height = (totalHeight * (window.innerWidth / maxWidth)) / outputScale + "px";
+			*/
+        });
+
+		async function renderDocument (pdf)
+		{
+			canvas.width = viewer.clientWidth;
+			canvas.height = totalHeight;
+			canvas.style.width = canvas.width + "px";
+			canvas.style.height = canvas.height + "px";
+
+			// Render every page in pdf
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				
+				// Calculate the x-coordinate to center the page horizontally
+				const translateX = (canvas.width - viewport.width * outputScale)/ 2;
 	
+				// Calculate the y-coordinate for the page
+				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * outputScale + pageSpacing);
+	
+				// Translate the context to center the page horizontally, and render next page below this one
+				context.translate(translateX, translateY);
+	
+				// Render the page
+				await page.render({
+					canvasContext: context,
+					transform,
+					viewport: viewport
+				}).promise;
+
+				// Reset the translation for the next page
+				context.setTransform(transform);
+			}	
+		}
+	</script>
+
+	<!--
+	<script type="module">
+		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+
+		document.addEventListener("DOMContentLoaded", async function() {
+			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+
+			const canvas = document.getElementById("pdf");
+			const context = canvas.getContext("2d");
+
+			const scale = 1.5;
+			const outputScale = window.devicePixelRatio || 1;
+			const pageSpacing = 0; // Adjust spacing between pages here
+
+			const loadingTask = pdfjsLib.getDocument(pdfUrl);
+			const pdf = await loadingTask.promise;
+
+			let totalHeight = 0;
+			let maxWidth = 0;
+			
+			// Work out required canvas width and height
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				const pageWidth = Math.floor(viewport.width * outputScale);
+				const pageHeight = Math.floor(viewport.height * outputScale);
+
+				// Calculate total height required to display all pages
+				totalHeight += pageHeight + pageSpacing;
+
+				// Update maximum width among all pages
+				maxWidth = Math.max(maxWidth, pageWidth);
+			}
+
+
 			// Adjust canvas size
 			canvas.width = maxWidth;
 			canvas.height = totalHeight;
 			canvas.style.width = maxWidth / outputScale + "px";
-        	canvas.style.height = totalHeight / outputScale + "px";
-	
+			canvas.style.height = totalHeight / outputScale + "px";
+
 			let offsetY = 0;
 
 			// This increases the size somehow
@@ -169,6 +272,8 @@
 			}
 		});
 	</script>
+	-->
+	
 	
 </body>
 </html>
