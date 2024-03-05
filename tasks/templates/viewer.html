@@ -105,13 +105,14 @@
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
+		// Setup 
 		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
 		const context = canvas.getContext("2d");
 
-		const scale = 1.5;
+		var scale = 1.5;
 		const outputScale = window.devicePixelRatio || 1;
 		const pageSpacing = 0; // Adjust spacing between pages here
 
@@ -124,7 +125,6 @@
 		let maxWidth = 0;
 		
 		document.addEventListener("DOMContentLoaded", async function() {
-
 			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			const pdf = await loadingTask.promise;
@@ -148,15 +148,27 @@
 			canvas.style.width = canvas.width + "px";
 			canvas.style.height = canvas.height + "px";
 
-			var checkDimensionsInterval = setInterval(function() {			
+			var checkDimensionsInterval = setInterval(function() {	
+				console.log("sdsd");		
 				if (viewer.offsetWidth != viewer.clientWidth) {
 					clearInterval(checkDimensionsInterval); // Clear the interval
 					renderDocument(pdf); // Render pages once dimensions have been set 
+
+					// Add event listeners
+
+					// Add event listener to zoom option
+					var selectScale = document.getElementById("selectScale");
+					selectScale.addEventListener("change", function() {
+						var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+						zoomDocument(selectedValue, pdf);
+					});
+					
 				}
 			}, 100); // Check every 100 milliseconds
 
 
 		});
+
 
 		window.addEventListener('resize', async function() {
 
@@ -171,8 +183,10 @@
 
 		async function renderDocument (pdf)
 		{
-			canvas.width = viewer.clientWidth;
-			canvas.height = totalHeight;
+			canvas.width = viewer.clientWidth * (scale / 1.5);
+
+			//canvas.width = viewer.clientWidth;
+			canvas.height = totalHeight * scale;
 			canvas.style.width = canvas.width + "px";
 			canvas.style.height = canvas.height + "px";
 
@@ -201,6 +215,20 @@
 				context.setTransform(transform);
 			}	
 		}
+		
+		function zoomDocument(zoomScale, pdf)
+		{
+			scale = zoomScale;
+			renderDocument(pdf);
+		}
+
+		function centerDocument()
+		{
+			// Need to center it based on the viewer and not the canvas
+			// When zooming out, should always remain centred
+			// When zooming in, what I have now should be fine
+		}
+
 	</script>
 
 	<!--
