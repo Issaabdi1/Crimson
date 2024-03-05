@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render
 from tasks.models import Upload
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
 
 @login_required
 def viewer(request):
@@ -22,3 +24,13 @@ def viewer(request):
             messages.add_message(request, messages.ERROR, f'Upload id was not specified in the form!')
 
     return render(request, 'viewer.html', context)
+
+def save_pdf_marks(request):
+    """Saves the marks added to the PDF"""
+    listOfMarks = request.GET.get('listOfMarks')
+    listOfSpans = request.GET.get('listOfSpans')
+    upload_id = request.GET.get('upload_id')
+    
+
+    
+    return JsonResponse({})

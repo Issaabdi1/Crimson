@@ -4,13 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
+    <!-- Other head elements -->
+    <style>
+		#markButton {
+			height: 60px;
+			width: 60px;
+			position: absolute;
+			inset: 0 0 0 60%;
+			z-index: 3;
+			margin-right: 20px;
+		}
+
+		#testButton {
+			height: 60px;
+			width: 60px;
+			display: inline-block; 
+			margin-right: 20px;
+		}
+
+		#testButton2 {
+			height: 60px;
+			width: 60px;
+			display: inline-block; 
+			margin-right: 20px;
+		}
+    </style>
 <body>
 	<div id="outerContainer">
-
 		<!-- Sidebar -->
 		<div id="sidebar">
+			<!--Test stuff, remove-->
+			<!--<input value="Try selecting some text in this element." />-->
+			<input> value="Try selecting some text in this element." />
+			<p id="log">dgdgdgd</p>
+
+			<button> 
+				<li>
+					<ul> <span>hhhhssss</span> </ul>
+					<ul><span>sss</span></ul>
+					<ul><span>s</span></ul>
+				</li>
+
+			</button>
 
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
@@ -41,7 +80,6 @@
 
 		<!-- Main Container -->
 		<div id="mainContainer">
-			
 			<!-- Toolbar -->
 			<div id="toolbar">
 			
@@ -98,13 +136,22 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
+				<button id="markButton" type="button" hidden="True">
+					Mark
+				</button>
 				<canvas id="pdf"></canvas>
+				<div id="textLayer" class="textLayer"></div>
+				<canvas id="selectionCanvas"></canvas>
+				<div>
+					<button id="testButton" type="button">Clear All Marks</button>
+					<button id="testButton2" type="button">Restore Marks</button>
+				</div>
 			</div>		
 		</div>
 	</div>
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
-	
+
 		document.addEventListener("DOMContentLoaded", async function() {
 			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 	
@@ -112,6 +159,9 @@
 	
 			const canvas = document.getElementById("pdf");
 			const context = canvas.getContext("2d");
+
+			const selectionCanvas = document.getElementById('selectionCanvas');
+            const selectionContext = selectionCanvas.getContext('2d');
 	
 			const scale = 1.5;
 			const outputScale = window.devicePixelRatio || 1;
@@ -119,7 +169,7 @@
 	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			const pdf = await loadingTask.promise;
-	
+
 			let totalHeight = 0;
 			let maxWidth = 0;
 			
@@ -136,12 +186,13 @@
 				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
-	
 			// Adjust canvas size
 			canvas.width = maxWidth;
 			canvas.height = totalHeight;
 			canvas.style.width = maxWidth / outputScale + "px";
         	canvas.style.height = totalHeight / outputScale + "px";
+			selectionCanvas.height = totalHeight;
+            selectionCanvas.width = maxWidth;
 	
 			let offsetY = 0;
 
@@ -150,9 +201,8 @@
 					? [outputScale, 0, 0, outputScale, 0, 0]
 					: null;
 
-			
 			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {//(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
 				const viewport = page.getViewport({ scale });
 				const renderContext = {
@@ -160,14 +210,294 @@
 					transform,
 					viewport,
 				};
-				
-				await page.render(renderContext).promise;
+				const pageTextLayer = document.getElementById('textLayer');
+				page.render(renderContext).promise.then(function () {
+					// ...
 
-				// Move the correct amount to render the next page below the current one
-				let pageHeight = Math.floor(viewport.height * outputScale)
-				context.translate(0, pageHeight + pageSpacing);
+					// Return the text contents of the page after the pdf has been rendered in the canvas
+					return page.getTextContent();
+				}).then(function (textContent) {
+					// Assign the CSS created to the text-layer element
+					pageTextLayer.style.setProperty('--scale-factor', viewport.scale);
+
+					// Pass the data to the method for rendering of text over the pdf canvas.
+					pdfjsLib.renderTextLayer({
+						textContentSource: textContent,
+						container: pageTextLayer,
+						viewport: viewport,
+						textDivs: []
+					});
+				});
 			}
 		});
+		//Class
+		class Mark {
+			static instanceCount = 0;
+
+
+			constructor() {
+				this.id = Mark.instanceCount++;
+				this.spanList = [];
+			}
+
+			addToList(span){
+				this.spanList.push(span);
+			}
+
+			getId(){
+				return this.id;
+			}
+
+			getList(){
+				return this.spanList;
+			}
+
+			// Other methods and properties...
+		}
+		//Other stuff
+		const markButton = 	document.getElementById('markButton');
+		var listOfMarks = []; //list of all the marks in the document
+		var listOfMarkedSpans = []; //list of all the spans that are marked. 
+		markButton.addEventListener("click", highlightSelectedText);
+		//textLayer.style.cssText = "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+		var elementsSelected = []; 
+		var currentStartingElement;
+		document.addEventListener('selectionchange', function(event){
+			if(window.getSelection().toString().length>0){
+				var selection = window.getSelection();
+				//console.log(selection.toString());
+				selectionList = selection.getRangeAt(0).cloneRange();
+				currentStartingElement = selection.getRangeAt(0).startContainer;
+				if(elementsSelected.length >0){
+					const rect = elementsSelected[0].getBoundingClientRect();
+					markButton.hidden = false;
+					// Set the position of the movable element to match the clicked element
+					markButton.style.top = rect.top + 'px';
+				}
+			}
+		});
+
+		document.addEventListener('mousedown', function(event) {
+			// Check if the mouse is being held down over elements with id "textLayer"
+			//elementsSelected = [];
+			const textLayer = document.getElementById('textLayer');
+			if (event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)) {
+				markButton.hidden = true;
+				// Add mousemove event listener to track mouse movement while mouse button is held down
+				document.addEventListener('mousemove', mouseMoveHandler);
+				if(!elementsSelected.includes(event.target)){
+					elementsSelected.push(event.target);
+				}
+			}
+			else{
+				//if starting from blank space, don't allow selection
+				textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+				window.getSelection().empty();
+				if(event.target.nodeName!='BUTTON'){
+					markButton.hidden = true;
+				}
+			}
+			// Add mouseup event listener to detect when mouse button is released
+			document.addEventListener('mouseup', mouseUpHandler);
+		});
+		var clearedElements = false;
+		var seenSpan = false;
+		var selectionList; 
+		function mouseMoveHandler(event) {
+			const textLayer = document.getElementById('textLayer');
+			if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)){
+				const rect = event.target.getBoundingClientRect();
+				// Set the position of the movable element to match the clicked element
+				markButton.style.top = rect.top + 'px';
+				markButton.hidden = false;
+				console.log(elementsSelected.length);
+				if(seenSpan){
+					if(!elementsSelected.includes(event.target)){
+						console.log(event.target);
+						elementsSelected.push(event.target);
+						console.log(elementsSelected.length);
+						if(elementsSelected.length == 1){
+							//currentStartingElement = event.target;
+							//currentStartingElement = window.getSelection(0).getRangeAt(0).startContainer;
+							console.log(currentStartingElement);
+						}
+					}
+					var selection = window.getSelection();
+					if(selection.rangeCount>0){
+						selectionList = selection.getRangeAt(0).cloneRange();
+						//currentStartingElement = window.getSelection(0).getRangeAt(0).startContainer;
+					}
+
+					textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+				}
+				else{
+					seenSpan = true;
+					if(!clearedElements){
+						clearedElements = true;
+						elementsSelected = [];
+					}
+				}
+
+			}
+			else{
+				seenSpan = false;
+				//keep selection as before
+				textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+			}
+			
+			//Turn off selection when over a highlighted seciton (because can't select it again)
+			if(event.target.id == "markedSection"){
+				//clear selection
+				window.getSelection().empty();
+				markButton.hidden = true;
+				seenSpan = false;
+				console.log("hide");
+				elementsSelected = [];
+				// Remove mousemove event listener when mouse button is released
+				document.removeEventListener('mousemove', mouseMoveHandler);
+				// Remove mouseup event listener when mouse button is released
+				document.removeEventListener('mouseup', mouseUpHandler);
+			}
+		}
+
+		function mouseUpHandler(event) {
+			// Remove mousemove event listener when mouse button is released
+			document.removeEventListener('mousemove', mouseMoveHandler);
+			// Remove mouseup event listener when mouse button is released
+			document.removeEventListener('mouseup', mouseUpHandler);
+			seenSpan = false;
+			clearedElements = false;
+			textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+			//window.getSelection().empty();
+		}
+
+		function highlightSelectedText(event){
+			//TEST CODE BELOW
+			console.log(selectionList.startContainer);
+			console.log(selectionList.endContainer);
+
+			//clear selection
+			window.getSelection().empty();
+			markButton.hidden = true;
+			var totalLength = selectionList.toString().length;
+			var offset = selectionList.startOffset;
+			var selectedParts = [];
+			// Assume you have an array of objects containing information about the selected parts within each span
+			elementsSelected.forEach((element)=>{
+				console.log(element);
+				var part = {span: element, start: offset, end: Math.min(offset + totalLength, element.textContent.length)};
+				selectedParts.push(part);
+				totalLength-= (part.end - part.start);
+				offset= 0;
+			})
+
+			//create a new mark
+			var newMark = new Mark();
+			var count = 0;
+			// Iterate over each selected part
+			selectedParts.forEach(part => {
+				var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
+				//newMark.addToList(part.span); //this is not corret, but do it for now
+				if(!listOfMarkedSpans.includes(part.span)){
+					listOfMarkedSpans.push(part.span);
+				}
+				highlightedSpan.dataset.value = newMark.getId();
+				//add event listener
+				highlightedSpan.addEventListener('click', () => {
+					// Handle click event (e.g., open a modal, execute a function, etc.)
+					console.log('Id is ', highlightedSpan.dataset.value);
+				});
+				count+=1;
+			});
+			listOfMarks.push(newMark);
+			clearSelections();
+		}
+
+
+		function clearAllMarks(){
+			const textLayer = document.getElementById("textLayer");
+			listOfMarkedSpans.forEach((span)=>{
+				textLayer.removeChild(span);
+			})
+		}
+
+		function putMarksBack(){
+			const textLayer = document.getElementById("textLayer");
+			listOfMarkedSpans.forEach((span)=>{
+				textLayer.appendChild(span);
+			})
+		}
+
+		document.getElementById('testButton').addEventListener("click", clearAllMarks);
+		document.getElementById('testButton2').addEventListener("click", putMarksBack);
+
+		function clearSelections(){
+			elementsSelected = [];
+			clearedElements = true;
+			seenSpan = false;
+		}
+		// Example function to highlight selected text within a span
+		function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
+			var textNode = setSpan.firstChild; //try to always make it the starting element
+			if(firstElement==true){
+				textNode = currentStartingElement;
+				console.log(currentStartingElement);
+			}
+			const range = document.createRange();
+
+			console.log("Text node is ", textNode);
+			// Set the range to cover the selected text within the text node
+			range.setStart(textNode, startOffset);
+			range.setEnd(textNode, endOffset);
+
+			// Create a highlight span element
+			const highlightSpan = document.createElement('span');
+			highlightSpan.id = "markedSection";
+			highlightSpan.style.backgroundColor = 'yellow'; // Set highlight color
+			highlightSpan.style.cursor = 'pointer'; // Change cursor to pointer
+
+			// Wrap the selected text with the highlight span
+			range.surroundContents(highlightSpan);
+
+			// Create a text node with the text of the highlight span after the highlight span (to mimic it being in the text)
+			const highlightText = document.createTextNode(highlightSpan.textContent);
+			
+			//create an empty span to separate the highlight text and the next text
+			const spacesSpan = document.createElement('span');
+			spacesSpan.style.userSelect='none';
+
+			//insert the span, and then the text before it
+			setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling); 
+			setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
+
+			//This means the order is text node | highlight | text | span | text
+			//This allows them to be selected separately. 
+			return highlightSpan;
+		}
+
+
+		//Send the data to the database
+		function savePdfChanges(){
+			//get the upload id
+			var upload_id = "{{ upload.id }}";
+			//serialize the list of marks and the list of spans
+			var listOfMarksJson = JSON.stringify(listOfMarks);
+			var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);
+
+			//pass parameters through url
+			var parameters = "?upload_id=" + upload_id + "&listOfMarks=" + listOfMarksJson + "&listOfSpans=" + listOfMarkedSpansJson;
+			const xhttp = new XMLHttpRequest();
+			//When the request has been dealt with, get the response
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == XMLHttpRequest.DONE) {
+					var response = JSON.parse(xhttp.response);
+					
+				}
+			};
+			xhttp.open("GET", "/pdf_viewer/save_pdf_marks/" + parameters); 
+			xhttp.send();
+			return true; //Show the request has been sent successfully
+		}
 	</script>
 	
 </body>
