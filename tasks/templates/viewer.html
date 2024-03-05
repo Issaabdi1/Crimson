@@ -102,6 +102,193 @@
 			</div>		
 		</div>
 	</div>
+
+	<script type="module">
+		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+	
+		document.addEventListener("DOMContentLoaded", async function() {
+			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+	
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
+	
+			const canvas = document.getElementById("pdf");
+			const context = canvas.getContext("2d");
+	
+			const scale = 1.5;
+			const outputScale = window.devicePixelRatio || 1;
+			const pageSpacing = 0; // Adjust spacing between pages here
+	
+			const loadingTask = pdfjsLib.getDocument(pdfUrl);
+			const pdf = await loadingTask.promise;
+	
+			let totalHeight = 0;
+			let maxWidth = 0;
+			
+			// Work out required canvas width and height
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				const pageWidth = Math.floor(viewport.width * outputScale);
+				const pageHeight = Math.floor(viewport.height * outputScale);
+	
+				// Calculate total height required to display all pages
+				totalHeight += pageHeight + pageSpacing;
+	
+				// Update maximum width among all pages
+				maxWidth = Math.max(maxWidth, pageWidth);
+
+                // Generate thumbnail for each page
+                const thumbnailCanvas = await makeThumb(page);
+                thumbnailCanvas.classList.add("thumbnailCanvas")
+
+                const thumbnailContainer = document.createElement("div");
+                thumbnailContainer.classList.add("thumbnailContainer");
+                thumbnailContainer.setAttribute("role", "tab");
+                thumbnailContainer.setAttribute("data-page", pageNumber);
+                if (pageNumber === 1) {
+                    thumbnailContainer.setAttribute("aria-selected", "true");
+                } else {
+                    thumbnailContainer.setAttribute("aria-selected", "false");
+                }
+                thumbnailContainer.appendChild(thumbnailCanvas);
+
+                // Add a page indicator
+                const pageNumberElement = document.createElement("span");
+                pageNumberElement.textContent = pageNumber.toString(10);
+                pageNumberElement.classList.add("pageNumberElement")
+                thumbnailContainer.appendChild(pageNumberElement);
+
+                // Naive approach
+                thumbnailContainer.addEventListener("click", function() {
+                    const viewer = document.getElementById("viewer");
+                    const pageHeight = viewer.scrollHeight / pdf.numPages;
+                    viewer.scrollTop = (pageNumber - 1) * pageHeight;
+                });
+
+                document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
+            }
+
+            // Scrolling will also change the thumbnail aria selected effect
+            const viewer = document.getElementById("viewer");
+            viewer.addEventListener("scroll", function() {
+                let totalPages = pdf.numPages
+                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
+                const pageHeight = maxScrollTop / (totalPages - 1);
+                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
+                thumbnailContainers.forEach(container => {
+                    const page = parseInt(container.getAttribute("data-page"));
+                    if (page === currentPage) {
+                        container.setAttribute("aria-selected", "true");
+                    } else {
+                        container.setAttribute("aria-selected", "false");
+                    }
+                });
+            });
+	
+			// Adjust canvas size
+			canvas.width = maxWidth;
+			canvas.height = totalHeight;
+			canvas.style.width = maxWidth / outputScale + "px";
+        	canvas.style.height = totalHeight / outputScale + "px";
+	
+			let offsetY = 0;
+
+			// This increases the size somehow
+			const transform = outputScale !== 1
+					? [outputScale, 0, 0, outputScale, 0, 0]
+					: null;
+
+			
+			// Render every page in pdf
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({ scale });
+				const renderContext = {
+					canvasContext: context,
+					transform,
+					viewport,
+				};
+				
+				await page.render(renderContext).promise;
+
+				// Move the correct amount to render the next page below the current one
+				let pageHeight = Math.floor(viewport.height * outputScale)
+				context.translate(0, pageHeight + pageSpacing);
+			}
+		});
+
+        async function makeThumb(page) {
+            const vp = page.getViewport({scale: 1});
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(108 / vp.width, 140 / vp.height);
+            canvas.width = vp.width * scale;
+            canvas.height = vp.height * scale;
+            const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
+            await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
+            return canvas;
+        }
+
+		// Nav Bar stuff
+		
+		// Handle the side bar buttons function
+		document.addEventListener("DOMContentLoaded", function() {
+			const thumbnailsView = document.getElementById("thumbnailView");
+			const outlineView = document.getElementById("outlineView");
+			const commentView = document.getElementById("commentView");
+			const bookmarksView = document.getElementById("bookmarksView");
+
+			// Hide all views except the thumbnails view by default
+			thumbnailsView.style.display = "block";
+			outlineView.style.display = "none";
+			commentView.style.display = "none";
+			bookmarksView.style.display = "none";
+
+			document.getElementById("viewThumbnails").addEventListener("click", function() {
+				thumbnailsView.style.display = "block";
+				outlineView.style.display = "none";
+				commentView.style.display = "none";
+				bookmarksView.style.display = "none";
+			});
+
+			document.getElementById("viewOutline").addEventListener("click", function() {
+				thumbnailsView.style.display = "none";
+				outlineView.style.display = "block";
+				commentView.style.display = "none";
+				bookmarksView.style.display = "none";
+			});
+
+			document.getElementById("viewComments").addEventListener("click", function() {
+				thumbnailsView.style.display = "none";
+				outlineView.style.display = "none";
+				commentView.style.display = "block";
+				bookmarksView.style.display = "none";
+			});
+
+			document.getElementById("viewBookmarks").addEventListener("click", function() {
+				thumbnailsView.style.display = "none";
+				outlineView.style.display = "none";
+				commentView.style.display = "none";
+				bookmarksView.style.display = "block";
+			});
+		});
+
+		// Handle the thumbnails aria selected effect
+		document.getElementById("thumbnailsContainer").addEventListener("click", function(event) {
+			const clickedThumbnail = event.target.closest(".thumbnailContainer");
+			if (clickedThumbnail) {
+				const allThumbnails = document.querySelectorAll(".thumbnailContainer");
+				allThumbnails.forEach(thumbnail => {
+					thumbnail.setAttribute("aria-selected", "false");
+				});
+				clickedThumbnail.setAttribute("aria-selected", "true");
+			}
+		});
+
+
+	</script>
+
+	<!--
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
@@ -230,79 +417,7 @@
 		}
 
 	</script>
-
-	<!--
-	<script type="module">
-		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
-
-		document.addEventListener("DOMContentLoaded", async function() {
-			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
-
-			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
-
-			const canvas = document.getElementById("pdf");
-			const context = canvas.getContext("2d");
-
-			const scale = 1.5;
-			const outputScale = window.devicePixelRatio || 1;
-			const pageSpacing = 0; // Adjust spacing between pages here
-
-			const loadingTask = pdfjsLib.getDocument(pdfUrl);
-			const pdf = await loadingTask.promise;
-
-			let totalHeight = 0;
-			let maxWidth = 0;
-			
-			// Work out required canvas width and height
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const pageWidth = Math.floor(viewport.width * outputScale);
-				const pageHeight = Math.floor(viewport.height * outputScale);
-
-				// Calculate total height required to display all pages
-				totalHeight += pageHeight + pageSpacing;
-
-				// Update maximum width among all pages
-				maxWidth = Math.max(maxWidth, pageWidth);
-			}
-
-
-			// Adjust canvas size
-			canvas.width = maxWidth;
-			canvas.height = totalHeight;
-			canvas.style.width = maxWidth / outputScale + "px";
-			canvas.style.height = totalHeight / outputScale + "px";
-
-			let offsetY = 0;
-
-			// This increases the size somehow
-			const transform = outputScale !== 1
-					? [outputScale, 0, 0, outputScale, 0, 0]
-					: null;
-
-			
-			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const renderContext = {
-					canvasContext: context,
-					transform,
-					viewport,
-				};
-				
-				await page.render(renderContext).promise;
-
-				// Move the correct amount to render the next page below the current one
-				let pageHeight = Math.floor(viewport.height * outputScale)
-				context.translate(0, pageHeight + pageSpacing);
-			}
-		});
-	</script>
-	-->
-	
-	
+-->	
 </body>
 </html>
 
