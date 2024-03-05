@@ -12,6 +12,18 @@
         });
     });
 
+/**
+ * search bar
+ */
+$(document).ready(function() {
+    $("#searchInput").on("input", function() {
+        var searchText = $(this).val().trim();
+        var regex = new RegExp(searchText, "i");
+        $("#dataTable tbody tr").hide().filter(function() {
+            return regex.test($(this).text());
+        }).show();
+    });
+});
 // $(document).ready(function(){
 //     $('#selectAll').change(function(){
 //         if(this.checked){
