@@ -100,7 +100,9 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
-				<canvas id="pdf"></canvas>
+				<div id="wrapper"> 
+					<canvas id="pdf"></canvas>
+				</div>
 			</div>		
 		</div>
 	</div>
@@ -295,21 +297,20 @@
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
-		// Setup 
+		/* Setup */
 		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 
+		const wrapper = document.getElementById("wrapper");
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
 		const context = canvas.getContext("2d");
 
-		var scale = 1;
+		const renderQuality = 1;
 		const outputScale = window.devicePixelRatio || 1;
-		const pageSpacing = 0; // Adjust spacing between pages here
+		var zoomScale = 1;
+		var resolution = outputScale * renderQuality;
 
-		// Scales output if device pixel ratio is not 1
-		const transform = outputScale !== 1
-			? [outputScale, 0, 0, outputScale, 0, 0]
-			: null;
+		const pageSpacing = 0; // Adjust spacing between pages here
 
 		let totalHeight = 0;
 		let maxWidth = 0;
@@ -322,9 +323,9 @@
 			// Work out required canvas width and height
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const pageWidth = Math.floor(viewport.width * outputScale);
-				const pageHeight = Math.floor(viewport.height * outputScale);
+				const viewport = page.getViewport({scale: zoomScale});
+				const pageWidth = Math.floor(viewport.width * resolution);
+				const pageHeight = Math.floor(viewport.height * resolution);
 	
 				// Calculate total height required to display all pages
 				totalHeight += pageHeight + pageSpacing;
@@ -333,24 +334,19 @@
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
-			/*
-			canvas.width = maxWidth * scale;
-			canvas.height = totalHeight * scale;
-			canvas.style.width = canvas.width + "px";
-			canvas.style.height = canvas.height + "px";
-			*/
-
 			renderDocument(pdf); // Render pages once dimensions have been set 
 
-
-			// Add event listener to zoom option
 			var selectScale = document.getElementById("selectScale");
 				selectScale.addEventListener("change", function() {
 					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+					console.log(selectedValue);
 					zoomDocument(selectedValue, pdf);
 				});
 
 			/*
+			canvas.width = maxWidth * resolution;
+			canvas.height = totalHeight * resolution;
+			
 			var checkDimensionsInterval = setInterval(function() {	
 				if (viewer.offsetWidth != viewer.clientWidth) {
 					clearInterval(checkDimensionsInterval); // Clear the interval
@@ -362,14 +358,13 @@
 					var selectScale = document.getElementById("selectScale");
 					selectScale.addEventListener("change", function() {
 						var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+						console.log(selectedValue);
 						zoomDocument(selectedValue, pdf);
 					});
 					
 				}
-			}, 100); // Check every 100 milliseconds
+			});
 			*/
-
-
 		});
 
 
@@ -386,18 +381,30 @@
 
 		async function renderDocument (pdf)
 		{
-			canvas.width = maxWidth * scale;
-			canvas.height = totalHeight * scale;
-			canvas.style.width = canvas.width + "px";
-			canvas.style.height = canvas.height + "px";
+			canvas.width = maxWidth * renderQuality * zoomScale;
+			canvas.height = totalHeight * renderQuality * zoomScale;
+			canvas.style.width = "100%";
+			
+			wrapper.style.width = canvas.width + "px";
+			wrapper.style.height = canvas.height + "px";;
+
+			//wrapper.style.width = (maxWidth / renderQuality) * outputScale + "px";
+			//wrapper.style.height = (totalHeight / renderQuality) * outputScale + "px";;
+
+			// Scales output accordingly
+			const transform = resolution !== 1
+				? [resolution, 0, 0, resolution, 0, 0]
+				: null;
+
+			var context = canvas.getContext("2d");
 
 			// Render every page in pdf
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-	
+				const viewport = page.getViewport({scale: zoomScale});
+				
 				// Calculate the y-coordinate for the page
-				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * outputScale + pageSpacing);
+				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * resolution * zoomScale + pageSpacing);
 	
 				// Translate the context to render next page below this one
 				context.translate(0, translateY);
@@ -414,10 +421,24 @@
 			}	
 		}
 		
-		function zoomDocument(zoomScale, pdf)
+		function zoomDocument(scale, pdf)
 		{
-			scale = zoomScale;
-			renderDocument(pdf);
+			if (scale === "fit")
+			{
+				// Work out the zoom scale for fitting to page
+				// I.e, fit the whole page into window
+				console.log("fitting to page");
+			}
+			else if (scale === "width")
+			{
+				// Work out scale for fitting to pdf page width
+				console.log("fitting to width");
+			}
+			else
+			{
+				zoomScale = scale;
+				renderDocument(pdf);
+			}
 		}
 
 		function centerDocument()

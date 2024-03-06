@@ -77,12 +77,19 @@ body {
 
 /* Viewer */
 #viewer {
-    position: absolute;
-    inset: 32px 0 0 0;
-    overflow:auto;
+	position: absolute;
+	height: 100%;
+	inset: 32px 0 0 200px;
+	overflow: auto;
 	text-align: center;
 	background: #6c757d;
 }
+#wrapper
+{
+	margin: auto; 
+	text-align: center;
+}
+
 
 /* Buttons, Fields, Labels, Selects */
 .toolbarButton {
