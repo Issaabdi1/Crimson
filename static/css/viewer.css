@@ -160,3 +160,19 @@ body {
 	height: auto;
 	border: 5px solid #ACCEF7;
 }
+
+/* Outline view */
+#outlineView div {
+  background-color: transparent;
+}
+
+#outlineView span {
+	display: block;
+	padding: 10px;
+	background-color: transparent;
+	cursor: pointer;
+}
+
+#outlineView span:hover {
+  background-color: #f5f5f5;
+}

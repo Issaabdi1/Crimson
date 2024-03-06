@@ -35,9 +35,7 @@
 				<div id="thumbnailView">
                     <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
                 </div>
-				<div id="outlineView">
-                    <h3>This is the outline view</h3>
-                </div>
+				<div id="outlineView"></div>
 
 				<div id="commentView">
                     <h3>This is the comment view</h3>
@@ -176,25 +174,11 @@
 
                 document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
             }
+            applyScrollingEffect(pdf);
 
-            // Scrolling will also change the thumbnail aria selected effect
-            const viewer = document.getElementById("viewer");
-            viewer.addEventListener("scroll", function() {
-                let totalPages = pdf.numPages
-                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
-                const pageHeight = maxScrollTop / (totalPages - 1);
-                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
-                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
-                thumbnailContainers.forEach(container => {
-                    const page = parseInt(container.getAttribute("data-page"));
-                    if (page === currentPage) {
-                        container.setAttribute("aria-selected", "true");
-                    } else {
-                        container.setAttribute("aria-selected", "false");
-                    }
-                });
-            });
-	
+            // Render the outline in the outline view
+            await renderOutline(pdf);
+
 			// Adjust canvas size
 			canvas.width = maxWidth;
 			canvas.height = totalHeight;
@@ -236,6 +220,71 @@
             const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
             await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
             return canvas;
+        }
+
+        // Scrolling will also change the thumbnail aria selected effect
+        function applyScrollingEffect(pdf) {
+            const viewer = document.getElementById("viewer");
+            viewer.addEventListener("scroll", function() {
+                let totalPages = pdf.numPages
+                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
+                const pageHeight = maxScrollTop / (totalPages - 1);
+                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
+                thumbnailContainers.forEach(container => {
+                    const page = parseInt(container.getAttribute("data-page"));
+                    if (page === currentPage) {
+                        container.setAttribute("aria-selected", "true");
+                    } else {
+                        container.setAttribute("aria-selected", "false");
+                    }
+                });
+            });
+        }
+
+        // Function to render the outline in the outline view
+        async function renderOutline(pdf) {
+            const outline = await pdf.getOutline();
+            const outlineView = document.getElementById("outlineView");
+
+            if (outline) {
+                // Render each outline item recursively
+                renderOutlineItem(outline, outlineView, pdf, "0px");
+            } else {
+                const noOutlineMessage = document.createElement("p");
+                noOutlineMessage.textContent = "No outline available.";
+                outlineView.appendChild(noOutlineMessage);
+            }
+        }
+
+        // Function to render an outline item recursively
+        function renderOutlineItem(outlineNodes, parentElement, pdf, ml) {
+            outlineNodes.forEach(node => {
+
+                // Create a span element to display the title of the node
+                const titleSpanWrapper = document.createElement("div")
+                titleSpanWrapper.style.marginLeft = ml
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = node.title;
+
+                // Add event listener to navigate to the destination when the title is clicked
+                titleSpan.addEventListener("click", function() {
+                    navigateToDestination(node.dest, pdf);
+                });
+
+                titleSpanWrapper.appendChild(titleSpan)
+                parentElement.appendChild(titleSpanWrapper);
+
+                // If the node has children, render them recursively
+                if (node.items && node.items.length > 0) {
+                    renderOutlineItem(node.items, titleSpanWrapper, pdf, "15px");
+                }
+            });
+        }
+
+        // Function to navigate to the destination
+        async function navigateToDestination(destination, pdf) {
+            // TODO: Implement the navigateToDestination function
         }
 	</script>
 	
