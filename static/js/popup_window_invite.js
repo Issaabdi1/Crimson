@@ -13,4 +13,12 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("popupInviteContainer").style.display = "none";
         }, 300);
     });
+
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach(function(element, index) {
+        setTimeout(function() {
+            element.classList.add('visible');
+        }, index * 75);
+    });
+
 });

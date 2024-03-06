@@ -2,10 +2,10 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/share_file.css' %}">
-<div class="container mt-3">
+<div class="text-center px-5 py-3 bg-light bg-opacity-0 align-items-center">
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
-    <div class="row">
+    <div class="row row-width">
       <div class="col-12">
         <select id="file-select" class="form-select d-none" name="file-id">
           <option selected disabled></option>
@@ -13,41 +13,45 @@
             <option value="{{ upload.id }}">{{ upload.file.name }}</option>
           {% endfor %}
         </select>
-        <h2> Select file: </h2>
-        <div class="thumbnail-container">
+        <h2 class=""> Select file: </h2>
+        <div class="thumbnail-container p-2 mt-3 border bg-white">
           {% for upload in uploads %}
-            <div class="thumbnail p-2" file-id="{{ upload.id }}">
-              <img class="pdf-image p-2" src="{% static '/image/pdf_icon_svg.png' %}">
-              <div class="file-name">{{ upload.file.name }}</div>
+          <div class="thumbnail-wrapper col-12 mb-2">
+            <div class="thumbnail p-1 d-flex align-items-center" file-id="{{ upload.id }}">
+              <i class="bi bi-file-earmark-pdf fs-2 me-2"></i> 
+              <div class="file-name fs-6 me-2">{{ upload.file.name }}</div> 
             </div>
-          {% endfor %}
+          </div>
+          {% endfor %}  
         </div>
       </div>
     </div>
     {% if uploads %}
-      <div class="row">
-        <div class="col">
-          <h2> Share to: </h2>
-        </div>
+    <div class="row row-width mt-3 mb-1">
+      <div class="col">
+        <h2> Share to: </h2>
       </div>
-      <div class="row">
-        <div class="col-sm-10 col-md-8 px-0">
-          <input type="text" id="search" class="form-control search-bar" placeholder="Search for username">
-        </div>
-        <div class="col-sm-2 col-md-4">
-          <button type="submit" name="user-ids" class="share-btn btn btn-primary">
-            <i class="bi bi-box-arrow-up"></i> Share
-          </button>
-        </div>
+    </div>
+    <div class="row row-width justify-content-center flex-nowrap mb-2">
+      <div class="col-sm-8 col-md-10 px-1">
+        <input type="text" id="search" class="form-control search-bar" placeholder="Search for username">
       </div>
+      <div class="col-auto px-1">
+        <button type="submit" name="user-ids" class="share-btn btn btn-primary">
+          <i class="bi bi-box-arrow-up"></i> Share
+        </button>
+      </div>
+    </div>
     {% endif %}
     <div class="row mt-1">
       {% for user in all_users %}
-        <div class="col-sm-4 col-md-3 col-lg-2 d-none search-filter" value="{{ user.id }}">
-          <div class="row text-center">
+        <div class="col-sm-4 col-md-3 col-lg-2 d-none search-filter d-flex flex-column justify-content-center align-items-center" value="{{ user.id }}">
+          <div class="text-center">
             <i class="bi bi-person-circle pfp"></i>
           </div>
-          <div class="row text-center username"><p>{{ user.username }}</p></div>
+          <div class="text-center">
+            <div class="username"><p class="mb-2">{{ user.username }}</p></div>
+          </div>
         </div>
       {% endfor %}
     </div>

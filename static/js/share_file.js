@@ -77,4 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Add delay to each animation manually
+    thumbnails.forEach(function(_, index) {
+        var css = '.thumbnail-wrapper:nth-child(' + (index + 1) + ') { animation-delay: ' + (index * 0.1) + 's; }';
+        var style = document.createElement('style');
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+    });
+
 });

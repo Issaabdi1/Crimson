@@ -1,12 +1,12 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
 {% load static %}
-    <div class="row">
-        <div class="col">
-            <div class="container">
-                <div class="row d-flex align-items-center justify-content-between bg-light rounded">
+    <div class="container-fluid pt-2">
+        <div class="row">
+            <div class="col">
+                <div class="row d-flex align-items-center justify-content-between border rounded shading">
                     <div class="col-2">
-                        <a href="{% url 'team_list' %}" class="btn team-text text-nowrap btn-outline-danger">&lt&lt Back</a>
+                        <a href="{% url 'team_list' %}" class="btn btn-sm team-text text-nowrap btn-outline-primary">&lt&lt Back</a>
                     </div>
                     <div class="col-8">
                         <h1 class="text-center team-text my-1">Group Members</h1>
@@ -15,23 +15,26 @@
                         <h4 class="team-text my-1 text-nowrap text-truncate">{{team.name}}</h4>
                     </div>
                 </div>
-                <hr>
-                <div class="row">
+                <br>
+                <div class="row border rounded p-2 shading">
                     {% for member in members %}
-                    <div class="col-sm-6 col-md-4 col-lg-3 mb-2">
+                    <div class="col-sm-6 col-md-4 col-lg-3 mb-2 fade-in">
                         <div class="row text-center">
                             <i class="bi bi-person-circle pfp"></i>
                         </div>
                         <div class="row text-center">
-                            <span>{{ member.username }}</span>
-                            <span class="text-muted">{{ member.email }}</span>
+                            <span class="team-text">{{ member.username }}</span>
+                        </div>
+                        <div class="row text-center">
+                            <span class="team-text text-muted">{{ member.email }}</span>
                         </div>
                     </div>
                     {% endfor %}
-                    <div class="col-sm-6 col-md-4 col-lg-3 d-flex flex-column justify-content-center" style="width: 200px; height: 130px;">
-                        <button id="InvitePopup" class="btn btn-primary team-text fs-5 w-75 h-75">Invite<br>User</button>
+                    <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center fade-in">
+                        <button id="InvitePopup" class="btn btn-primary team-text fs-5 w-50 h-75">Invite<br>User</button>
                     </div>
                 </div>
+                <br>
                 <div class="row">
                     <div id="popupInviteContainer" class="popup-container">
                         <div id="popupInviteForm" class="popup text-center">
@@ -49,82 +52,80 @@
                 </div>
             </div>
         </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div class="col-sm-9 col-md-8 col-lg-6">
-            <div class="container">
-                <div class="row bg-light rounded">
-                    <h1 class="text-center team-text my-1">Shared Files in {{ team.name }}:</h1>
-                </div>
-                {% if shared_uploads.count > 0 %}
-                    {% for upload in shared_uploads %}
+        <div class="row">
+            <div class="col-sm-9 col-md-8 col-lg-6 border rounded shading">
+                <div class="container p-2">
                     <div class="row">
-                        <div class="col-md-11 col-lg-9 card mt-2">
-                            <div class="card-body mb-2">
-                                <h5 class="card-title">{{ upload.file.name }}</h5>
-                                <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                                <p class="card-text">Comment: {{ upload.comments}}</p>
-                                <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
-                                <form method="post" class="d-inline" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="upload_id" id="uploadIdField">
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
-                                        Comment
-                                    </button>
-                
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="form-floating">
-                                                        <label for="inputComments"></label>
-                                                        <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                                                        <label>Descriptions</label>
+                        <h1 class="text-center team-text">Shared Files in {{ team.name }}:</h1>
+                    </div>
+                    {% if shared_uploads.count > 0 %}
+                        {% for upload in shared_uploads %}
+                        <div class="row">
+                            <div class="col-md-11 col-lg-9 card mt-2">
+                                <div class="card-body mb-2">
+                                    <h5 class="card-title">{{ upload.file.name }}</h5>
+                                    <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
+                                    <p class="card-text">Comment: {{ upload.comments}}</p>
+                                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
+                                    <form method="post" class="d-inline" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="upload_id" id="uploadIdField">
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
+                                            Comment
+                                        </button>
+                    
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <div class="modal-body">
+                                                        <div class="form-floating">
+                                                            <label for="inputComments"></label>
+                                                            <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
+                                                            <label>Descriptions</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
-                                <!--Delete PDF-->
-                                <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
-                                </form>
-                                <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
-                                <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
-                                    {% csrf_token %}
-                                    <label>
-                                        <input type="text" name="new_name" placeholder="New file name" required>
-                                    </label>
-                                    <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
-                                    <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
-                                </form>
+                                    </form>
+                                    <!--Delete PDF-->
+                                    <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash-fill"></i>Delete</button>
+                                    </form>
+                                    <button type="button" id="renameButton_{{ upload.id }}" class="btn btn-primary me-1" onclick="showRenameField(this);">Rename</button>
+                                    <form action="{% url 'rename_upload' upload.id %}" method="post" class="rename-form" style="display: none;" data-upload-id="{{ upload.id }}">
+                                        {% csrf_token %}
+                                        <label>
+                                            <input type="text" name="new_name" placeholder="New file name" required>
+                                        </label>
+                                        <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
+                                        <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-1 col-lg-3"></div>
-                    </div>      
-                    {% endfor %}
-                {% else %}
-                    <p style="margin-left: 30px">There is no shared files so far</p>
-                {% endif %}
+                            <div class="col-md-1 col-lg-3"></div>
+                        </div>      
+                        {% endfor %}
+                    {% else %}
+                        <p style="margin-left: 10px">There is no shared files so far</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-4 col-lg-6 text-center p-2" style="margin-left: -20px">
+                <a class="btn btn-primary team-text" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>      
             </div>
         </div>
-        <div class="col-auto" style="margin-left: -20px">
-            <a class="btn btn-primary team-text" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>      
-        </div>
     </div>
-
     <div class="offcanvas offcanvas-end" tabindex="-1" id="uploadTeamPdf" aria-labelledby="uploadTeamPdf">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title">Upload PDF to Team {{team.name}}</h5>
