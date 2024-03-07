@@ -259,6 +259,13 @@ body {
       opacity: calc(5% * (var(--index)));
   }
 }
+/* Team detail buttons */
+.team-detail-button {
+  transition: transform 0.3s ease;
+}
+.team-detail-button:hover {
+  transform: scale(0.90);
+}
 
 
 /*
