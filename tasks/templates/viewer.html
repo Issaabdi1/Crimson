@@ -1,17 +1,31 @@
 <html>
 <head>
 {%load static%}
+{% csrf_token %}
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
+    <!-- Other head elements -->
+    <style>
+		#markButton {
+			height: 60px;
+			width: 60px;
+			position: absolute;
+			inset: 0 0 0 60%;
+			z-index: 3; /*needs to be higher z index so that it is easy to click*/
+			margin-right: 20px;
+		}
+    </style>
 <body>
 	<div id="outerContainer">
-
 		<!-- Sidebar -->
 		<div id="sidebar">
-
+			<!--Prototype comment functionality-->
+			<p id="testComment">TEST</p>
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
 
@@ -41,7 +55,6 @@
 
 		<!-- Main Container -->
 		<div id="mainContainer">
-			
 			<!-- Toolbar -->
 			<div id="toolbar">
 			
@@ -98,13 +111,18 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
+				<button id="markButton" type="button" hidden="True">
+					Mark
+				</button>
 				<canvas id="pdf"></canvas>
+				<div id="textLayer" class="textLayer"></div>
+				<canvas id="selectionCanvas"></canvas>
 			</div>		
 		</div>
 	</div>
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
-	
+
 		document.addEventListener("DOMContentLoaded", async function() {
 			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 	
@@ -112,6 +130,9 @@
 	
 			const canvas = document.getElementById("pdf");
 			const context = canvas.getContext("2d");
+
+			const selectionCanvas = document.getElementById('selectionCanvas');
+            const selectionContext = selectionCanvas.getContext('2d');
 	
 			const scale = 1.5;
 			const outputScale = window.devicePixelRatio || 1;
@@ -119,7 +140,7 @@
 	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			const pdf = await loadingTask.promise;
-	
+
 			let totalHeight = 0;
 			let maxWidth = 0;
 			
@@ -136,12 +157,13 @@
 				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
-	
 			// Adjust canvas size
 			canvas.width = maxWidth;
 			canvas.height = totalHeight;
 			canvas.style.width = maxWidth / outputScale + "px";
         	canvas.style.height = totalHeight / outputScale + "px";
+			selectionCanvas.height = totalHeight;
+            selectionCanvas.width = maxWidth;
 	
 			let offsetY = 0;
 
@@ -150,9 +172,8 @@
 					? [outputScale, 0, 0, outputScale, 0, 0]
 					: null;
 
-			
 			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {//(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
 				const viewport = page.getViewport({ scale });
 				const renderContext = {
@@ -160,16 +181,40 @@
 					transform,
 					viewport,
 				};
-				
-				await page.render(renderContext).promise;
+				const pageTextLayer = document.getElementById('textLayer');
+				page.render(renderContext).promise.then(function () {
+					// ...
 
-				// Move the correct amount to render the next page below the current one
-				let pageHeight = Math.floor(viewport.height * outputScale)
-				context.translate(0, pageHeight + pageSpacing);
+					// Return the text contents of the page after the pdf has been rendered in the canvas
+					return page.getTextContent();
+				}).then(function (textContent) {
+					// Assign the CSS created to the text-layer element
+					pageTextLayer.style.setProperty('--scale-factor', viewport.scale);
+
+					// Pass the data to the method for rendering of text over the pdf canvas.
+					pdfjsLib.renderTextLayer({
+						textContentSource: textContent,
+						container: pageTextLayer,
+						viewport: viewport,
+						textDivs: []
+					}).promise.then(setup); //Set up the page once the text layer is written
+				});
 			}
+
 		});
+
+
 	</script>
-	
+<script>
+		//setup the variables needed to load the pdf marks given the data from django (need to do it here
+	//because template variables cannot be accessed in external files)
+	const savedMarks = "{{marks}}";
+	const mark_id = "{{marks.mark_id}}";
+	const marksListOfSpans = "{{marks.listOfSpans}}";
+	const marksListOfComments = "{{marks.listOfComments}}";
+	const upload_id = "{{ upload.id }}"
+</script>
+<script src="{% static 'js/viewer.js'%}"></script>
 </body>
 </html>
 
