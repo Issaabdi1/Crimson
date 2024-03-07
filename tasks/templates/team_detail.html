@@ -1,10 +1,13 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
 {% load static %}
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
     <div class="container-fluid pt-2">
         <div class="row">
-            <div class="col">
-                <div class="row d-flex align-items-center justify-content-between border rounded shading">
+            <div class="col p-3 pt-2 border rounded shading">
+                <div class="row d-flex align-items-center justify-content-between">
                     <div class="col-2">
                         <a href="{% url 'team_list' %}" class="btn btn-sm team-text text-nowrap btn-outline-primary">&lt&lt Back</a>
                     </div>
@@ -15,8 +18,7 @@
                         <h4 class="team-text my-1 text-nowrap text-truncate">{{team.name}}</h4>
                     </div>
                 </div>
-                <br>
-                <div class="row border rounded p-2 shading">
+                <div class="row p-2">
                     {% for member in members %}
                     <div class="col-sm-6 col-md-4 col-lg-3 mb-2 fade-in">
                         <div class="row text-center">
@@ -34,7 +36,6 @@
                         <button id="InvitePopup" class="btn btn-primary team-text fs-5 w-50 h-75">Invite<br>User</button>
                     </div>
                 </div>
-                <br>
                 <div class="row">
                     <div id="popupInviteContainer" class="popup-container">
                         <div id="popupInviteForm" class="popup text-center">
@@ -52,11 +53,11 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-9 col-md-8 col-lg-6 border rounded shading">
+        <div class="row justify-content-between">
+            <div class="col-sm-12 col-md-8 mt-4 border rounded shading">
                 <div class="container p-2">
                     <div class="row">
-                        <h1 class="text-center team-text">Shared Files in {{ team.name }}:</h1>
+                        <h1 class="text-center team-text">Shared Files in {{ team.name }}</h1>
                     </div>
                     {% if shared_uploads.count > 0 %}
                         {% for upload in shared_uploads %}
@@ -121,8 +122,13 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="col-sm-3 col-md-4 col-lg-6 text-center p-2" style="margin-left: -20px">
-                <a class="btn btn-primary team-text" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>      
+            <div class="col-sm-12 col-md-3 mt-4 border rounded shading">
+                <div class="container p-2">
+                    <h1 class="text-center team-text">Actions</h1>
+                    <div class="text-center team-text">
+                        <a class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
