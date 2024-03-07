@@ -3,6 +3,7 @@ from .user import User
 from task_manager.storage_backends import MediaStorage
 from django.core.validators import FileExtensionValidator
 from django.core.files.base import ContentFile
+
 import os
 
 
@@ -32,7 +33,15 @@ class Upload(models.Model):
             return self.sharedfiles_set.all()[0].shared_to.all()
         else:
             return None
-        
+
+    def get_shared_teams(self):
+        """Returns a query set of all the teams who have been shared this file"""
+
+        if self.team_set.exists():
+            return self.team_set.all()
+        else:
+            return None
+
     def rename_file(self, new_name):
         storage = self.file.storage
 
@@ -53,3 +62,22 @@ class Upload(models.Model):
 
         self.file.name = new_path
         self.save()
+
+    def get_file_size_mb(self):
+        """Returns the size of the uploaded file in megabytes (MB)."""
+        if self.file:
+            file_size_bytes = self.file.size
+            file_size_mb = round(file_size_bytes / (1024 * 1024), 2)
+            return file_size_mb
+        else:
+            return 0.0
+
+    def get_simple_file_name(self):
+        if self.file:
+            original_file_name = self.file.name
+            file_name_without_path = original_file_name.split('/')[-1]
+            simplified_file_name = file_name_without_path.split('_', 1)[0].split('.')[0] + '.' + \
+                                   original_file_name.split('.')[-1]
+            return simplified_file_name
+        else:
+            return ""

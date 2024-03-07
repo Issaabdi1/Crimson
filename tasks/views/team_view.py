@@ -50,3 +50,8 @@ def team_detail_view(request, team_id):
                'form': form,
                'upload_form': upload_form}
     return render(request, 'team_detail.html', context=context)
+
+
+@login_required
+def list_team_file_view(request):
+    return render(request, 'list_team_file.html')

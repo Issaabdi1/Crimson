@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends 'base.html' %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+     <div class="dropdown-menu d-block position-static pt-0 mx-0 rounded-3 shadow overflow-hidden w-280px" data-bs-theme="light">
+                    <form action="" class="p-2 mb-2 bg-body-tertiary border-bottom">
+                        <label>
+                            <input type="search" class="form-control" autocomplete="false" placeholder="Type to filter...">
+                        </label>
+                    </form>
+                    <ul class="list-unstyled mb-0">
+                        <li>
+                            <a href="#" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                                <span class="d-inline-block bg-success rounded-circle p-1"></span>
+                                "Name"
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                              <span class="d-inline-block bg-primary rounded-circle p-1"></span>
+                              "Upload Date"
+                            </a>
+
+                        </li>
+
+                        <li>
+                            <a href="#" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                                <span class="d-inline-block bg-danger rounded-circle p-1">
+                                </span>
+                                "Size"
+                            </a>
+
+                        </li>
+                    </ul>
+                </div>
+</body>
+</html>
+{% endblock %}

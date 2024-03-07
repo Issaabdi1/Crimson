@@ -4,10 +4,11 @@ from django.contrib import messages
 from django.shortcuts import render
 from tasks.models import Upload
 
+
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""
-    
+
     context = {}
     if request.method == "POST":
         upload_id = request.POST.get('upload_id')

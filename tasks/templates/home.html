@@ -1,23 +1,116 @@
 {% extends 'base.html' %}
 {% block body %}
-  <div class="container vh-100">
+<div class="container vh-100 fade-in">
     <div class="row h-100">
-      <div class="col-12 my-auto">
-        <div class="card cover-card offset-sm-2 offset-md-4 offset-lg-7">
-          <h1 class="cover-heading">Task Manager</h1>
-          <p class="cover-text">A task manager application by Team <i>Insert team name here (or revise this home screen as you see fit)</i></p>
-          <p>
-            <a href='{% url 'sign_up' %}' class="btn btn-lg btn-secondary">
-              Sign up
-            </a>
-          </p>
-          <p>
-            <a href='{% url 'log_in' %}' class="btn btn-lg btn-secondary">
-              Log in
-            </a>
-          </p>
+        <div class="col-12 my-auto">
+          <h1 class="cover-heading">Voice Comments PDFs.</h1>
+          <h2 class="secondary-title">Revolutionize Research Collaboration with Voice Comments on PDFs.</h2>
+
+          <main class="px-3">
+            <p class="lead">
+              <a class="btn btn-lg btn-light fw-bold border-white bg-white" href="{% url 'sign_up' %}">Sign Up</a>
+              <a class="btn btn-lg btn-light fw-bold border-white bg-white" href="{% url 'log_in' %}">Log in</a>
+            </p>
+          </main>
         </div>
-      </div>
     </div>
-  </div>
+
+<footer>
+    <div class="d-flex flex-column justify-content-center py-4 my-4 border-top">
+        <div class="d-flex justify-content-center">
+            <ul class="list-styled">
+                <li class="list-group-item">Contact Us</li>
+                <li class="list-group-item">FAQs</li>
+                <li class="list-group-item">Privacy</li>
+            </ul>
+        </div>
+        <div class="d-flex justify-content-center">
+            <p>&copy; 2024 Crimson, Inc. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</div>
+
+
+
+<style>
+  body {
+    background-color: #192A56;
+    font-family: cursive;
+  }
+
+  .col-12.my-auto {
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cover-heading {
+    text-align: center;
+  }
+
+  .lead {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+.fade-in {
+    opacity: 0;
+    transition: opacity 2s;
+}
+
+.fade-in.fade-in-active {
+    opacity: 1;
+}
+
+
+  .lead a:not(:last-child) {
+    margin-right: 20px;
+  }
+
+  footer {
+    color:white;
+    width: 100%;
+    text-align: center;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.list-styled {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.list-styled li {
+    padding: 0;
+    margin-right: 20px;
+    background-color: transparent;
+    color: white;
+}
+
+</style>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      const fadeElements = document.querySelectorAll('.fade-in');
+      fadeElements.forEach(element => {
+        element.classList.add('fade-in-active');
+      });
+    }, 1000);
+  });
+</script>
+
+
 {% endblock %}

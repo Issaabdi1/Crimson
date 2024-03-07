@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Team, ProfileImage, Upload
+from .models import User, Team
 
 
 class LogInForm(forms.Form):
@@ -31,6 +31,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+
 class NewPasswordMixin(forms.Form):
     """Form mixing for new_password and password_confirmation fields."""
 
@@ -41,7 +42,7 @@ class NewPasswordMixin(forms.Form):
             regex=r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$',
             message='Password must contain an uppercase character, a lowercase '
                     'character and a number'
-            )]
+        )]
     )
     password_confirmation = forms.CharField(label='Password confirmation', widget=forms.PasswordInput())
 
@@ -62,7 +63,7 @@ class PasswordForm(NewPasswordMixin):
 
     def __init__(self, user=None, **kwargs):
         """Construct new form instance with a user instance."""
-        
+
         super().__init__(**kwargs)
         self.user = user
 
@@ -112,28 +113,14 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
 
 class FileForm(forms.Form):
-
     file = forms.FileField(
-        label='Select a File',
-        help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.',
-        label_suffix=''
+        label='Select a file',
+        help_text='Click to upload, Maximum 100Mb (only .pdf)',
+        label_suffix="",
     )
-    user = None
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
-    def save(self, file):
-        """Save the uploaded file."""
-
-        upload = Upload(file=file, owner=self.user)
-        upload.full_clean()
-        upload.save()
-        return upload
 
 class CreateTeamForm(forms.ModelForm):
-
     class Meta:
         """Form options."""
 
@@ -148,43 +135,3 @@ class AddUserToTeamForm(forms.Form):
 
 class RenameForm(forms.Form):
     new_name = forms.CharField(label='New file name')
-
-
-class UploadProfileImageForm(forms.Form):
-    """Form for uploading profile image"""
-    image = forms.ImageField(label='Profile Image',
-                             label_suffix='')
-    user = None
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
-    def save(self, image):
-        """Create and Save the user's new avatar."""
-
-        profile_Image = ProfileImage(image=image, user=self.user)
-        profile_Image.full_clean()
-        profile_Image.save()
-        self.user.avatar_url = profile_Image.image.url
-        self.user.save()
-        return profile_Image
-
-
-class AvatarForm(forms.Form):
-    """Form for updating profile image"""
-    user = None
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
-        avatars = self.user.profileimage_set.all()
-        profile_image_urls = [(avatars[index].image.url, avatars[index].image.url) for index in range(avatars.count())]
-        self.fields['avatar_url'] = forms.ChoiceField(choices=profile_image_urls, widget=forms.RadioSelect)
-
-    def save(self):
-        url = self.cleaned_data['avatar_url']
-        self.user.avatar_url = url
-        self.user.save()
-        return url
