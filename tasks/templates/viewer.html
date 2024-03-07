@@ -115,8 +115,8 @@
 					Mark
 				</button>
 				<canvas id="pdf"></canvas>
-				<div id="textLayer" class="textLayer"></div>
-				<canvas id="selectionCanvas"></canvas>
+				<div id="container"></div>
+				<div id="textLayer"></div>
 			</div>		
 		</div>
 	</div>
@@ -130,9 +130,6 @@
 	
 			const canvas = document.getElementById("pdf");
 			const context = canvas.getContext("2d");
-
-			const selectionCanvas = document.getElementById('selectionCanvas');
-            const selectionContext = selectionCanvas.getContext('2d');
 	
 			const scale = 1.5;
 			const outputScale = window.devicePixelRatio || 1;
@@ -162,8 +159,6 @@
 			canvas.height = totalHeight;
 			canvas.style.width = maxWidth / outputScale + "px";
         	canvas.style.height = totalHeight / outputScale + "px";
-			selectionCanvas.height = totalHeight;
-            selectionCanvas.width = maxWidth;
 	
 			let offsetY = 0;
 
@@ -172,41 +167,50 @@
 					? [outputScale, 0, 0, outputScale, 0, 0]
 					: null;
 
+			var myContext = canvas.getContext("2d");
+			let yPos = 0;
 			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {//(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				console.log("bruh");
 				const page = await pdf.getPage(pageNumber);
 				const viewport = page.getViewport({ scale });
 				const renderContext = {
-					canvasContext: context,
+					canvasContext: myContext,
 					transform,
 					viewport,
 				};
 				const pageTextLayer = document.getElementById('textLayer');
-				page.render(renderContext).promise.then(function () {
-					// ...
+				const textLayer = document.createElement("div");
+				textLayer.id = `textlayer-${pageNumber}`;
+				textLayer.classList.add("textLayer")
 
-					// Return the text contents of the page after the pdf has been rendered in the canvas
-					return page.getTextContent();
-				}).then(function (textContent) {
-					// Assign the CSS created to the text-layer element
-					pageTextLayer.style.setProperty('--scale-factor', viewport.scale);
+				pageTextLayer.appendChild(textLayer);
+				await page.render(renderContext).promise;
+				textLayer.style.setProperty('--scale-factor', viewport.scale);
+				// Assign the CSS created to the text-layer element
+				const textContent = await page.getTextContent();
 
-					// Pass the data to the method for rendering of text over the pdf canvas.
-					pdfjsLib.renderTextLayer({
-						textContentSource: textContent,
-						container: pageTextLayer,
-						viewport: viewport,
-						textDivs: []
-					}).promise.then(setup); //Set up the page once the text layer is written
-				});
+				// Pass the data to the method for rendering of text over the pdf canvas.
+				await pdfjsLib.renderTextLayer({
+					textContentSource: textContent,
+					container: textLayer,//pageTextLayer,
+					viewport: viewport,
+					textDivs: []
+				})//.promise.then(); 
+				// Move the correct amount to render the next page below the current one
+				textLayer.style.top = `${yPos}px`; // Set top position based on current yPos
+				let pageHeight = Math.floor(viewport.height * outputScale)
+				context.translate(0, pageHeight + pageSpacing);
+				yPos += viewport.height;//update the ypos to move the pages down
 			}
+			setup();
 
 		});
 
 
 	</script>
 <script>
-		//setup the variables needed to load the pdf marks given the data from django (need to do it here
+	//setup the variables needed to load the pdf marks given the data from django (need to do it here
 	//because template variables cannot be accessed in external files)
 	const savedMarks = "{{marks}}";
 	const mark_id = "{{marks.mark_id}}";

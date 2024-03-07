@@ -63,7 +63,9 @@ function setup(){
 			var html = entry["html"];
 			var span = fromHTML(html);//JSON.parse(testList));
 			const textLayer = document.getElementById("textLayer");
-			var spanCopy = textLayer.children[indexOfSpan];
+			
+			var spanCopy = textLayer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayer.querySelectorAll('*')[indexOfSpan];
+
 			spanCopy.innerHTML = "";
 			spanCopy.appendChild(span);
 			//add to marked spans
@@ -82,15 +84,16 @@ function setup(){
 }
 
 markButton.addEventListener("click", highlightSelectedText);
-var elementsSelected = []; 
 var currentStartingElement;
+var endingElement;
 document.addEventListener('selectionchange', function(event){
 	if(window.getSelection().toString().length>0){
 		var selection = window.getSelection();
 		selectionList = selection.getRangeAt(0).cloneRange();
 		currentStartingElement = selection.getRangeAt(0).startContainer;
-		if(elementsSelected.length >0){
-			const rect = elementsSelected[0].span.getBoundingClientRect();
+		endingElement = selection.getRangeAt(0).endContainer;
+		if(selectionList.length > 0){
+			const rect = currentStartingElement.parentNode.getBoundingClientRect();
 			markButton.hidden = false;
 			// Set the position of the movable element to match the clicked element
 			markButton.style.top = rect.top + 'px';
@@ -105,10 +108,6 @@ document.addEventListener('mousedown', function(event) {
 		markButton.hidden = true;
 		// Add mousemove event listener to track mouse movement while mouse button is held down
 		document.addEventListener('mousemove', mouseMoveHandler);
-		if(!elementsSelected.some(obj => obj.span === event.target)){//!elementsSelected.includes(event.target)){
-			var index = Array.prototype.indexOf.call(textLayer.children, event.target);
-			elementsSelected.push({index:index, span:event.target});
-		}
 	}
 	else{
 		//if starting from blank space, don't allow selection
@@ -121,7 +120,6 @@ document.addEventListener('mousedown', function(event) {
 	// Add mouseup event listener to detect when mouse button is released
 	document.addEventListener('mouseup', mouseUpHandler);
 });
-var clearedElements = false;
 var seenSpan = false;
 var selectionList; 
 function mouseMoveHandler(event) {
@@ -132,10 +130,6 @@ function mouseMoveHandler(event) {
 		markButton.style.top = rect.top + 'px';
 		markButton.hidden = false;
 		if(seenSpan){
-			if(!elementsSelected.some(obj => obj.span === event.target)){//!elementsSelected.includes(event.target)){
-				var index = Array.prototype.indexOf.call(textLayer.children, event.target);
-				elementsSelected.push({index:index, span:event.target});
-			}
 			var selection = window.getSelection();
 			if(selection.rangeCount>0){
 				selectionList = selection.getRangeAt(0).cloneRange();
@@ -145,10 +139,6 @@ function mouseMoveHandler(event) {
 		}
 		else{
 			seenSpan = true;
-			if(!clearedElements){
-				clearedElements = true;
-				elementsSelected = [];
-			}
 		}
 
 	}
@@ -164,8 +154,6 @@ function mouseMoveHandler(event) {
 		window.getSelection().empty();
 		markButton.hidden = true;
 		seenSpan = false;
-		console.log("hide");
-		elementsSelected = [];
 		// Remove mousemove event listener when mouse button is released
 		document.removeEventListener('mousemove', mouseMoveHandler);
 		// Remove mouseup event listener when mouse button is released
@@ -179,7 +167,6 @@ function mouseUpHandler(event) {
 	// Remove mouseup event listener when mouse button is released
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
-	clearedElements = false;
 	textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 }
 
@@ -187,15 +174,22 @@ function highlightSelectedText(event){
 	//clear selection
 	window.getSelection().empty();
 	markButton.hidden = true;
+	const textLayer =  document.getElementById('textLayer');
+	var textLayerSpans =  Array.from(textLayer.querySelectorAll('span[role="presentation"]'));
 	var totalLength = selectionList.toString().length;
 	var offset = selectionList.startOffset;
 	var selectedParts = [];
+	var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
+	var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
+	var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
+	console.log(elementsList);
 	// Assume you have an array of objects containing information about the selected parts within each span
-	elementsSelected.forEach((element)=>{
+	elementsList.forEach((element)=>{
 		console.log(element);
-		var part = {span: element.span, start: offset, end: Math.min(offset + totalLength, element.span.textContent.length)};
+		var part = {span: element, start: offset, end: Math.min(offset + totalLength, element.textContent.length)};//{span: element.span, start: offset, end: Math.min(offset + totalLength, element.span.textContent.length)};
 		selectedParts.push(part);
 		totalLength-= (part.end - part.start);
+		console.log("part end is ", part.end);
 		offset= 0;
 	})
 
@@ -209,29 +203,26 @@ function highlightSelectedText(event){
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
 			// Handle click event (e.g., open a modal, execute a function, etc.)
-			console.log('Id is ', highlightedSpan.dataset.value);
 			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
 		});
 		count+=1;
 	});
 
-	//add to list of spans
-	elementsSelected.forEach((element)=>{
+	//add the span to the list of marked spans if it isn't already there
+	elementsList.forEach((element)=>{
 		if(!listOfMarkedSpans.includes(element)){
 			//Add escape characters so that it can be parsed by JSON
-			var str = element.span.innerHTML;
+			var str = element.innerHTML;
 			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:element.index, html: str});
-			console.log(element.index);
-			console.log(str);
+			listOfMarkedSpans.push({index:textLayerSpans.indexOf(element), html: str});
 		}
 	});
 
-	//listOfMarks.push(newMark);
+
+	//Add a new entry in the dictionary, associating the mark with a comment. 
 	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
 	//save changes
 	savePdfChanges();
-	clearSelections();
 }
 
 // Example function to highlight selected text within a span
@@ -239,11 +230,9 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	var textNode = setSpan.firstChild; //try to always make it the starting element
 	if(firstElement==true){
 		textNode = currentStartingElement;
-		console.log(currentStartingElement);
 	}
 	const range = document.createRange();
 
-	console.log("Text node is ", textNode);
 	// Set the range to cover the selected text within the text node
 	range.setStart(textNode, startOffset);
 	range.setEnd(textNode, endOffset);
@@ -264,8 +253,16 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	const spacesSpan = document.createElement('span');
 	spacesSpan.style.userSelect='none';
 
-	//insert the span, and then the text before it
-	setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling); 
+	if(highlightSpan.nextSibling==null){
+		//insert the span, and then the text before it
+		setSpan.appendChild(spacesSpan);
+	}
+	else{
+		//insert the span, and then the text before it
+		setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling); 
+	}
+
+	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
 
 	//This means the order is text node | highlight | text | span | text
@@ -293,16 +290,9 @@ function getCookie(name) {
 
 //Send the data to the database
 function savePdfChanges(){
-	//get the upload id
-	//var upload_id = "{{ upload.id }}";
-	console.log(listOfComments);
-	//serialize the list of marks and the list of spans
-	//var listOfMarksJson = JSON.stringify(listOfMarks);
 	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 	var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 
-	console.log(listOfCommentsJson)
-	console.log("Mark instance count is ", Mark.instanceCount)
 	//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
 	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
 	const xhttp = new XMLHttpRequest();
@@ -320,17 +310,13 @@ function savePdfChanges(){
 	formData.append('listOfComments', listOfCommentsJson);
 	formData.append('listOfSpans', listOfMarkedSpansJson);
 
-	// Add other variables as needed
 
-	//xhr.send(formData);
-	//xhttp.open("POST", "/save_pdf_marks/" + parameters, true); 
 	xhttp.open("POST", "/save_pdf_marks/", true); 
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
 
 	// Set CSRF token in request header
 	xhttp.setRequestHeader("X-CSRFToken", csrftoken);
-	//xhttp.send();
 	xhttp.send(formData);
 
 	return true; //Show the request has been sent successfully
