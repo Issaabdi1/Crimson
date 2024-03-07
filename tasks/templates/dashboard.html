@@ -1,37 +1,130 @@
 {% extends 'base_content_without_message.html' %}
 {% block content %}
-    <div class="col-12">
-        <div class="row">
-            <div class="col-10">
-                <h1>Welcome to your dashboard {{ user.username }}</h1>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static '/css/dashboard.css' %}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static '/js/dashboard.js' %}"></script>
+
+<head>
+    <title>Dashboard</title>
+    <h1><strong>Dashboard</strong></h1>
+</head>
+<body>
+
+<section>
+    <p class="d-inline-flex gap-1">
+        <button class="container" data-hover="Read More" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            <div>
+                <i class="bi bi-plus-lg"></i>
             </div>
-            <div class="col-2">
-                <a type="button" class="btn btn-primary text-nowrap" href="{% url 'share_file' %}">
-                    <i class="bi bi-box-arrow-up"></i> Share
-                </a>
-            </div>
-        </div>
-        <div class="container mt-5">
-            <div class="section">
-                <h1>Upload Image</h1>
-                <hr>
-                <br>
-                <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row justify-content-start">
-                        <div class="col-3 input-file">
-                            <label class="custom-file-upload mt-3">
-                                <i class="bi bi-cloud-upload" style="cursor: pointer"></i>
-                                {{ form.file.label_tag }}{{ form.file }}
-                            </label>
-                        </div>
-                        <p class="mt-3 col-1"><input class="btn btn-primary" type="submit" value="Upload"/></p>
-                    </div>
+        </button>
+    </p>
+</section>
+
+<div class="collapse" id="collapseExample">
+{#    <div class="get-start">#}
+{#        <div class="d-grid gap-2 col-6 mx-auto">#}
+{#            <button class="start-button" type="button" onclick="window.location='{% url 'upload_file' %}'">#}
+{#                Get Start#}
+{#            </button>#}
+{#        </div>#}
+{#    </div>#}
+    <div class="searchbar-container row justify-content-end">
+        <div class="col-md-6">
+            <div class="form-inline justify-content-end">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                 </form>
             </div>
-            {% if image_url %}
-                <p>File uploaded at: <a href="{{ image_url }}">{{ image_url }}</a></p>
-            {% endif %}
         </div>
     </div>
+
+
+    <a href="#" class="btn-outline-light" role="presentation">
+        <div class="text-center">
+          <div class="row">
+            <div class="table-responsive">
+              <table class="table table-light table-bordered" id="dataTable">
+                <thead class="table-secondary">
+                    <tr>
+                        <th scope="col">
+                            <input class="form-check-input" type="checkbox" value="" id="selectAll">
+                        </th>
+
+                        <th scope="col">
+                            ID
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            File Name
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            Owner
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            Uploaded At
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            Comment
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                        <th scope="col">
+                            Size
+                            <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i></button>
+                                <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i></button>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for upload in uploads %}
+                    <tr>
+                        <td scope="row">
+                            <input class="form-check-input row-checkbox" type="checkbox">
+                        </td>
+                        <td scope="row">{{ forloop.counter }}</td>
+                        <td>{{ upload.get_simple_file_name}}</td>
+                        <td>{{ upload.owner }}</td>
+                        <td>{{ upload.uploaded_at }}</td>
+                        {% if upload.comments %}
+                            <td>{{ upload.comments }}</td>
+                            {% else %}
+                            <td>-</td>
+                        {% endif %}
+                        <td>{{ upload.file_size_mb }} Mb</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+    </a>
+</div>
+
+<script>
+
+</script>
+
+</body>
+
 {% endblock %}
