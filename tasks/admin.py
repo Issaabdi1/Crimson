@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload, Team, ProfileImage
+from .models import User, Upload, Team, ProfileImage, VoiceComment
 # Register your models here.
 
 
@@ -7,7 +7,7 @@ from .models import User, Upload, Team, ProfileImage
 class UserAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for users"""
     list_display = [
-        'username', 'first_name', 'last_name', 'email', 'avatar_url'
+        'username', 'first_name', 'last_name', 'email'
     ]
 
 
@@ -15,7 +15,7 @@ class UserAdmin(admin.ModelAdmin):
 class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for uploads"""
     list_display = [
-        'uploaded_at', 'owner'
+        'id', 'uploaded_at', 'owner'
     ]
 
 
@@ -24,6 +24,13 @@ class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for teams"""
     list_display = [
         'name',
+    ]
+
+@admin.register(VoiceComment)
+class VoiceCommentAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for uploads"""
+    list_display = [
+        'uploaded_at', 'owner','get_sound_file_path','upload'
     ]
 
 @admin.register(ProfileImage)

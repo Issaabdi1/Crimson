@@ -17,35 +17,29 @@
                             <button type="submit" class="btn btn-primary me-1">View PDF</button>
                         </form>
                         <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}">Share PDF</a>      
+                        <!-- Text Comment -->
                         <form method="post" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
                             {% csrf_token %}
                             <input type="hidden" name="upload_id" id="uploadIdField">
                             <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#exampleModal{{ upload.id }}">
+                            <button type="button" class="btn btn-primary comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#textCommentModal{{ upload.id }}">
                                 Comment
                             </button>
         
                             <!-- Modal -->
-                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1" aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title fs-7" id="exampleModalLabel{{ upload.id }}">Comment</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="form-floating">
-                                                <label for="inputComments"></label>
-                                                <textarea class="form-control" id="inputComments" name="comments" style="border-radius: 20px;"></textarea>
-                                                <label>Descriptions</label>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-primary">Save changes</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% include 'partials/text_comment.html' %}
+                        </form>
+                        <!-- Voice Comment // need to update url-->
+                        <form method="post" id="voiceCommentForm" action="{% url 'voice_comment_views' upload.id %}"> 
+                            {% csrf_token %}
+                            <input type="hidden" name="upload_id" id="uploadIdField">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary voice-comment-button" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#voiceCommentModal{{ upload.id }}">
+                                🎤
+                            </button>
+        
+                            <!-- Modal -->
+                            {% include 'partials/voice_comment.html' %}
                         </form>
                         <!--Delete PDF-->
                         <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">

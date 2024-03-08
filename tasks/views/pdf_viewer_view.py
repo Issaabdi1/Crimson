@@ -7,8 +7,9 @@ from tasks.models import Upload
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""
-    
-    context = {}
+
+    current_user = request.user
+    context = {"user": current_user}
     if request.method == "POST":
         upload_id = request.POST.get('upload_id')
         # Check if the 'upload_id' is present in the form data

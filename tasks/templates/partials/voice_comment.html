@@ -1,0 +1,126 @@
+<div class="modal fade" id="voiceCommentModal{{ upload.id }}" tabindex="-1" aria-labelledby="voiceCommentModalLabel{{ upload.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-7" id="voiceCommentModalLabel{{ upload.id }}">Voice Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-floating">
+                    <button class="btn btn-primary me-1 " id = "record"> Record </button>
+                    <button class="btn btn-primary me-1 " id = "play" disabled> Play Recorded Audio </button>
+                    <button class="btn btn-primary me-1 " id = "clear" disabled> Clear </button>
+                    <br> 
+                    <div id = "output"> </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary me-1 " id = "submit" disabled> Submit </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>  
+    const recordButton = document.getElementById('record');
+    const playButton = document.getElementById('play');
+    const clearButton = document.getElementById('clear');
+    const submitButton = document.getElementById('submit');
+    let output = document.getElementById('output');
+    let audioRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+
+        function reset(){
+            audioChunks = [];
+            isRecording = false;
+            recordButton.textContent = "Record";
+            playButton.disabled = true;
+            clearButton.disabled = true;
+            submitButton.disabled = true;
+            output.innerHTML = 'Record a Voice Comment!';            
+        }
+    
+        // Initialize the media recorder object
+        audioRecorder = new MediaRecorder(stream);
+        
+        // dataavailable event is fired when the recording is stopped
+        audioRecorder.addEventListener('dataavailable', e => {
+            audioChunks.push(e.data);
+            console.log("Length = " + audioChunks.length)
+            if (playButton.disabled == true && audioChunks.length > 0){
+            console.log("enable button")
+            playButton.disabled = false;
+            clearButton.disabled = false;
+            submitButton.disabled = false;
+            }
+        });
+        
+        recordButton.addEventListener('click',(event)=>{
+            event.preventDefault();
+            if(!isRecording){
+                isRecording = true;
+                recordButton.textContent = "Stop Recording";
+                audioRecorder.start();
+                output.innerHTML = 'Recording started! Speak now.';
+            }  else{
+                isRecording = false;
+                recordButton.textContent = "Continue Recording";
+                audioRecorder.stop();
+                output.innerHTML = 'Recording stopped! Click on the play button to play the recorded audio.';
+            }
+        });
+
+        // play the recorded audio when the play button is clicked
+        playButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const blobObj = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(blobObj);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            output.innerHTML = 'Playing the recorded audio!';
+        });
+
+        clearButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            reset();
+        });
+
+        submitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(document.getElementById('voiceCommentForm'));
+            const blobObj = new Blob(audioChunks, { type: 'audio/wav' });
+            formData.append('audio_file', blobObj, 'voice_comment.wav');
+
+            fetch('{% url "voice_comment_views" upload.id %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Add CSRF token if needed
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server if needed
+                console.log('Voice comment uploaded successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error uploading voice comment:', error);
+            });
+
+            reset();
+            output.innerHTML = 'Submitted! Record another Comment!';
+            $('#voiceCommentModal{{ upload.id }}').modal('hide');
+        });
+
+
+        
+    }).catch(err => {
+    
+        // If the user denies permission to record audio, then display an error.
+        console.log('Error: ' + err);
+    });
+</script>

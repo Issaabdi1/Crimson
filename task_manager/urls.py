@@ -40,5 +40,6 @@ urlpatterns = [
     path('team_detail/<int:team_id>', views.team_detail_view, name='team_detail'),
     path('unshare_file/<int:upload_id>/<int:user_id>/', views.unshare_file, name='unshare_file'),
     path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
-    path('pdf_viewer/', views.viewer, name='pdf_viewer')
+    path('pdf_viewer/', views.viewer, name='pdf_viewer'),
+    path('voice_comment_views/<int:upload_id>', views.voice_comment_views, name='voice_comment_views'),
 ]
