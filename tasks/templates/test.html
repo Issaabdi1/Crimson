@@ -1,70 +1,95 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Test Suite</title>
-{%load static%}
+{% load static %}
 <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
+<link href="{% static 'css/custom.css' %}" rel="stylesheet">
 <body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture">
+<div id="qunit"></div>
+<div id="qunit-fixture">
     <!--Notification testing-->
     <div>
-      <!--Notification popup button-->
-      <a class="nav-link" href = "#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><span class="bi bi-bell">
-          <span id= "notification-alert" class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
+        <!--Notification popup button-->
+        <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+           aria-controls="offcanvasRight"><span class="bi bi-bell">
+          <span id="notification-alert"
+                class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger"
+                style="font-size:0.6rem;">
             99+
           </span>
 
     </span></a>
-      <!--Dismiss all button-->
-      <div class="float-end p-2" id="dismiss-notifications">
-        <button type="submit" id="remove-notification" name = "delete" value="delete-all" class="btn" data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
-          <span class="bi bi-bell p-1">        
+        <!--Dismiss all button-->
+        <div class="float-end p-2" id="dismiss-notifications">
+            <button type="submit" id="remove-notification" name="delete" value="delete-all" class="btn"
+                    data-bs-dismiss="alert" data-bs-target=".all-notifications" aria-label="Close">
+          <span class="bi bi-bell p-1">
             Dismiss all
           </span>
-        </button>
-      </div>
+            </button>
+        </div>
 
-      <!--Notification cards-->
-      <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
-        <div class="row g-0">
-            <div class="col-md-9 p-2">
-                <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by.username}} shared a file with you</h5>
-                <a href="{{notification.shared_file_instance.shared_file.file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.file.name}}</a>
-            </div>
-            <div class="col-md-2 mr-2">
-                <p class="card-text"><small class="text-body-secondary" style="font-size:12px">{{notification.time_of_notification}}</small></p>
-            </div>
-            <div class="col-md-1 ">
-              <div class="delete-button">
-                <button type="button" id="remove-notification" name = "delete" value="0" class="btn btn-close" data-bs-dismiss="alert" data-bs-target="#closeable-card" aria-label="Close">
-                </button>
-              </div>
+        <!--Notification cards-->
+        <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
+            <div class="row g-0">
+                <div class="col-md-9 p-2">
+                    <h5 class="card-title fs-6">{{ notification.shared_file_instance.shared_by.username }} shared a file
+                        with you</h5>
+                    <a href="{{ notification.shared_file_instance.shared_file.file.url }}"
+                       class="card-link">{{ notification.shared_file_instance.shared_file.file.name }}</a>
+                </div>
+                <div class="col-md-2 mr-2">
+                    <p class="card-text"><small class="text-body-secondary"
+                                                style="font-size:12px">{{ notification.time_of_notification }}</small>
+                    </p>
+                </div>
+                <div class="col-md-1 ">
+                    <div class="delete-button">
+                        <button type="button" id="remove-notification" name="delete" value="0" class="btn btn-close"
+                                data-bs-dismiss="alert" data-bs-target="#closeable-card" aria-label="Close">
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-      </div>
 
-      <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
-        <div class="row g-0">
-            <div class="col-md-9 p-2">
-                <h5 class="card-title fs-6">{{notification.shared_file_instance.shared_by.username}} shared a file with you</h5>
-                <a href="{{notification.shared_file_instance.shared_file.file.url}}" class="card-link">{{notification.shared_file_instance.shared_file.file.name}}</a>
-            </div>
-            <div class="col-md-2 mr-2">
-                <p class="card-text"><small class="text-body-secondary" style="font-size:12px">{{notification.time_of_notification}}</small></p>
-            </div>
-            <div class="col-md-1 ">
-              <div class="delete-button">
-                <button type="button" id="remove-notification" name = "delete" value="0" class="btn btn-close" data-bs-dismiss="alert" data-bs-target="#closeable-card" aria-label="Close">
-                </button>
-              </div>
+        <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;">
+            <div class="row g-0">
+                <div class="col-md-9 p-2">
+                    <h5 class="card-title fs-6">{{ notification.shared_file_instance.shared_by.username }} shared a file
+                        with you</h5>
+                    <a href="{{ notification.shared_file_instance.shared_file.file.url }}"
+                       class="card-link">{{ notification.shared_file_instance.shared_file.file.name }}</a>
+                </div>
+                <div class="col-md-2 mr-2">
+                    <p class="card-text"><small class="text-body-secondary"
+                                                style="font-size:12px">{{ notification.time_of_notification }}</small>
+                    </p>
+                </div>
+                <div class="col-md-1 ">
+                    <div class="delete-button">
+                        <button type="button" id="remove-notification" name="delete" value="0" class="btn btn-close"
+                                data-bs-dismiss="alert" data-bs-target="#closeable-card" aria-label="Close">
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-      </div>
+    </div>
 
-  </div>
-  <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
-  <script src="{% static 'js/process_notification_delete.js'%}"></script>
-  <script src="{% static 'js/set_notifications_read.js'%}"></script>
-  <script src="{% static 'js/test_notifications.js'%}"></script>
-
+    <div id="thumbnailView" style="display: block;">
+        <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs">
+            <div class="thumbnailContainer" role="tab" data-page="1" aria-selected="true">
+                <canvas width="108" height="139" class="thumbnailCanvas"></canvas>
+                <span class="pageNumberElement">1</span></div>
+            <div class="thumbnailContainer" role="tab" data-page="2" aria-selected="false">
+                <canvas width="108" height="139" class="thumbnailCanvas"></canvas>
+                <span class="pageNumberElement">2</span></div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+<script src="{% static 'js/process_notification_delete.js' %}"></script>
+<script src="{% static 'js/set_notifications_read.js' %}"></script>
+<script src="{% static 'js/test/test_notifications.js' %}"></script>
 </body>

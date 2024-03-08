@@ -1,20 +1,34 @@
 <html>
 <head>
 {%load static%}
+{% csrf_token %}
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
+    <!-- Other head elements -->
+    <style>
+		#markButton {
+			height: 60px;
+			width: 60px;
+			position: absolute;
+			inset: 0 0 0 60%;
+			z-index: 3; /*needs to be higher z index so that it is easy to click*/
+			margin-right: 20px;
+		}
+    </style>
 <body>
 	<div id="outerContainer">
 
 		<!-- Sidebar -->
 		<div id="sidebar">
+			<!--Prototype comment functionality-->
 
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
-
 				<!-- Sidebar Toolbar View Buttons -->
 				<button id="viewThumbnails" class="toolbarButton toggled" title="View Thumbnails">
 					<i class="fa-solid fa-grip-vertical"></i>
@@ -38,7 +52,7 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
-                    <h3>This is the comment view</h3>
+                    <p id="testComment">TEST</p>
                 </div>
 
 				<div id="bookmarksView">
@@ -106,8 +120,13 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
+				<button id="markButton" type="button" hidden="True">
+					Mark
+				</button>
 				<canvas id="pdf"></canvas>
-			</div>		
+				<div id="container"></div>
+				<div id="textLayer"></div>
+			</div>
 		</div>
 	</div>
 	<script type="module">
@@ -192,23 +211,44 @@
 					? [outputScale, 0, 0, outputScale, 0, 0]
 					: null;
 
-			
+			var myContext = canvas.getContext("2d");
+			let yPos = 0;
 			// Render every page in pdf
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				console.log("bruh");
 				const page = await pdf.getPage(pageNumber);
 				const viewport = page.getViewport({ scale });
 				const renderContext = {
-					canvasContext: context,
+					canvasContext: myContext,
 					transform,
 					viewport,
 				};
-				
-				await page.render(renderContext).promise;
+				const pageTextLayer = document.getElementById('textLayer');
+				const textLayer = document.createElement("div");
+				textLayer.id = `textlayer-${pageNumber}`;
+				textLayer.classList.add("textLayer")
 
+				pageTextLayer.appendChild(textLayer);
+				await page.render(renderContext).promise;
+				textLayer.style.setProperty('--scale-factor', viewport.scale);
+				// Assign the CSS created to the text-layer element
+				const textContent = await page.getTextContent();
+
+				// Pass the data to the method for rendering of text over the pdf canvas.
+				await pdfjsLib.renderTextLayer({
+					textContentSource: textContent,
+					container: textLayer,//pageTextLayer,
+					viewport: viewport,
+					textDivs: []
+				}).promise.then();
 				// Move the correct amount to render the next page below the current one
+				textLayer.style.top = `${yPos}px`; // Set top position based on current yPos
 				let pageHeight = Math.floor(viewport.height * outputScale)
 				context.translate(0, pageHeight + pageSpacing);
+				yPos += viewport.height;//update the ypos to move the pages down
 			}
+			setup();
+
 		});
 
         async function makeThumb(page) {
@@ -287,8 +327,17 @@
             // TODO: Implement the navigateToDestination function
         }
 	</script>
-	
+<script>
+	//setup the variables needed to load the pdf marks given the data from django (need to do it here
+	//because template variables cannot be accessed in external files)
+	const savedMarks = "{{marks}}";
+	const mark_id = "{{marks.mark_id}}";
+	const marksListOfSpans = "{{marks.listOfSpans}}";
+	const marksListOfComments = "{{marks.listOfComments}}";
+	const upload_id = "{{ upload.id }}"
+</script>
+<script src="{% static 'js/viewer.js'%}"></script>
+<script src="{% static 'js/viewer_sidebar.js' %}"></script>
 </body>
-<script src="{% static "js/viewer_sidebar.js" %}"></script>
 </html>
 
