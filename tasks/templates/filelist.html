@@ -26,11 +26,11 @@
                     {% for upload in uploads %}
                     <div class="flex-column flex-md-row list-item" aria-current="true">
                         <div class="text-list-item p-3 gap-2 w-100">
-                            <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank">
+                            <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm">
                                 {% csrf_token %}
                                 <input type="hidden" name="upload_id" value="{{ upload.id }}">
-                                <button type="submit" class="list-group-item" data-upload-time="{{ upload.uploaded_at }}">
-                                    <div class="item-content">
+                                    <a href="{{ upload.file.url }}" onclick="document.getElementById('viewerForm').submit();return false;" style="text-decoration: none">
+                                        <div class="item-content">
                                         <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
                                             <div class="mb-1">
                                                 <img src="{% static '/image/pdf_icon_svg.png' %}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
@@ -42,8 +42,8 @@
                                         <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span class="upload-time">{{ upload.uploaded_at }}</span></p>
                                         <p class="mb-0 opacity-75"><strong>Comment:</strong>{{ upload.comments }}</p>
 
-                                    </div>
-                                </button>
+                                        </div>
+                                    </a>
                             </form>
                         </div>
 
@@ -205,6 +205,12 @@
 {% endfor %}
 </body>
 
+
+<script>
+  function submitForm(event) {
+    event.preventDefault();
+  }
+</script>
 {##}
 {#<script>#}
 {#    /**#}
