@@ -102,8 +102,8 @@
 			<div id="viewer">
 				<!--
 					<canvas id="pdf"></canvas> 
-				-->
-			</div>		
+				-->	
+			</div>
 		</div>
 	</div>
 
@@ -342,14 +342,6 @@
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
-			/*
-			// Setup canvas dimensions
-			canvas.width = maxWidth * devicePixelRatio;
-			canvas.height = totalHeight * devicePixelRatio;
-			canvas.style.width = maxWidth / renderQuality + "px";
-			canvas.style.height = totalHeight / renderQuality + "px";
-			*/
-
 			isRendering = true;
 			pagesRendered.add(1);
 			pagesRendered.add(pdf.numPages);
@@ -463,6 +455,11 @@
 					console.log("finished rendering page" + pageNumber);
 				}
 			}
+
+			// Set the width of the viewer
+			//viewer.style.width = maxWidth * pagesRendered.size + 'px';
+
+
 		}
 
 		async function renderPage(pdf, pageNumber) 
@@ -484,8 +481,9 @@
 			const left = (viewer.offsetWidth - viewport.width / resolution) / 2 + 'px';
 
 			// Position the canvas in the right place
-			canvas.style.position = 'absolute';
-			canvas.style.left = left;
+			//canvas.style.position = 'absolute';
+			canvas.style.position = 'absolute'
+			canvas.style.margin = "auto";
 			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';			
 			viewer.appendChild(canvas);
 		
@@ -632,6 +630,15 @@
 			await renderPage(pdf, pdf.numPages);
 			await renderVisiblePages();
 			isRendering = false;
+
+			if (viewer.scrollWidth > viewer.clientWidth) {
+				// Horizontal scrollbar is visible
+				console.log('Horizontal scrollbar is visible');
+			} else {
+				// Horizontal scrollbar is not visible
+				console.log('Horizontal scrollbar is not visible');
+			}
+
 		}
 
 
