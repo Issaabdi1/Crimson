@@ -103,6 +103,7 @@
 				<!--
 					<canvas id="pdf"></canvas> 
 				-->	
+				<div id="canvasContainer"></div>
 			</div>
 		</div>
 	</div>
@@ -303,7 +304,7 @@
 
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
-		//const context = canvas.getContext("2d");
+		const canvasContainer = document.getElementById("canvasContainer");
 
 		const baseRenderQuality = 1.5;
 		const pageSpacing = 0; // Adjust spacing between pages here
@@ -321,15 +322,68 @@
 		
 		var totalHeight = 0;
 		var maxWidth = 0;
-		var currentPage = 1;
+		var currentPage = 1; // Page the user is currently on
+		var numPages;
 		
 		document.addEventListener("DOMContentLoaded", async function() {
 			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			pdf = await loadingTask.promise;
 
+			/// Add events ///
+			
+			// Zooming
+			var selectScale = document.getElementById("selectScale");
+				selectScale.addEventListener("change", function() {
+					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+					
+					// If the value is "width" or "page"
+					if (isNaN(selectedValue))
+					{
+						zoomDocument(selectScale.value, pdf);
+					}
+					else
+					{
+						zoomDocument(selectedValue, pdf);
+					}
+				});
+			
+			// Page Navigation
+			const pageInput = document.getElementById("pageInput");
+			const pageMax = document.getElementById("numberPages")
+			pageMax.textContent = "of " + numPages;
+
+			pageInput.addEventListener("input", function validatePageInput (event) 
+			{
+				const inputValue = event.target.value;
+				const numbersOnly = /^\d*$/; // Regex to match numbers only
+
+				// Remove any non-numeric characters from the input value
+				if (!numbersOnly.test(inputValue)) {
+					event.target.value = inputValue.replace(/\D/g, "");
+				}
+				else if (inputValue > lastPage || inputValue < 1)
+				{
+					// Remove any numeric values outside pdf page range
+					event.target.value = inputValue.replace(/\D/g, "");
+				}
+			});
+
+			pageInput.addEventListener("keyup", async function finalizeInput(event) 
+			{
+				// Check if Enter key was pressed
+				if (event.key === "Enter") {	
+					let pageNum = parseInt(event.target.value);
+					await navigateToPage(pdf, pageNum)
+					pageInput.blur(); // Remove focus onto input field
+				}
+			});
+
+
+			numPages = pdf.numPages;
+			
 			// Work out required canvas width and height
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
 				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
 				const pageWidth = viewport.width;
@@ -342,55 +396,14 @@
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
+			// Set container to required sizes
+			canvasContainer.style.width = maxWidth / renderQuality + "px";
+			canvasContainer.style.height = totalHeight / renderQuality + "px";
+
+			// Render pages
 			isRendering = true;
-			pagesRendered.add(1);
-			pagesRendered.add(pdf.numPages);
-			await renderPage(pdf, 1);
-			await renderPage(pdf, pdf.numPages);
 			await renderVisiblePages();
 			isRendering = false;
-
-			var selectScale = document.getElementById("selectScale");
-				selectScale.addEventListener("change", function() {
-					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
-					
-					if (isNaN(selectedValue))
-					{
-						zoomDocument(selectScale.value, pdf);
-					}
-					else
-					{
-						zoomDocument(selectedValue, pdf);
-					}
-				});
-			
-				const pageInput = document.getElementById("pageInput");
-
-				pageInput.addEventListener("input", function(event) {
-
-					const inputValue = event.target.value;
-					const numbersOnly = /^\d*$/; // Regular expression to match numbers only
-
-					if (!numbersOnly.test(inputValue)) {
-						// Remove any non-numeric characters from the input value
-						event.target.value = inputValue.replace(/\D/g, "");
-					}
-							// Input field value has been entered or changed
-					console.log("Input value changed to: ", event.target.value);
-				});
-
-				pageInput.addEventListener("keyup", async function(event) {
-					// Check if Enter key was pressed
-					if (event.key === "Enter") {
-						// Input finalized (Enter key pressed)
-						
-						let pageNum = parseInt(event.target.value);
-
-						console.log("Input finalized: ", pageNum);
-						await navigateToPage(pdf, pageNum)
-						pageInput.blur(); // Remove focus onto input field
-					}
-				});
 		});
 
 		async function navigateToPage(pdf, pageNum)
@@ -404,13 +417,13 @@
 		}
 
 		var pagesRendered = new Set(); // Keeps track of pages already rendered
-		var isRendering = false
+		var isRendering = false // Keeps track of rendering process
 		
 		window.addEventListener("resize", handleResize);
 
 		async function handleResize(event)
 		{
-			console.log("resizing");
+			// Render asynchronously
 			setTimeout(async () => {
 				isRendering = true;
 				await renderVisiblePages();
@@ -421,10 +434,10 @@
 
 		viewer.addEventListener("scroll", function()
 		{
-			// If renderVisiblePages is already running, exit early
+			// Exit if rendering is taking place
 			if (isRendering) return;
 			
-			// Call renderVisiblePages asynchronously
+			// Render asynchronously
 			setTimeout(async () => {
 				isRendering = true;
 				await renderVisiblePages();
@@ -434,17 +447,18 @@
 
 		async function renderVisiblePages() 
 		{
-			let pageHeight = totalHeight / pdf.numPages; // Assuming each page has equal height
+			// Work out adjacent areas around viewer
+			let averagePageHeight = totalHeight / numPages; 
 			const viewerHeight = viewer.clientHeight;
 			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * renderQuality;
 			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * renderQuality;
 
-			let topPage = Math.floor(scrollTop / pageHeight) + 1;
-			let bottomPage = Math.floor(scrollBottom / pageHeight) + 1;
+			let topPage = Math.floor(scrollTop / averagePageHeight) + 1;
+			let bottomPage = Math.floor(scrollBottom / averagePageHeight) + 1;
 			
 			// Makes sure indexes aren't outside range of (1, pdf pages) 
 			topPage = topPage > 1 ? topPage : 1; 
-			bottomPage = bottomPage < pdf.numPages ? bottomPage : pdf.numPages; 
+			bottomPage = bottomPage < numPages ? bottomPage : numPages; 
 			currentPage = Math.floor((topPage + bottomPage) / 2);
 
 			// Render visible pages 
@@ -455,11 +469,6 @@
 					console.log("finished rendering page" + pageNumber);
 				}
 			}
-
-			// Set the width of the viewer
-			//viewer.style.width = maxWidth * pagesRendered.size + 'px';
-
-
 		}
 
 		async function renderPage(pdf, pageNumber) 
@@ -467,26 +476,26 @@
 			const page = await pdf.getPage(pageNumber);
 			const viewport = page.getViewport({scale: baseRenderQuality * resolution});
 
+			// Create/Get canvas for page
 			var canvas = document.getElementById("page" + pageNumber);
 			if (canvas == null)
 			{
 				canvas = document.createElement("canvas");
 				canvas.id = "page" + pageNumber;
 			}
+
+			// Set dimensions
 			canvas.width = viewport.width * devicePixelRatio;
 			canvas.height = viewport.height * devicePixelRatio;
 			canvas.style.width = viewport.width / renderQuality + "px";
 			canvas.style.height = viewport.height / renderQuality + "px";
 
-			const left = (viewer.offsetWidth - viewport.width / resolution) / 2 + 'px';
-
 			// Position the canvas in the right place
-			//canvas.style.position = 'absolute';
 			canvas.style.position = 'absolute'
 			canvas.style.margin = "auto";
 			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';			
-			viewer.appendChild(canvas);
-		
+			
+			canvasContainer.appendChild(canvas);
 			let context = canvas.getContext("2d");
 
 			// Render the page
@@ -497,69 +506,59 @@
 			}).promise;
 		}
 
-		/*
-		async function renderDocument (pdf)
-		{
-			let newResolution = renderQuality * zoomScale;
+		  // Update container dimensions based on canvases
+		  async function updateContainerDimensions(pdf) {
 
+			const bottomPage = await pdf.getPage(numPages);
+			const viewport = bottomPage.getViewport({scale: baseRenderQuality * resolution});
+			const pageWidth = viewport.width;
+			const pageHeight = viewport.height * (numPages - 1) / renderQuality + 'px';
+
+			canvasContainer.style.width = pageWidth + 'px';
+			canvasContainer.style.height = pageHeight + 'px';
+		}
+
+		async function zoomDocument(scale, pdf)
+		{
+			const page = await pdf.getPage(currentPage);
+			if (scale === "fit")
+			{
+				// Fit window to the whole of current page
+				await zoomToFitPage(page);
+
+			}
+			else if (scale === "width")
+			{
+				// Fit window to current page width
+				await zoomToFitWidth(page);
+			}
+			else
+			{
+				zoomScale = scale;
+			}
+
+			pagesRendered.clear(); // Empty set of rendered pages
+				
 			// Update scaling 
+			let newResolution = renderQuality * zoomScale;
 			maxWidth =  (maxWidth / resolution) * newResolution;
 			totalHeight = (totalHeight / resolution) * newResolution;
 			resolution = newResolution;
 
-			/*
-			canvas.width = maxWidth * devicePixelRatio;
-			canvas.height = totalHeight * devicePixelRatio;
-			canvas.style.width = maxWidth / renderQuality + "px";
-			canvas.style.height = totalHeight / renderQuality + "px";
-			
+			canvasContainer.style.width = maxWidth / renderQuality + "px";
+			canvasContainer.style.height = totalHeight / renderQuality + "px";
 
-			// Scales output accordingly
-			const transform = devicePixelRatio !== 1
-				? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
-				: null;
+			// Remove all canvas elements from the viewer element
+			while (canvasContainer.firstChild) {
+				canvasContainer.removeChild(canvasContainer.firstChild);
+			}
 
-			// Render every page in pdf
-			for (let pageNumber = pdf.numPages; pageNumber > 0; pageNumber--) {
-				var newCanvas = document.createElement("canvas");
-				newCanvas.id = "page" + pageNumber;
-
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
-
-				newCanvas.width = viewport.width * devicePixelRatio;
-				newCanvas.height = viewport.height * devicePixelRatio;
-				newCanvas.style.width = viewport.width / renderQuality + "px";
-				newCanvas.style.height = viewport.height / renderQuality + "px";
-
-				// Position the canvas
-				newCanvas.style.position = 'absolute';
-                newCanvas.style.left = viewport.offsetX + 'px';
-                newCanvas.style.top = viewport.offsetY + viewport.height * (pageNumber - 1) + 'px';
-
-				viewer.appendChild(newCanvas);
-			
-				let context = newCanvas.getContext("2d");
-				
-				// Calculate the y-coordinate for the page
-				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * devicePixelRatio + pageSpacing);
-	
-				// Translate the context to render next page below this one
-				//context.translate(0, translateY);
-	
-				// Render the page
-				await page.render({
-					canvasContext: context,
-					transform: transform,
-					viewport: viewport
-				}).promise;
-
-				// Reset the translation for the next page
-				//context.setTransform(transform);
-			}	
+			// Rerender pages
+			isRendering = true;
+			await renderVisiblePages();
+			isRendering = false;
 		}
-		*/
-		
+
 		function zoomToFitPage(page) {
 			const viewport =  page.getViewport({scale: baseRenderQuality});
 			const viewerWidth = viewer.clientWidth;
@@ -586,59 +585,6 @@
 
 			// Apply the scaling factor to the viewer
 			zoomScale = widthScale;
-		}
-
-		async function zoomDocument(scale, pdf)
-		{
-			const page = await pdf.getPage(currentPage);
-			if (scale === "fit")
-			{
-				// Work out the zoom scale for fitting to page
-				// I.e, fit the whole page into window
-				console.log("fitting to page");
-				await zoomToFitPage(page);
-
-			}
-			else if (scale === "width")
-			{
-				// Work out scale for fitting to pdf page width
-				console.log("fitting to width");
-				await zoomToFitWidth(page);
-			}
-			else
-			{
-				zoomScale = scale;
-			}
-
-			pagesRendered.clear();
-				
-			// Update scaling 
-			let newResolution = renderQuality * zoomScale;
-			maxWidth =  (maxWidth / resolution) * newResolution;
-			totalHeight = (totalHeight / resolution) * newResolution;
-			resolution = newResolution;
-
-			// Remove all canvas elements from the viewer element
-			while (viewer.firstChild) {
-				viewer.removeChild(viewer.firstChild);
-			}
-
-			isRendering = true;
-			pagesRendered.add(1);
-			pagesRendered.add(pdf.numPages);
-			await renderPage(pdf, 1);
-			await renderPage(pdf, pdf.numPages);
-			await renderVisiblePages();
-			isRendering = false;
-
-			if (viewer.scrollWidth > viewer.clientWidth) {
-				// Horizontal scrollbar is visible
-				console.log('Horizontal scrollbar is visible');
-			} else {
-				// Horizontal scrollbar is not visible
-				console.log('Horizontal scrollbar is not visible');
-			}
-
 		}
 
 
