@@ -81,13 +81,11 @@ body {
 	height: 100%;
 	inset: 32px 0 0 200px;
 	overflow: auto;
-	text-align: center;
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    text-align: center; /* Center text content */
 	background: #6c757d;
-}
-#wrapper
-{
-	margin: auto; 
-	text-align: center;
 }
 
 

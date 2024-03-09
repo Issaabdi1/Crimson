@@ -100,9 +100,9 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
-				<div id="wrapper"> 
-					<canvas id="pdf"></canvas>
-				</div>
+				<!--
+					<canvas id="pdf"></canvas> 
+				-->
 			</div>		
 		</div>
 	</div>
@@ -294,38 +294,46 @@
 	</script>
 	-->
 
+	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
 		/* Setup */
 		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 
-		const wrapper = document.getElementById("wrapper");
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
-		const context = canvas.getContext("2d");
+		//const context = canvas.getContext("2d");
 
-		const renderQuality = 1;
-		const outputScale = window.devicePixelRatio || 1;
-		var zoomScale = 1;
-		var resolution = outputScale * renderQuality;
-
+		const baseRenderQuality = 1.5;
 		const pageSpacing = 0; // Adjust spacing between pages here
+		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
+		const devicePixelRatio = window.devicePixelRatio || 1;
+		
+		// Scales output accordingly
+		const transform = devicePixelRatio !== 1
+			? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+			: null;
 
-		let totalHeight = 0;
-		let maxWidth = 0;
+		var pdf;
+		var zoomScale = 1;
+		var resolution = renderQuality * zoomScale;
+		
+		var totalHeight = 0;
+		var maxWidth = 0;
+		var currentPage = 1;
 		
 		document.addEventListener("DOMContentLoaded", async function() {
 			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
-			const pdf = await loadingTask.promise;
-	
+			pdf = await loadingTask.promise;
+
 			// Work out required canvas width and height
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({scale: zoomScale});
-				const pageWidth = Math.floor(viewport.width * resolution);
-				const pageHeight = Math.floor(viewport.height * resolution);
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+				const pageWidth = viewport.width;
+				const pageHeight = viewport.height;
 	
 				// Calculate total height required to display all pages
 				totalHeight += pageHeight + pageSpacing;
@@ -334,119 +342,287 @@
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
-			renderDocument(pdf); // Render pages once dimensions have been set 
+			/*
+			// Setup canvas dimensions
+			canvas.width = maxWidth * devicePixelRatio;
+			canvas.height = totalHeight * devicePixelRatio;
+			canvas.style.width = maxWidth / renderQuality + "px";
+			canvas.style.height = totalHeight / renderQuality + "px";
+			*/
+
+			isRendering = true;
+			await renderVisiblePages();
+			isRendering = false;
 
 			var selectScale = document.getElementById("selectScale");
 				selectScale.addEventListener("change", function() {
 					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
-					console.log(selectedValue);
-					zoomDocument(selectedValue, pdf);
+					
+					if (isNaN(selectedValue))
+					{
+						zoomDocument(selectScale.value, pdf);
+					}
+					else
+					{
+						zoomDocument(selectedValue, pdf);
+					}
+				});
+			
+				const pageInput = document.getElementById("pageInput");
+
+				pageInput.addEventListener("input", function(event) {
+
+					const inputValue = event.target.value;
+					const numbersOnly = /^\d*$/; // Regular expression to match numbers only
+
+					if (!numbersOnly.test(inputValue)) {
+						// Remove any non-numeric characters from the input value
+						event.target.value = inputValue.replace(/\D/g, "");
+					}
+							// Input field value has been entered or changed
+					console.log("Input value changed to: ", event.target.value);
 				});
 
-			/*
-			canvas.width = maxWidth * resolution;
-			canvas.height = totalHeight * resolution;
-			
-			var checkDimensionsInterval = setInterval(function() {	
-				if (viewer.offsetWidth != viewer.clientWidth) {
-					clearInterval(checkDimensionsInterval); // Clear the interval
-					renderDocument(pdf); // Render pages once dimensions have been set 
+				pageInput.addEventListener("keyup", async function(event) {
+					// Check if Enter key was pressed
+					if (event.key === "Enter") {
+						// Input finalized (Enter key pressed)
+						
+						let pageNum = parseInt(event.target.value);
 
-					// Add event listeners
-
-					// Add event listener to zoom option
-					var selectScale = document.getElementById("selectScale");
-					selectScale.addEventListener("change", function() {
-						var selectedValue = parseFloat(selectScale.value); // Get the selected option value
-						console.log(selectedValue);
-						zoomDocument(selectedValue, pdf);
-					});
-					
-				}
-			});
-			*/
+						console.log("Input finalized: ", pageNum);
+						await navigateToPage(pdf, pageNum)
+						pageInput.blur(); // Remove focus onto input field
+					}
+				});
 		});
 
+		async function navigateToPage(pdf, pageNum)
+		{
+			if (!pagesRendered.has(pageNum))
+			{
+				await renderPage(pdf, pageNum);	
+			}
+			let pageCanvas = document.getElementById("page" + pageNum);
+			viewer.scrollTop = pageCanvas.offsetTop;
+		}
 
-		window.addEventListener('resize', async function() {
+		var pagesRendered = new Set(); // Keeps track of pages already rendered
+		var isRendering = false
+		
+		window.addEventListener("resize", handleResize);
 
-			/*
-            // Adjust canvas size when the window is resized
-            canvas.width = window.innerWidth;
-            canvas.height = totalHeight * (window.innerWidth / maxWidth);
-            canvas.style.width = window.innerWidth + "px";
-            canvas.style.height = (totalHeight * (window.innerWidth / maxWidth)) / outputScale + "px";
-			*/
-        });
+		async function handleResize(event)
+		{
+			console.log("resizing");
+			setTimeout(async () => {
+				isRendering = true;
+				await renderVisiblePages();
+				isRendering = false;
+			}, 0);
 
+		}
+
+		viewer.addEventListener("scroll", function()
+		{
+			// If renderVisiblePages is already running, exit early
+			if (isRendering) return;
+			
+			// Call renderVisiblePages asynchronously
+			setTimeout(async () => {
+				isRendering = true;
+				await renderVisiblePages();
+				isRendering = false;
+			}, 0);
+		});
+
+		async function renderVisiblePages() 
+		{
+			let pageHeight = totalHeight / pdf.numPages; // Assuming each page has equal height
+			const viewerHeight = viewer.clientHeight;
+			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * renderQuality;
+			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * renderQuality;
+
+			let topPage = Math.floor(scrollTop / pageHeight) + 1;
+			let bottomPage = Math.floor(scrollBottom / pageHeight) + 1;
+			
+			// Makes sure indexes aren't outside range of (1, pdf pages) 
+			topPage = topPage > 1 ? topPage : 1; 
+			bottomPage = bottomPage < pdf.numPages ? bottomPage : pdf.numPages; 
+			currentPage = Math.floor((topPage + bottomPage) / 2);
+
+			// Render visible pages 
+			for (let pageNumber = topPage; pageNumber <= bottomPage; pageNumber++) {
+				if (!pagesRendered.has(pageNumber)) {
+					pagesRendered.add(pageNumber);
+					await renderPage(pdf, pageNumber);
+					console.log("finished rendering page" + pageNumber);
+				}
+			}
+		}
+
+		async function renderPage(pdf, pageNumber) 
+		{	
+			const page = await pdf.getPage(pageNumber);
+			const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+
+			var canvas = document.getElementById("page" + pageNumber);
+			if (canvas == null)
+			{
+				canvas = document.createElement("canvas");
+				canvas.id = "page" + pageNumber;
+			}
+			canvas.width = viewport.width * devicePixelRatio;
+			canvas.height = viewport.height * devicePixelRatio;
+			canvas.style.width = viewport.width / renderQuality + "px";
+			canvas.style.height = viewport.height / renderQuality + "px";
+
+			// Position the canvas in the right place
+			canvas.style.position = 'absolute';
+			canvas.style.margin = "auto";
+			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';
+			
+			viewer.appendChild(canvas);
+		
+			let context = canvas.getContext("2d");
+
+			// Render the page
+			await page.render({
+				canvasContext: context,
+				transform: transform,
+				viewport: viewport
+			}).promise;
+		}
+
+		/*
 		async function renderDocument (pdf)
 		{
-			canvas.width = maxWidth * renderQuality * zoomScale;
-			canvas.height = totalHeight * renderQuality * zoomScale;
-			canvas.style.width = "100%";
-			
-			wrapper.style.width = canvas.width + "px";
-			wrapper.style.height = canvas.height + "px";;
+			let newResolution = renderQuality * zoomScale;
 
-			//wrapper.style.width = (maxWidth / renderQuality) * outputScale + "px";
-			//wrapper.style.height = (totalHeight / renderQuality) * outputScale + "px";;
+			// Update scaling 
+			maxWidth =  (maxWidth / resolution) * newResolution;
+			totalHeight = (totalHeight / resolution) * newResolution;
+			resolution = newResolution;
+
+			/*
+			canvas.width = maxWidth * devicePixelRatio;
+			canvas.height = totalHeight * devicePixelRatio;
+			canvas.style.width = maxWidth / renderQuality + "px";
+			canvas.style.height = totalHeight / renderQuality + "px";
+			
 
 			// Scales output accordingly
-			const transform = resolution !== 1
-				? [resolution, 0, 0, resolution, 0, 0]
+			const transform = devicePixelRatio !== 1
+				? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
 				: null;
 
-			var context = canvas.getContext("2d");
-
 			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = pdf.numPages; pageNumber > 0; pageNumber--) {
+				var newCanvas = document.createElement("canvas");
+				newCanvas.id = "page" + pageNumber;
+
 				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({scale: zoomScale});
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+
+				newCanvas.width = viewport.width * devicePixelRatio;
+				newCanvas.height = viewport.height * devicePixelRatio;
+				newCanvas.style.width = viewport.width / renderQuality + "px";
+				newCanvas.style.height = viewport.height / renderQuality + "px";
+
+				// Position the canvas
+				newCanvas.style.position = 'absolute';
+                newCanvas.style.left = viewport.offsetX + 'px';
+                newCanvas.style.top = viewport.offsetY + viewport.height * (pageNumber - 1) + 'px';
+
+				viewer.appendChild(newCanvas);
+			
+				let context = newCanvas.getContext("2d");
 				
 				// Calculate the y-coordinate for the page
-				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * resolution * zoomScale + pageSpacing);
+				const translateY = pageSpacing + (pageNumber - 1) * (viewport.height * devicePixelRatio + pageSpacing);
 	
 				// Translate the context to render next page below this one
-				context.translate(0, translateY);
+				//context.translate(0, translateY);
 	
 				// Render the page
 				await page.render({
 					canvasContext: context,
-					transform,
+					transform: transform,
 					viewport: viewport
 				}).promise;
 
 				// Reset the translation for the next page
-				context.setTransform(transform);
+				//context.setTransform(transform);
 			}	
 		}
+		*/
 		
-		function zoomDocument(scale, pdf)
+		function zoomToFitPage(page) {
+			const viewport =  page.getViewport({scale: baseRenderQuality});
+			const viewerWidth = viewer.clientWidth;
+			const viewerHeight = viewer.clientHeight;
+
+			// Calculate scaling factors for width and height
+			const widthScale = viewerWidth / viewport.width;
+			const heightScale = viewerHeight / viewport.height;
+
+			// Choose the larger of the two scaling factors
+			const scale = Math.min(widthScale, heightScale);
+
+			// Apply the scaling factor to the viewer
+			zoomScale = scale;
+		}
+
+		function zoomToFitWidth(page) {
+			const viewport =  page.getViewport({scale: baseRenderQuality});
+			const viewerWidth = viewer.clientWidth;
+			const viewerHeight = viewer.clientHeight;
+
+			// Calculate scaling factors for width
+			const widthScale = viewerWidth / viewport.width;
+
+			// Apply the scaling factor to the viewer
+			zoomScale = widthScale;
+		}
+
+		async function zoomDocument(scale, pdf)
 		{
+			const page = await pdf.getPage(currentPage);
 			if (scale === "fit")
 			{
 				// Work out the zoom scale for fitting to page
 				// I.e, fit the whole page into window
 				console.log("fitting to page");
+				await zoomToFitPage(page);
+
 			}
 			else if (scale === "width")
 			{
 				// Work out scale for fitting to pdf page width
 				console.log("fitting to width");
+				await zoomToFitWidth(page);
 			}
 			else
 			{
 				zoomScale = scale;
-				renderDocument(pdf);
 			}
+
+			pagesRendered.clear();
+				
+			// Update scaling 
+			let newResolution = renderQuality * zoomScale;
+			maxWidth =  (maxWidth / resolution) * newResolution;
+			totalHeight = (totalHeight / resolution) * newResolution;
+			resolution = newResolution;
+
+			// Remove all canvas elements from the viewer element
+			while (viewer.firstChild) {
+				viewer.removeChild(viewer.firstChild);
+			}
+
+			renderVisiblePages();
 		}
 
-		function centerDocument()
-		{
-			// Need to center it based on the viewer and not the canvas
-			// When zooming out, should always remain centred
-			// When zooming in, what I have now should be fine
-		}
 
 	</script>
 </body>
