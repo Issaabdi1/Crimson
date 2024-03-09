@@ -326,13 +326,16 @@
         async function navigateToDestination(dest, pdf) {
             pdf.getDestination(dest).then(destination => {
                 if (destination) {
-                    pdf.getPageIndex(destination[0]).then(pageIndex => {
-                      const actualPage = pageIndex + 1;
-                      console.log("Section ", dest ," is on page", actualPage);
-                      const viewer = document.getElementById("viewer");
-                      const pageHeight = viewer.scrollHeight / pdf.numPages;
-                      viewer.scrollTop = (actualPage - 1) * pageHeight;
-                      // Now can only go to the page, cannot go to precise location
+                    pdf.getPageIndex(destination[0]).then(async pageIndex => {
+                        const actualPage = pageIndex + 1;
+                        console.log("Section ", dest, " is on page", actualPage);
+                        const viewer = document.getElementById("viewer");
+                        const pageHeight = viewer.scrollHeight / pdf.numPages;
+                        const [x, y] = destination.slice(2);
+                        const page = await pdf.getPage(actualPage);
+                        const viewport = page.getViewport({scale: 1})
+                        // height based on page + height based on y-coordinate
+                        viewer.scrollTop = (actualPage - 1) * pageHeight + (1 - y / viewport.height) * pageHeight;
                     });
                 } else {
                     console.log("Destination 'section2' not found");
