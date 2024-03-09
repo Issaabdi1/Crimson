@@ -124,8 +124,7 @@
 					Mark
 				</button>
 				<canvas id="pdf"></canvas>
-				<div id="container"></div>
-				<div id="textLayer"></div>
+				<div id="textLayerContainer"></div>
 			</div>
 		</div>
 	</div>
@@ -139,6 +138,7 @@
 	
 			const canvas = document.getElementById("pdf");
 			const context = canvas.getContext("2d");
+			const textLayerContainer = document.getElementById('textLayerContainer');
 	
 			const scale = 1.5;
 			const outputScale = window.devicePixelRatio || 1;
@@ -203,6 +203,9 @@
 			canvas.height = totalHeight;
 			canvas.style.width = maxWidth / outputScale + "px";
         	canvas.style.height = totalHeight / outputScale + "px";
+			
+			textLayerContainer.style.width = maxWidth / outputScale + "px";
+        	textLayerContainer.style.height = totalHeight / outputScale + "px";
 	
 			let offsetY = 0;
 
@@ -212,6 +215,7 @@
 					: null;
 
 			var myContext = canvas.getContext("2d");
+
 			let yPos = 0;
 			// Render every page in pdf
 			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
@@ -223,14 +227,14 @@
 					transform,
 					viewport,
 				};
-				const pageTextLayer = document.getElementById('textLayer');
 				const textLayer = document.createElement("div");
 				textLayer.id = `textlayer-${pageNumber}`;
 				textLayer.classList.add("textLayer")
 
-				pageTextLayer.appendChild(textLayer);
+				textLayerContainer.appendChild(textLayer);
 				await page.render(renderContext).promise;
 				textLayer.style.setProperty('--scale-factor', viewport.scale);
+
 				// Assign the CSS created to the text-layer element
 				const textContent = await page.getTextContent();
 

@@ -82,21 +82,19 @@ body {
 /* Viewer */
 
 #viewer {
-	position: relative;
-	height: 100%;
-	inset: 32px 0 0 200px;
+	position: absolute;
+	inset: 32px 0 0 300px;
 	overflow: auto;
-	text-align: center;
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
 	background: #6c757d;
 }
 
 /* textLayer */
-#textLayer {
+#textLayerContainer {
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+	margin: auto;
+	text-align: center;
 }
 
 /* Buttons, Fields, Labels, Selects */

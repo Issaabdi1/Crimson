@@ -62,9 +62,9 @@ function setup(){
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
 			var span = fromHTML(html);//JSON.parse(testList));
-			const textLayer = document.getElementById("textLayer");
+			const textLayerContainer = document.getElementById("textLayerContainer");
 			
-			var spanCopy = textLayer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayer.querySelectorAll('*')[indexOfSpan];
+			var spanCopy = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
 
 			spanCopy.innerHTML = "";
 			spanCopy.appendChild(span);
@@ -102,16 +102,16 @@ document.addEventListener('selectionchange', function(event){
 });
 
 document.addEventListener('mousedown', function(event) {
-	// Check if the mouse is being held down over elements with id "textLayer"
-	const textLayer = document.getElementById('textLayer');
-	if (event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)) {
+	// Check if the mouse is being held down over elements with id "textLayerContainer"
+	const textLayerContainer = document.getElementById('textLayerContainer');
+	if (event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)) {
 		markButton.hidden = true;
 		// Add mousemove event listener to track mouse movement while mouse button is held down
 		document.addEventListener('mousemove', mouseMoveHandler);
 	}
 	else{
 		//if starting from blank space, don't allow selection
-		textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 		window.getSelection().empty();
 		if(event.target.nodeName!='BUTTON'){
 			markButton.hidden = true;
@@ -123,8 +123,8 @@ document.addEventListener('mousedown', function(event) {
 var seenSpan = false;
 var selectionList; 
 function mouseMoveHandler(event) {
-	const textLayer = document.getElementById('textLayer');
-	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)){
+	const textLayerContainer = document.getElementById('textLayerContainer');
+	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)){
 		const rect = event.target.getBoundingClientRect();
 		// Set the position of the movable element to match the clicked element
 		markButton.style.top = rect.top + 'px';
@@ -135,7 +135,7 @@ function mouseMoveHandler(event) {
 				selectionList = selection.getRangeAt(0).cloneRange();
 			}
 
-			textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+			textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 		}
 		else{
 			seenSpan = true;
@@ -145,7 +145,7 @@ function mouseMoveHandler(event) {
 	else{
 		seenSpan = false;
 		//keep selection as before
-		textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 	}
 	
 	//Turn off selection when over a highlighted seciton (because can't select it again)
@@ -167,15 +167,15 @@ function mouseUpHandler(event) {
 	// Remove mouseup event listener when mouse button is released
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
-	textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 }
 
 function highlightSelectedText(event){
 	//clear selection
 	window.getSelection().empty();
 	markButton.hidden = true;
-	const textLayer =  document.getElementById('textLayer');
-	var textLayerSpans =  Array.from(textLayer.querySelectorAll('span[role="presentation"]'));
+	const textLayerContainer =  document.getElementById('textLayerContainer');
+	var textLayerSpans =  Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
 	var totalLength = selectionList.toString().length;
 	var offset = selectionList.startOffset;
 	var selectedParts = [];
