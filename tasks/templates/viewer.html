@@ -351,6 +351,10 @@
 			*/
 
 			isRendering = true;
+			pagesRendered.add(1);
+			pagesRendered.add(pdf.numPages);
+			await renderPage(pdf, 1);
+			await renderPage(pdf, pdf.numPages);
 			await renderVisiblePages();
 			isRendering = false;
 
@@ -477,11 +481,12 @@
 			canvas.style.width = viewport.width / renderQuality + "px";
 			canvas.style.height = viewport.height / renderQuality + "px";
 
+			const left = (viewer.offsetWidth - viewport.width / resolution) / 2 + 'px';
+
 			// Position the canvas in the right place
 			canvas.style.position = 'absolute';
-			canvas.style.margin = "auto";
-			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';
-			
+			canvas.style.left = left;
+			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';			
 			viewer.appendChild(canvas);
 		
 			let context = canvas.getContext("2d");
@@ -620,7 +625,13 @@
 				viewer.removeChild(viewer.firstChild);
 			}
 
-			renderVisiblePages();
+			isRendering = true;
+			pagesRendered.add(1);
+			pagesRendered.add(pdf.numPages);
+			await renderPage(pdf, 1);
+			await renderPage(pdf, pdf.numPages);
+			await renderVisiblePages();
+			isRendering = false;
 		}
 
 
