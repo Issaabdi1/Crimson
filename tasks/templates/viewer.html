@@ -1,9 +1,12 @@
 <html>
 <head>
 {%load static%}
+{% csrf_token %}
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -11,10 +14,10 @@
 
 		<!-- Sidebar -->
 		<div id="sidebar">
+			<!--Prototype comment functionality-->
 
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
-
 				<!-- Sidebar Toolbar View Buttons -->
 				<button id="viewThumbnails" class="toolbarButton toggled" title="View Thumbnails">
 					<i class="fa-solid fa-grip-vertical"></i>
@@ -33,11 +36,18 @@
 			<!-- Sidebar Views -->
 			<div id="sidebarViews">
 				<div id="thumbnailView">
-					<div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
-				</div>
+                    <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
+                </div>
+				
 				<div id="outlineView"></div>
-				<div id="commentView"></div>
-				<div id="bookmarksView"></div>
+
+				<div id="commentView">
+                    <p id="testComment">TEST</p>
+                </div>
+
+				<div id="bookmarksView">
+                    <h3>This is the bookmark view</h3>
+                </div>
 			</div>
 		</div>
 
@@ -75,7 +85,10 @@
 					</div>
 					
 					<!-- Right Toolbar Section -->
-					<div id="toolbarRight" class="toolbarSection">			
+					<div id="toolbarRight" class="toolbarSection">	
+						<button id="markButton" type="button" hidden="True">
+							Mark
+						</button>		
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
 							<option id="pageFit" value="fit">Fit Page</option>
         	                        		<option id="pageWidth" value="width">Fit Width</option>
@@ -100,201 +113,14 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
-				<!--
-					<canvas id="pdf"></canvas> 
-				-->	
-				<div id="canvasContainer"></div>
+				<div id="container">
+					<div id="canvasContainer"></div>
+					<div id="textLayerContainer"></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
-
-	<!-- Hanson Version
-	<script type="module">
-		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
-	
-		document.addEventListener("DOMContentLoaded", async function() {
-			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
-	
-			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
-	
-			const canvas = document.getElementById("pdf");
-			const context = canvas.getContext("2d");
-	
-			const scale = 1.5;
-			const outputScale = window.devicePixelRatio || 1;
-			const pageSpacing = 0; // Adjust spacing between pages here
-	
-			const loadingTask = pdfjsLib.getDocument(pdfUrl);
-			const pdf = await loadingTask.promise;
-	
-			let totalHeight = 0;
-			let maxWidth = 0;
-			
-			// Work out required canvas width and height
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const pageWidth = Math.floor(viewport.width * outputScale);
-				const pageHeight = Math.floor(viewport.height * outputScale);
-	
-				// Calculate total height required to display all pages
-				totalHeight += pageHeight + pageSpacing;
-	
-				// Update maximum width among all pages
-				maxWidth = Math.max(maxWidth, pageWidth);
-
-                // Generate thumbnail for each page
-                const thumbnailCanvas = await makeThumb(page);
-                thumbnailCanvas.classList.add("thumbnailCanvas")
-
-                const thumbnailContainer = document.createElement("div");
-                thumbnailContainer.classList.add("thumbnailContainer");
-                thumbnailContainer.setAttribute("role", "tab");
-                thumbnailContainer.setAttribute("data-page", pageNumber);
-                if (pageNumber === 1) {
-                    thumbnailContainer.setAttribute("aria-selected", "true");
-                } else {
-                    thumbnailContainer.setAttribute("aria-selected", "false");
-                }
-                thumbnailContainer.appendChild(thumbnailCanvas);
-
-                // Add a page indicator
-                const pageNumberElement = document.createElement("span");
-                pageNumberElement.textContent = pageNumber.toString(10);
-                pageNumberElement.classList.add("pageNumberElement")
-                thumbnailContainer.appendChild(pageNumberElement);
-
-                // Naive approach
-                thumbnailContainer.addEventListener("click", function() {
-                    const viewer = document.getElementById("viewer");
-                    const pageHeight = viewer.scrollHeight / pdf.numPages;
-                    viewer.scrollTop = (pageNumber - 1) * pageHeight;
-                });
-
-                document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
-            }
-
-            // Scrolling will also change the thumbnail aria selected effect
-            const viewer = document.getElementById("viewer");
-            viewer.addEventListener("scroll", function() {
-                let totalPages = pdf.numPages
-                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
-                const pageHeight = maxScrollTop / (totalPages - 1);
-                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
-                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
-                thumbnailContainers.forEach(container => {
-                    const page = parseInt(container.getAttribute("data-page"));
-                    if (page === currentPage) {
-                        container.setAttribute("aria-selected", "true");
-                    } else {
-                        container.setAttribute("aria-selected", "false");
-                    }
-                });
-            });
-	
-			// Adjust canvas size
-			canvas.width = maxWidth;
-			canvas.height = totalHeight;
-			canvas.style.width = maxWidth / outputScale + "px";
-        	canvas.style.height = totalHeight / outputScale + "px";
-	
-			let offsetY = 0;
-
-			// This increases the size somehow
-			const transform = outputScale !== 1
-					? [outputScale, 0, 0, outputScale, 0, 0]
-					: null;
-
-			
-			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const renderContext = {
-					canvasContext: context,
-					transform,
-					viewport,
-				};
-				
-				await page.render(renderContext).promise;
-
-				// Move the correct amount to render the next page below the current one
-				let pageHeight = Math.floor(viewport.height * outputScale)
-				context.translate(0, pageHeight + pageSpacing);
-			}
-		});
-
-        async function makeThumb(page) {
-            const vp = page.getViewport({scale: 1});
-            const canvas = document.createElement("canvas");
-            const scale = Math.min(108 / vp.width, 140 / vp.height);
-            canvas.width = vp.width * scale;
-            canvas.height = vp.height * scale;
-            const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
-            await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
-            return canvas;
-        }
-
-		// Nav Bar stuff
-		
-		// Handle the side bar buttons function
-		document.addEventListener("DOMContentLoaded", function() {
-			const thumbnailsView = document.getElementById("thumbnailView");
-			const outlineView = document.getElementById("outlineView");
-			const commentView = document.getElementById("commentView");
-			const bookmarksView = document.getElementById("bookmarksView");
-
-			// Hide all views except the thumbnails view by default
-			thumbnailsView.style.display = "block";
-			outlineView.style.display = "none";
-			commentView.style.display = "none";
-			bookmarksView.style.display = "none";
-
-			document.getElementById("viewThumbnails").addEventListener("click", function() {
-				thumbnailsView.style.display = "block";
-				outlineView.style.display = "none";
-				commentView.style.display = "none";
-				bookmarksView.style.display = "none";
-			});
-
-			document.getElementById("viewOutline").addEventListener("click", function() {
-				thumbnailsView.style.display = "none";
-				outlineView.style.display = "block";
-				commentView.style.display = "none";
-				bookmarksView.style.display = "none";
-			});
-
-			document.getElementById("viewComments").addEventListener("click", function() {
-				thumbnailsView.style.display = "none";
-				outlineView.style.display = "none";
-				commentView.style.display = "block";
-				bookmarksView.style.display = "none";
-			});
-
-			document.getElementById("viewBookmarks").addEventListener("click", function() {
-				thumbnailsView.style.display = "none";
-				outlineView.style.display = "none";
-				commentView.style.display = "none";
-				bookmarksView.style.display = "block";
-			});
-		});
-
-		// Handle the thumbnails aria selected effect
-		document.getElementById("thumbnailsContainer").addEventListener("click", function(event) {
-			const clickedThumbnail = event.target.closest(".thumbnailContainer");
-			if (clickedThumbnail) {
-				const allThumbnails = document.querySelectorAll(".thumbnailContainer");
-				allThumbnails.forEach(thumbnail => {
-					thumbnail.setAttribute("aria-selected", "false");
-				});
-				clickedThumbnail.setAttribute("aria-selected", "true");
-			}
-		});
-
-
-	</script>
-	-->
-
 	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
@@ -304,7 +130,9 @@
 
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
+		const container = document.getElementById("container");
 		const canvasContainer = document.getElementById("canvasContainer");
+		const textLayerContainer = document.getElementById("textLayerContainer");
 
 		const baseRenderQuality = 1.5;
 		const pageSpacing = 0; // Adjust spacing between pages here
@@ -316,19 +144,22 @@
 			? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
 			: null;
 
-		var pdf;
 		var zoomScale = 1;
 		var resolution = renderQuality * zoomScale;
 		
 		var totalHeight = 0;
 		var maxWidth = 0;
 		var currentPage = 1; // Page the user is currently on
+
+		// Global variables
+		var pdf;
 		var numPages;
 		
 		document.addEventListener("DOMContentLoaded", async function() {
 			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			pdf = await loadingTask.promise;
+			numPages = pdf.numPages;
 
 			/// Add events ///
 			
@@ -362,7 +193,7 @@
 				if (!numbersOnly.test(inputValue)) {
 					event.target.value = inputValue.replace(/\D/g, "");
 				}
-				else if (inputValue > lastPage || inputValue < 1)
+				else if (inputValue > numPages || inputValue < 1)
 				{
 					// Remove any numeric values outside pdf page range
 					event.target.value = inputValue.replace(/\D/g, "");
@@ -379,8 +210,9 @@
 				}
 			});
 
+			/// Setup
 
-			numPages = pdf.numPages;
+			let yPos = 0 // Keep this for now (Vincent's stuff)
 			
 			// Work out required canvas width and height
 			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
@@ -389,27 +221,89 @@
 				const pageWidth = viewport.width;
 				const pageHeight = viewport.height;
 	
-				// Calculate total height required to display all pages
+				// Calculate total height required to display all pages, and max width
 				totalHeight += pageHeight + pageSpacing;
-	
-				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
+			await generateThumbnails();
+
+
+			applyScrollingEffect(pdf);
+
+            // Render the outline in the outline view
+            await renderOutline(pdf);
+
 			// Set container to required sizes
+			container.style.width = maxWidth / renderQuality + "px";
+			container.style.height = totalHeight / renderQuality + "px";
+			/*
 			canvasContainer.style.width = maxWidth / renderQuality + "px";
 			canvasContainer.style.height = totalHeight / renderQuality + "px";
+			
+			textLayerContainer.style.width = maxWidth / renderQuality + "px";
+        	textLayerContainer.style.height = totalHeight / renderQuality + "px";
+			*/
 
 			// Render pages
 			isRendering = true;
 			await renderVisiblePages();
 			isRendering = false;
+
+			setup();
 		});
+
+		async function generateThumbnails()
+		{
+			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+				const pageWidth = viewport.width;
+				const pageHeight = viewport.height;
+
+				/* Hanson Stuff */
+
+				// Generate thumbnail for each page
+				const thumbnailCanvas = await makeThumb(page);
+				thumbnailCanvas.classList.add("thumbnailCanvas")
+
+				const thumbnailContainer = document.createElement("div");
+				thumbnailContainer.classList.add("thumbnailContainer");
+				thumbnailContainer.setAttribute("role", "tab");
+				thumbnailContainer.setAttribute("data-page", pageNumber);
+				if (pageNumber === 1) {
+					thumbnailContainer.setAttribute("aria-selected", "true");
+				} else {
+					thumbnailContainer.setAttribute("aria-selected", "false");
+				}
+				thumbnailContainer.appendChild(thumbnailCanvas);
+
+				// Add a page indicator
+				const pageNumberElement = document.createElement("span");
+				pageNumberElement.textContent = pageNumber.toString(10);
+				pageNumberElement.classList.add("pageNumberElement")
+				thumbnailContainer.appendChild(pageNumberElement);
+
+				// Naive approach
+				thumbnailContainer.addEventListener("click", async function() {
+					await navigateToPage(pdf, pageNumber)
+					
+					/*
+					const viewer = document.getElementById("viewer");
+					const pageHeight = viewer.scrollHeight / pdf.numPages;
+					viewer.scrollTop = (pageNumber - 1) * pageHeight;
+					*/
+				});		
+
+				document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
+			}
+		}
 
 		async function navigateToPage(pdf, pageNum)
 		{
 			if (!pagesRendered.has(pageNum))
 			{
+				pagesRendered.add(pageNum);
 				await renderPage(pdf, pageNum);	
 			}
 			let pageCanvas = document.getElementById("page" + pageNum);
@@ -504,6 +398,32 @@
 				transform: transform,
 				viewport: viewport
 			}).promise;
+
+			// Render the text layer
+			const textLayer = document.createElement("div");
+			textLayer.id = `textlayer-${pageNumber}`;
+			textLayer.classList.add("textLayer")
+			textLayer.style.setProperty('--scale-factor', viewport.scale / renderQuality);
+
+			textLayer.style.position = 'absolute'
+			textLayer.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';
+			//textLayer.style.top = yPos
+
+			textLayerContainer.appendChild(textLayer);
+
+			// Assign the CSS created to the text-layer element
+			const textContent = await page.getTextContent();
+
+			// Pass the data to the method for rendering of text over the pdf canvas.
+			await pdfjsLib.renderTextLayer({
+				textContentSource: textContent,
+				container: textLayer,
+				viewport: viewport,
+				textDivs: []
+			}).promise;
+				
+			//yPos += pageHeight + pageSpacing; // Update the ypos to move the pages down	
+
 		}
 
 		  // Update container dimensions based on canvases
@@ -514,8 +434,15 @@
 			const pageWidth = viewport.width;
 			const pageHeight = viewport.height * (numPages - 1) / renderQuality + 'px';
 
+			/*
 			canvasContainer.style.width = pageWidth + 'px';
 			canvasContainer.style.height = pageHeight + 'px';
+			textLayerContainer.style.width = pageWidth + 'px';
+			textLayerContainer.style.height = pageHeight + 'px';
+
+			*/
+			container.style.width = pageWidth + 'px';
+			container.style.height = pageHeight + 'px';
 		}
 
 		async function zoomDocument(scale, pdf)
@@ -545,18 +472,32 @@
 			totalHeight = (totalHeight / resolution) * newResolution;
 			resolution = newResolution;
 
+			/*
 			canvasContainer.style.width = maxWidth / renderQuality + "px";
 			canvasContainer.style.height = totalHeight / renderQuality + "px";
+			textLayerContainer.style.width = maxWidth / renderQuality + "px";
+			textLayerContainer.style.height = totalHeight / renderQuality + "px";
+			*/
 
-			// Remove all canvas elements from the viewer element
+			container.style.width = maxWidth / renderQuality + "px";
+			container.style.height = totalHeight / renderQuality + "px";
+
+			// Remove all canvas elements from container
 			while (canvasContainer.firstChild) {
 				canvasContainer.removeChild(canvasContainer.firstChild);
 			}
 
-			// Rerender pages
+			// Remove all text renders from container
+			while (textLayerContainer.firstChild) {
+				textLayerContainer.removeChild(textLayerContainer.firstChild);
+			}
+
+			// Rerender pages and text layers
 			isRendering = true;
 			await renderVisiblePages();
 			isRendering = false;
+
+			setup();
 		}
 
 		function zoomToFitPage(page) {
@@ -587,8 +528,109 @@
 			zoomScale = widthScale;
 		}
 
+		async function makeThumb(page) {
+            const vp = page.getViewport({scale: 1});
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(108 / vp.width, 140 / vp.height);
+            canvas.width = vp.width * scale;
+            canvas.height = vp.height * scale;
+            const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
+            await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
+            return canvas;
+        }
 
+		// Scrolling will also change the thumbnail aria selected effect
+		function applyScrollingEffect(pdf) {
+            const viewer = document.getElementById("viewer");
+            viewer.addEventListener("scroll", function() {
+                let totalPages = pdf.numPages
+                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
+                const pageHeight = maxScrollTop / (totalPages - 1);
+                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
+                thumbnailContainers.forEach(container => {
+                    const page = parseInt(container.getAttribute("data-page"));
+                    if (page === currentPage) {
+                        container.setAttribute("aria-selected", "true");
+                    } else {
+                        container.setAttribute("aria-selected", "false");
+                    }
+                });
+            });
+        }
+
+        // Function to render the outline in the outline view
+        async function renderOutline(pdf) {
+            const outline = await pdf.getOutline();
+            const outlineView = document.getElementById("outlineView");
+
+            if (outline) {
+                // Render each outline item recursively
+                renderOutlineItem(outline, outlineView, pdf, "0px");
+            } else {
+                const noOutlineMessage = document.createElement("p");
+                noOutlineMessage.textContent = "No outline available.";
+                outlineView.appendChild(noOutlineMessage);
+            }
+        }
+
+        // Function to render an outline item recursively
+        function renderOutlineItem(outlineNodes, parentElement, pdf, ml) {
+            outlineNodes.forEach(node => {
+
+                // Create a span element to display the title of the node
+                const titleSpanWrapper = document.createElement("div")
+                titleSpanWrapper.style.marginLeft = ml
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = node.title;
+
+                // Add event listener to navigate to the destination when the title is clicked
+                titleSpan.addEventListener("click", function() {
+                    navigateToDestination(node.dest, pdf);
+                });
+
+                titleSpanWrapper.appendChild(titleSpan)
+                parentElement.appendChild(titleSpanWrapper);
+
+                // If the node has children, render them recursively
+                if (node.items && node.items.length > 0) {
+                    renderOutlineItem(node.items, titleSpanWrapper, pdf, "15px");
+                }
+            });
+        }
+
+        // Function to navigate to the destination
+        async function navigateToDestination(dest, pdf) {
+            pdf.getDestination(dest).then(destination => {
+                if (destination) {
+                    pdf.getPageIndex(destination[0]).then(async pageIndex => {
+                        const actualPage = pageIndex + 1;
+                        console.log("Section ", dest, " is on page", actualPage);
+                        const viewer = document.getElementById("viewer");
+                        const pageHeight = viewer.scrollHeight / pdf.numPages;
+                        const [x, y] = destination.slice(2);
+                        const page = await pdf.getPage(actualPage);
+                        const viewport = page.getViewport({scale: 1})
+                        // height based on page + height based on y-coordinate
+                        viewer.scrollTop = (actualPage - 1) * pageHeight + (1 - y / viewport.height) * pageHeight;
+                    });
+                } else {
+                    console.log("Destination 'section2' not found");
+                }
+            });
+        }
 	</script>
+<script>
+	//setup the variables needed to load the pdf marks given the data from django (need to do it here
+	//because template variables cannot be accessed in external files)
+	const savedMarks = "{{marks}}";
+	const mark_id = "{{marks.mark_id}}";
+	const marksListOfSpans = "{{marks.listOfSpans}}";
+	const marksListOfComments = "{{marks.listOfComments}}";
+	const upload_id = "{{ upload.id }}"
+</script>
+<script src="{% static 'js/viewer.js'%}"></script>
+<script src="{% static 'js/viewer_sidebar.js' %}"></script>
 </body>
 </html>
 
