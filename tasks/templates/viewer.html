@@ -167,15 +167,16 @@
 			var selectScale = document.getElementById("selectScale");
 				selectScale.addEventListener("change", function() {
 					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
-					
-					// If the value is "width" or "page"
+                    const originalPercentage = viewer.scrollTop / viewer.scrollHeight; // Get the original percentage
+
+                    // If the value is "width" or "page"
 					if (isNaN(selectedValue))
 					{
-						zoomDocument(selectScale.value, pdf);
+						zoomDocument(selectScale.value, pdf, originalPercentage);
 					}
 					else
 					{
-						zoomDocument(selectedValue, pdf);
+						zoomDocument(selectedValue, pdf, originalPercentage);
 					}
 				});
 			
@@ -305,15 +306,9 @@
 				pageNumberElement.classList.add("pageNumberElement")
 				thumbnailContainer.appendChild(pageNumberElement);
 
-				// Naive approach
+                // Add navigation functionality to thumbnails
 				thumbnailContainer.addEventListener("click", async function() {
 					await navigateToPage(pdf, pageNumber)
-					
-					/*
-					const viewer = document.getElementById("viewer");
-					const pageHeight = viewer.scrollHeight / pdf.numPages;
-					viewer.scrollTop = (pageNumber - 1) * pageHeight;
-					*/
 				});		
 
 				document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
@@ -466,7 +461,7 @@
 			container.style.height = pageHeight + 'px';
 		}
 
-		async function zoomDocument(scale, pdf)
+		async function zoomDocument(scale, pdf, percentage)
 		{
 			const page = await pdf.getPage(currentPage);
 			if (scale === "fit")
@@ -519,6 +514,7 @@
 			isRendering = false;
 
 			setup();
+            viewer.scrollTop = percentage * viewer.scrollHeight
 		}
 
 		function zoomToFitPage(page) {
