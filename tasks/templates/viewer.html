@@ -56,7 +56,7 @@
 		<!-- Main Container -->
 		<div id="mainContainer">
 			<!-- Toolbar -->
-			<div id="toolbar">
+			<div id="toolbar" style="position: sticky; top: 0; z-index: 1000;">
 			
 				<!-- Toolbar Sections -->
 				<div id="toolbarSections">
@@ -86,7 +86,8 @@
 					</div>
 					
 					<!-- Right Toolbar Section -->
-					<div id="toolbarRight" class="toolbarSection">			
+					<div id="toolbarRight" class="toolbarSection">
+		
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
 							<option id="pageFit" value="fit">Fit Page</option>
         	                        		<option id="pageWidth" value="width">Fit Width</option>
@@ -98,7 +99,18 @@
 	                                		<option value="2">200%</option>
         	                        		<option value="3">300%</option>
                 	                		<option value="4">400%</option>
-						</select>		
+						</select>	
+						
+						<!-- Search section -->
+						<button id="prevSearchResult" class="toolbarButton" title="Previous Search Result">
+							<i class="fa-solid fa-arrow-left"></i>
+						</button>
+						<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">
+						<button id="nextSearchResult" class="toolbarButton" title="Next Search Result">
+							<i class="fa-solid fa-arrow-right"></i>
+						</button>
+						<!-- end of search -->
+
 						<button id="viewFindbar" class="toolbarButton toggled" title="Find in Document">
 							<i class="fa-solid fa-magnifying-glass"></i>
 						</button>
