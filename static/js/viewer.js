@@ -321,3 +321,100 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+
+// find functionality 
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function searchForTerm(term) {
+    const textLayer = document.getElementById("textLayer");
+    const spans = textLayer.querySelectorAll('span[role="presentation"]');
+    const foundPositions = [];
+
+    // Log the original search term for debugging
+    console.log("Original search term:", term);
+
+    spans.forEach((span, index) => {
+        let innerHTML = span.dataset.originalHtml || span.innerHTML;
+        const safeTerm = escapeHtml(term);
+
+        // Log the escaped search term
+        console.log("Escaped search term for regex:", safeTerm);
+
+        const regex = new RegExp(`\\b(${safeTerm})\\b`, 'gi');
+
+        // Log the constructed regex
+        console.log("Constructed regex:", regex);
+
+        if (!span.dataset.originalHtml) {
+            span.dataset.originalHtml = innerHTML;
+        }
+
+        // Perform a search to see if any match is found before attempting replacement
+        const searchResult = innerHTML.search(regex);
+        console.log(`Search result in span ${index}:`, searchResult);
+
+        if (searchResult !== -1) {
+            span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
+            foundPositions.push({ span: span, index: index });
+            console.log(`Match found and highlighted in span ${index}`);
+        } else {
+            console.log(`No match found in span ${index}`);
+        }
+    });
+
+    // Log the total number of positions where the term was found and highlighted
+    console.log("Total found positions:", foundPositions.length);
+
+    return foundPositions;
+}
+
+
+
+let foundPositions = [];
+let currentPosition = -1; // Start before the first position
+
+function updateSearchResults() {
+    const searchTerm = document.getElementById('searchTermInput').value;
+    foundPositions = searchForTerm(searchTerm); // Update with your actual search function
+    currentPosition = 0; // Reset to the first result
+    if (foundPositions.length > 0) {
+        moveToPosition(currentPosition);
+    } else {
+        // Handle no results found, e.g., show a message
+    }
+}
+
+function moveToPosition(index) {
+    // Ensure index is within bounds
+    if (index >= 0 && index < foundPositions.length) {
+        const position = foundPositions[index];
+        // Logic to scroll to the position.span or highlight it
+        position.span.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Optionally highlight or otherwise indicate the current span
+    }
+}
+
+document.getElementById('nextSearchResult').addEventListener('click', () => {
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition + 1) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
+});
+
+document.getElementById('prevSearchResult').addEventListener('click', () => {
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
+});
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
