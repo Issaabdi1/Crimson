@@ -71,7 +71,7 @@
 						<button id="nextPage" class="toolbarButton" title="Next Page">
 							<i class="fa-solid fa-arrow-down"></i>
 						</button>
-						<input id="pageInput" class="toolbarField" title="Page" placeholder="0"></input>
+						<input id="pageInput" class="toolbarField" title="Page" value="1"></input>
 						<span id="numberPages" class="toolbarLabel">of 0</span>
 					</div>
 					
@@ -209,6 +209,27 @@
 					pageInput.blur(); // Remove focus onto input field
 				}
 			});
+
+            // Add Navigation function to Page Buttons
+            const nextPageButton = document.getElementById("nextPage");
+            const previousPageButton = document.getElementById("previousPage");
+
+            nextPageButton.addEventListener("click", async function ()
+            {
+                const inputValue = parseInt(pageInput.value);
+                if(inputValue !== numPages){
+                    pageInput.value = inputValue + 1;
+                    await navigateToPage(pdf, parseInt(pageInput.value));
+                }
+            });
+
+            previousPageButton.addEventListener("click", async function () {
+                const inputValue = parseInt(pageInput.value);
+                if (inputValue !== 1) {
+                    pageInput.value = inputValue - 1;
+                    await navigateToPage(pdf, parseInt(pageInput.value));
+                }
+            });
 
 			/// Setup
 
@@ -547,6 +568,8 @@
                 const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
                 const pageHeight = maxScrollTop / (totalPages - 1);
                 let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+
+                // Apply changes to thumbnails view
                 const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
                 thumbnailContainers.forEach(container => {
                     const page = parseInt(container.getAttribute("data-page"));
@@ -556,6 +579,27 @@
                         container.setAttribute("aria-selected", "false");
                     }
                 });
+
+                // Apply changes to page Input
+                let pageInput = document.getElementById("pageInput");
+                pageInput.value = currentPage;
+
+                // Check if the selected thumbnail is outside the thumbnail view
+                const selectedThumbnail = document.querySelector(`.thumbnailContainer[data-page="${currentPage}"]`);
+                if (selectedThumbnail) {
+                    const thumbnailView = document.getElementById("thumbnailView")
+                    const thumbnailHeight = 140;
+                    const selectedThumbnailOffsetTop = selectedThumbnail.offsetTop;
+                    const selectedThumbnailBottom = selectedThumbnailOffsetTop + thumbnailHeight;
+
+                    if (selectedThumbnailBottom > thumbnailView.scrollTop + thumbnailView.offsetHeight) {
+                        // Scroll down to make the selected thumbnail visible at the bottom
+                        thumbnailView.scrollTop = selectedThumbnailBottom - thumbnailView.offsetHeight + thumbnailHeight * 0.5;
+                    } else if (selectedThumbnailOffsetTop < thumbnailView.scrollTop) {
+                        // Scroll up to make the selected thumbnail visible at the top
+                        thumbnailView.scrollTop = selectedThumbnailOffsetTop;
+                    }
+                }
             });
         }
 

@@ -48,7 +48,7 @@ body {
 #sidebarViews {
 	position: absolute;
 	inset: 32px 0 0 0;
-	overflow: auto;
+	/*overflow: auto;*/
     display: flex; /* Use flexbox */
     justify-content: center; /* Center horizontally */
 }
@@ -74,6 +74,10 @@ body {
 .toolbarSection {
     display: flex;
     flex-direction: row;
+}
+
+#pageInput {
+	width: 40px
 }
 
 /* Viewer */
@@ -149,17 +153,24 @@ body {
 }
 
 #markButton {
+	height: 28px;
+	width: 45px;
+	font-size: 16px;
 	margin: auto;
 	z-index: 3; /*needs to be higher z index so that it is easy to click*/
 }
 
 /*Thumbnails view*/
+#thumbnailView {
+	overflow-y: auto;
+}
+
 .thumbnailContainer {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin: 10px;
-	width: 270px;
+	width: 230px;
 	background-color: transparent;
 }
 
