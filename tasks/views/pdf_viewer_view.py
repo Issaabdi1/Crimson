@@ -22,6 +22,7 @@ def viewer(request):
                     #get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload = upload)
                     mark = PDFInfo.objects.get(upload = upload)
+                    context['voice_comments'] = mark.comments.all()
                     print("List of omments is ", mark.listOfComments)
 
             except Upload.DoesNotExist:

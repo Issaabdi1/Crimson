@@ -197,3 +197,86 @@ body {
 #outlineView span:hover {
   background-color: #f5f5f5;
 }
+
+/* Voice recording view */
+#voiceRecord {
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	margin-bottom: 4px;
+	margin-top: 4px;
+}
+#playCircle {
+	width: 33px;
+	height: 33px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: background-color 0.5s ease;
+}
+#playCircle:hover {
+	background-color: #D8DEE4;
+}
+#playCircle:hover #play {
+	font-size: 1.2em;
+}
+#play {
+	font-size: 1.4em;
+	transition: font-size 0.3s ease;
+}
+
+.animation-block {
+	width: 3px;
+	height: 15px;
+	margin-bottom: 8px;
+	background-color: black;
+	display: none;
+	transform: scaleY(0.2);
+	transform-origin: bottom;
+}
+.block-1 {
+	animation: play 1.4s infinite ease;
+}
+.block-2 {
+	animation: play 1.4s infinite ease 0.2s;
+}
+.block-3 {
+	animation: play 1.4s infinite ease 0.4s;
+}
+@keyframes play {
+	0% {
+		transform: scaleY(0.2);
+		transform-origin: bottom;
+	}
+	50% {
+		transform: scaleY(0.5);
+		transform-origin: bottom;
+	}
+	100% {
+		transform: scaleY(0.2);
+		transform-origin: bottom;
+	}
+}
+#recordings > * {
+	display: inline-block;
+	vertical-align: middle;
+}
+#recordings audio {
+	max-width: 90%;
+	height: 5%;
+	padding: 2px;
+}
+/* Edit size of time display (to avoid compressing scrollbar) */
+#recordings audio::-webkit-media-controls-current-time-display {
+	font-size: 1em;
+}
+#recordings audio::-webkit-media-controls-time-remaining-display {
+	display: none !important;
+}
+#saveContainer {
+	display: flex;
+	padding: 5px;
+	justify-content: center;
+}

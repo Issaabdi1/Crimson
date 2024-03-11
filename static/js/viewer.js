@@ -50,6 +50,9 @@ function decodeEntities(encodedString) {
 
 var listOfMarkedSpans = []; //list of all the spans that are marked. 
 var listOfComments = {} //this should be passed in from outside.
+var listOfVoiceComments = {};
+var currentMarkId;
+const event = new Event('afterSetup')
 function setup(){
 	//get them from the stuff
 	if(savedMarks!=""){
@@ -77,10 +80,12 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
-				document.getElementById('testComment').textContent = listOfComments[element.dataset.value]
+				currentMarkId = element.dataset.value;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId]
 			});
 		})
 	}
+	document.dispatchEvent(event);
 }
 
 markButton.addEventListener("click", highlightSelectedText);
@@ -207,6 +212,7 @@ function highlightSelectedText(event){
 		highlightedSpan.dataset.value = newMark.getId();
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
+			currentMarkId = highlightedSpan.dataset.value;
 			// Handle click event (e.g., open a modal, execute a function, etc.)
 			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
 		});
@@ -245,6 +251,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	// Create a highlight span element
 	const highlightSpan = document.createElement('span');
 	highlightSpan.id = "markedSection";
+	highlightSpan.classList.add('markedSection');
 	highlightSpan.style.backgroundColor = 'yellow'; // Set highlight color
 	highlightSpan.style.cursor = 'pointer'; // Change cursor to pointer
 
@@ -326,3 +333,166 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+
+
+
+
+// Voice recording JS
+const playButton = document.getElementById('playCircle');
+const playIcon = document.getElementById('play');
+const saveButton = document.getElementById('save');
+const allRecordings = document.getElementById('recordings');
+const animationBlocks = document.querySelectorAll('.animation-block');
+
+let mediaRecorder;
+let chunks = [];
+
+// function to display delete all button if there is audio
+function updateSaveButton() {
+	if (allRecordings.querySelectorAll('audio').length > 0) {
+		saveButton.style.display = 'block';
+	} else {
+		saveButton.style.display = 'none';
+	}
+}
+
+// Initial call for displaying delete all button
+updateSaveButton();
+
+// Play or stop recording when clicked
+playButton.addEventListener('click', () => {
+	if (mediaRecorder && mediaRecorder.state === 'recording') {
+		stopRecording();
+		playIcon.classList.remove('fa-stop');
+		playIcon.classList.add('fa-play');
+		playIcon.setAttribute('title', 'Start Recording');
+		animationBlocks.forEach(block => {
+			block.style.display = 'none';
+		});
+	} else {
+		startRecording();
+		playIcon.classList.remove('fa-play');
+		playIcon.classList.add('fa-stop');
+		playIcon.setAttribute('title', 'Stop Recording');
+		animationBlocks.forEach(block => {
+			block.style.display = 'inline-block';
+		});
+	}
+});
+
+// function to record user's voice
+async function startRecording() {
+	const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+	mediaRecorder = new MediaRecorder(stream);
+	mediaRecorder.addEventListener('dataavailable', (e) => {
+		chunks.push(e.data);
+	});
+
+	mediaRecorder.addEventListener('stop', () => {
+		// Initialise file for recording
+		const blob = new Blob(chunks, { type: 'audio/wav' });
+
+		// Initialise audio + delete button
+		const audio = document.createElement('audio');
+		const deleteBtn = document.createElement('button');
+		const trashIcon = document.createElement('i');
+
+		// Configure audio
+		audio.controls = true;
+		audio.src = URL.createObjectURL(blob);
+
+		// Configure delete button
+		trashIcon.className = 'fa solid fa-trash';
+		deleteBtn.appendChild(trashIcon);
+		deleteBtn.addEventListener('click', () => {
+			audio.remove();
+			deleteBtn.remove();
+			chunks = [];
+			updateSaveButton();
+		});
+		
+		// Add audio + delete button to div
+		allRecordings.appendChild(audio);
+		allRecordings.appendChild(deleteBtn);
+
+		// Check if save button needs to be visible
+		updateSaveButton();
+
+		// Reset audio for the next recording
+		chunks = [];
+
+		// Update voice comment dictionary with new recording
+		if (currentMarkId) {
+			if (!listOfVoiceComments[currentMarkId]) {
+				listOfVoiceComments[currentMarkId] = [];
+			}
+			listOfVoiceComments[currentMarkId].push(blob);
+		}
+	});
+
+	mediaRecorder.start();
+}
+
+// function to stop recording
+function stopRecording() {
+	mediaRecorder.stop();
+}
+
+// function to chcek if a mark has been selected, user cannot record voice comments otherwise
+function checkCurrentMark() {
+	const voiceRecordContainer = document.getElementById('voiceRecordContainer');
+	if (!currentMarkId) {
+		voiceRecordContainer.style.display = 'none';
+	} else {
+		voiceRecordContainer.style.display = 'block';
+	}
+}
+
+// this code is only called after setup() function is completed
+document.addEventListener('afterSetup', () => {
+
+	checkCurrentMark();
+
+	// Updates voice comments based on mark selected
+	document.querySelectorAll('.markedSection').forEach(e => {
+		e.addEventListener('click', () => {
+			var currMarkId = e.dataset.value;
+			allRecordings.innerHTML = '';
+			if (currMarkId && listOfVoiceComments[currMarkId]) {
+				listOfVoiceComments[currMarkId].forEach(blob => {
+
+					// Initialise audio + delete button
+					const audio = document.createElement('audio');
+					const deleteBtn = document.createElement('button');
+					const trashIcon = document.createElement('i');
+			
+					// Configure audio
+					audio.controls = true;
+					audio.src = URL.createObjectURL(blob);
+			
+					// Configure delete button
+					trashIcon.className = 'fa solid fa-trash';
+					deleteBtn.appendChild(trashIcon);
+					deleteBtn.addEventListener('click', () => {
+						audio.remove();
+						deleteBtn.remove();
+						const index = listOfVoiceComments[currMarkId].indexOf(blob);
+						if (index !== -1) {
+							listOfVoiceComments[currMarkId].splice(index, 1)
+						}
+						chunks = [];
+						updateSaveButton();
+					});
+					
+					// Add audio + delete button to div
+					allRecordings.appendChild(audio);
+					allRecordings.appendChild(deleteBtn);
+			
+				});
+			}
+			// Check if save button needs to be visible
+			updateSaveButton();
+			checkCurrentMark();
+		});
+	});
+});
