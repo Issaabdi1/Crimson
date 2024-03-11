@@ -41,6 +41,8 @@ urlpatterns = [
     path('unshare_file/<int:upload_id>/<int:user_id>/', views.unshare_file, name='unshare_file'),
     path('filelist/rename/<int:upload_id>', views.rename_upload_view, name='rename_upload'),
     path('pdf_viewer/', views.viewer, name='pdf_viewer'),
-    path('save_pdf_marks/', views.save_pdf_info, name='save_pdf_marks')
+    path('save_pdf_marks/', views.save_pdf_info, name='save_pdf_marks'),
+    path('save_pdf_comments/', views.save_pdf_comments, name='save_pdf_comments'),
+    path('delete_voice_comment/', views.delete_voice_comment, name='delete_voice_comment')
 
 ]

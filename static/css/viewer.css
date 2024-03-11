@@ -198,13 +198,12 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Voice recording view */
+/* Voice comment view */
 #voiceRecord {
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
 	margin-bottom: 4px;
-	margin-top: 4px;
 }
 #playCircle {
 	width: 33px;
@@ -259,24 +258,37 @@ body {
 		transform-origin: bottom;
 	}
 }
-#recordings > * {
+#recordings > *, #savedRecordings > * {
 	display: inline-block;
 	vertical-align: middle;
-}
-#recordings audio {
-	max-width: 90%;
-	height: 5%;
-	padding: 2px;
-}
-/* Edit size of time display (to avoid compressing scrollbar) */
-#recordings audio::-webkit-media-controls-current-time-display {
-	font-size: 1em;
-}
-#recordings audio::-webkit-media-controls-time-remaining-display {
-	display: none !important;
 }
 #saveContainer {
 	display: flex;
 	padding: 5px;
 	justify-content: center;
+}
+#save {
+	padding: 2px;
+}
+#refresh {
+	padding: 4px;
+	margin-left: 4px;
+}
+.centered-text {
+	text-align: center;
+}
+
+/* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
+audio {
+	max-width: 90%;
+	height: 5%;
+	padding: 2px;
+}
+audio::-webkit-media-controls-current-time-display, 
+audio::-webkit-media-controls-current-time-display {
+	font-size: 1em;
+}
+audio::-webkit-media-controls-time-remaining-display,
+audio::-webkit-media-controls-time-remaining-display {
+	display: none !important;
 }
