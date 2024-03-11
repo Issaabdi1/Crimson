@@ -126,31 +126,31 @@
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
 		/* Setup */
-		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
 
+        /* Constants */
+		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+        const baseRenderQuality = 1.5;
+		const pageSpacing = 0; // Adjust spacing between pages here
+		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
+		const devicePixelRatio = window.devicePixelRatio || 1;
+        const transform = devicePixelRatio !== 1
+            ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+            : null;
+
+        /* Elements */
 		const viewer = document.getElementById("viewer");
 		const canvas = document.getElementById("pdf");
 		const container = document.getElementById("container");
 		const canvasContainer = document.getElementById("canvasContainer");
 		const textLayerContainer = document.getElementById("textLayerContainer");
 
-		const baseRenderQuality = 1.5;
-		const pageSpacing = 0; // Adjust spacing between pages here
-		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
-		const devicePixelRatio = window.devicePixelRatio || 1;
-		
+        /* Variables */
 		// Scales output accordingly
-		const transform = devicePixelRatio !== 1
-			? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
-			: null;
-
 		var zoomScale = 1;
 		var resolution = renderQuality * zoomScale;
-		
 		var totalHeight = 0;
 		var maxWidth = 0;
 		var currentPage = 1; // Page the user is currently on
-
 		// Global variables
 		var pdf;
 		var numPages;
@@ -179,7 +179,7 @@
 						zoomDocument(selectedValue, pdf, originalPercentage);
 					}
 				});
-			
+
 			// Page Navigation
 			const pageInput = document.getElementById("pageInput");
 			const pageMax = document.getElementById("numberPages")
@@ -248,13 +248,14 @@
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
 
+            // Sidebar view
+
+            // Render the thumbnails in the thumbnail view
 			await generateThumbnails();
-
-
-			applyScrollingEffect(pdf);
-
             // Render the outline in the outline view
             await renderOutline(pdf);
+
+			applyScrollingEffect(pdf);
 
 			// Set container to required sizes
 			container.style.width = maxWidth / renderQuality + "px";
@@ -275,46 +276,6 @@
 			setup();
 		});
 
-		async function generateThumbnails()
-		{
-			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
-				const pageWidth = viewport.width;
-				const pageHeight = viewport.height;
-
-				/* Hanson Stuff */
-
-				// Generate thumbnail for each page
-				const thumbnailCanvas = await makeThumb(page);
-				thumbnailCanvas.classList.add("thumbnailCanvas")
-
-				const thumbnailContainer = document.createElement("div");
-				thumbnailContainer.classList.add("thumbnailContainer");
-				thumbnailContainer.setAttribute("role", "tab");
-				thumbnailContainer.setAttribute("data-page", pageNumber);
-				if (pageNumber === 1) {
-					thumbnailContainer.setAttribute("aria-selected", "true");
-				} else {
-					thumbnailContainer.setAttribute("aria-selected", "false");
-				}
-				thumbnailContainer.appendChild(thumbnailCanvas);
-
-				// Add a page indicator
-				const pageNumberElement = document.createElement("span");
-				pageNumberElement.textContent = pageNumber.toString(10);
-				pageNumberElement.classList.add("pageNumberElement")
-				thumbnailContainer.appendChild(pageNumberElement);
-
-                // Add navigation functionality to thumbnails
-				thumbnailContainer.addEventListener("click", async function() {
-					await navigateToPage(pdf, pageNumber)
-				});		
-
-				document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
-			}
-		}
-
 		async function navigateToPage(pdf, pageNum)
 		{
 			if (!pagesRendered.has(pageNum))
@@ -328,10 +289,10 @@
 
 		var pagesRendered = new Set(); // Keeps track of pages already rendered
 		var isRendering = false // Keeps track of rendering process
-		
-		window.addEventListener("resize", handleResize);
 
-		async function handleResize(event)
+        /* Rendering related function */
+		
+		window.addEventListener("resize", async function()
 		{
 			// Render asynchronously
 			setTimeout(async () => {
@@ -340,7 +301,7 @@
 				isRendering = false;
 			}, 0);
 
-		}
+		});
 
 		viewer.addEventListener("scroll", function()
 		{
@@ -461,6 +422,8 @@
 			container.style.height = pageHeight + 'px';
 		}
 
+        /* Zooming related Function */
+
 		async function zoomDocument(scale, pdf, percentage)
 		{
 			const page = await pdf.getPage(currentPage);
@@ -545,6 +508,48 @@
 			zoomScale = widthScale;
 		}
 
+        /* Thumbnails related Function */
+
+        async function generateThumbnails()
+		{
+			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+				const pageWidth = viewport.width;
+				const pageHeight = viewport.height;
+
+				/* Hanson Stuff */
+
+				// Generate thumbnail for each page
+				const thumbnailCanvas = await makeThumb(page);
+				thumbnailCanvas.classList.add("thumbnailCanvas")
+
+				const thumbnailContainer = document.createElement("div");
+				thumbnailContainer.classList.add("thumbnailContainer");
+				thumbnailContainer.setAttribute("role", "tab");
+				thumbnailContainer.setAttribute("data-page", pageNumber);
+				if (pageNumber === 1) {
+					thumbnailContainer.setAttribute("aria-selected", "true");
+				} else {
+					thumbnailContainer.setAttribute("aria-selected", "false");
+				}
+				thumbnailContainer.appendChild(thumbnailCanvas);
+
+				// Add a page indicator
+				const pageNumberElement = document.createElement("span");
+				pageNumberElement.textContent = pageNumber.toString(10);
+				pageNumberElement.classList.add("pageNumberElement")
+				thumbnailContainer.appendChild(pageNumberElement);
+
+                // Add navigation functionality to thumbnails
+				thumbnailContainer.addEventListener("click", async function() {
+					await navigateToPage(pdf, pageNumber)
+				});
+
+				document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
+			}
+		}
+
 		async function makeThumb(page) {
             const vp = page.getViewport({scale: 1});
             const canvas = document.createElement("canvas");
@@ -555,6 +560,8 @@
             await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
             return canvas;
         }
+
+        /* Apply Scrolling Effect Function */
 
 		// Scrolling will also change the thumbnail aria selected effect
 		function applyScrollingEffect(pdf) {
@@ -598,6 +605,8 @@
                 }
             });
         }
+
+        /* Outline Related Function */
 
         // Function to render the outline in the outline view
         async function renderOutline(pdf) {
