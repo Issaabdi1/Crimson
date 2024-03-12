@@ -7,7 +7,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
 import task_manager.storage_backends
-import tasks.models.profile_image
 import tasks.models.upload
 
 
@@ -34,7 +33,6 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=50)),
                 ('last_name', models.CharField(max_length=50)),
                 ('email', models.EmailField(max_length=254, unique=True)),
-                ('avatar_url', models.TextField(default='https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/profile_image/default_image.png')),
                 ('theme_preference', models.CharField(default='default-mode', max_length=30)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),

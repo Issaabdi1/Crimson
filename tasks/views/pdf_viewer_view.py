@@ -7,10 +7,11 @@ from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
 
+
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""
-    
+
     context = {}
     if request.method == "POST":
         upload_id = request.POST.get('upload_id')

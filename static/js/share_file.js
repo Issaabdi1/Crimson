@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 this.classList.remove('selected');
             }
-
+            
             // Update selected array (data update)
             const userid = user.getAttribute('value');
             const index = selectedUsers.indexOf(userid);
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 selectedUsers.splice(index, 1);
             }
-
             // Update button with new array
             const sharebtn = document.querySelector('.share-btn');
             sharebtn.value = selectedUsers.join(',');
@@ -84,5 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
         style.appendChild(document.createTextNode(css));
         document.head.appendChild(style);
     });
+
 
 });
