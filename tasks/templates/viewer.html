@@ -178,16 +178,19 @@
 			var selectScale = document.getElementById("selectScale");
 				selectScale.addEventListener("change", function() {
 					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
-                    const originalPercentage = viewer.scrollTop / viewer.scrollHeight; // Get the original percentage
+					
+					// Get the original percentage
+					const yOriginalPercentage = viewer.scrollTop / viewer.scrollHeight; 
+                    const xOriginalPercentage = viewer.scrollLeft / viewer.scrollWidth
 
                     // If the value is "width" or "page"
 					if (isNaN(selectedValue))
 					{
-						zoomDocument(selectScale.value, pdf, originalPercentage);
+						zoomDocument(selectScale.value, pdf, yOriginalPercentage, xOriginalPercentage);
 					}
 					else
 					{
-						zoomDocument(selectedValue, pdf, originalPercentage);
+						zoomDocument(selectedValue, pdf, yOriginalPercentage, xOriginalPercentage);
 					}
 				});
 
@@ -435,7 +438,7 @@
 
         /* Zooming related Function */
 
-		async function zoomDocument(scale, pdf, percentage)
+		async function zoomDocument(scale, pdf, yPercentage, xPercentage)
 		{
 			const page = await pdf.getPage(currentPage);
 			if (scale === "fit")
@@ -488,7 +491,8 @@
 			isRendering = false;
 
 			setup();
-            viewer.scrollTop = percentage * viewer.scrollHeight
+            viewer.scrollTop = yPercentage * viewer.scrollHeight;
+            viewer.scrollLeft = xPercentage * viewer.scrollWidth;
 		}
 
 		function zoomToFitPage(page) {
