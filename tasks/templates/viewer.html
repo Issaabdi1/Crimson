@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="{% static 'css/voice_comments.css'%}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
@@ -44,6 +45,8 @@
 				<div id="commentView">
                     <p id="testComment" class="centered-text">Select a mark to leave a comment</p>
 					<div id="voiceRecordContainer">
+
+						<!-- Voice Recording Section -->
 						<div id="voiceRecord">
 							<div id="playCircle">
 								<i id="play" class="fas fa-play" title="Start Recording"></i>
@@ -54,11 +57,15 @@
 								<div class="animation-block block-3"></div>
 							</div>
 						</div>
+
+						<!-- Current Voice Comments Section -->
 						<div id="recordings"></div>
 						<div id="saveContainer">
 							<button id="save" style="display: none;">Save Comments</button>
 						</div>
 						<br>
+
+						<!-- Refresh Section -->
 						<div id="refreshContainer" style="display: none;">
 							<p class="centered-text">Voice comments saved</p>
 							<p class="centered-text">
@@ -67,8 +74,18 @@
 							</p>
 							<br>
 						</div>
-						<p id="voiceCommentLabel" class="centered-text"> Saved Voice Comments </p>
-						<div id="savedRecordings" data-saved="{{ listOfSavedComments|escapejs }}"></div>
+
+						<!-- Saved Voice Comments Section -->
+						<div id="voiceCommentLabel" class="centered-text">
+							<div id="collapseButton" class="collapse-button">
+								<i class="fas fa-chevron-right"></i>
+							</div>
+							&nbsp;Saved Voice Comments 
+						</div>
+						<div id="collapseMenu" class="collapse-menu" style="display: none;">
+							<div id="savedRecordings" data-saved="{{ listOfSavedComments|escapejs }}"></div>
+						</div>
+
 					</div>
                 </div>
 
@@ -658,6 +675,7 @@
 </script>
 <script src="{% static 'js/viewer.js'%}"></script>
 <script src="{% static 'js/viewer_sidebar.js' %}"></script>
+<script src="{% static 'js/voice_comments.js' %}"></script>
 </body>
 </html>
 

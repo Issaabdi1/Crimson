@@ -542,51 +542,64 @@ function updateVoiceComments() {
 	}
 	// Displays audio saved in the database
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		listOfSavedComments[currentMarkId].forEach(audio_url => {
+		for (const markId in listOfSavedComments) {
+			for (const user in listOfSavedComments[markId]) {
+				
+				// Loop over each user's voice comments
+				listOfSavedComments[markId][user].forEach(audio_url => {
 
-			// Call functions for audio + delete button 
-			var audio = createAudioElement(audio_url, false);
-			var deleteBtn = createDeleteButton(() => {
+					// Call functions for audio + delete button 
+					var audio = createAudioElement(audio_url, false);
+					var deleteBtn = createDeleteButton(() => {
+							
+						// Warn user that deletion is permanent
+						if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+							var csrftoken = getCookie('csrftoken');
+							var formData = new FormData();
+							formData.append('audio-url', audio_url);
 
-				var csrftoken = getCookie('csrftoken');
-				var formData = new FormData();
-				formData.append('audio-url', audio_url);
-
-				// Send request to delete audio from backend
-				fetch('/delete_voice_comment/', {
-					method: 'POST',
-					headers: {
-						'X-CSRFToken': csrftoken
-					},
-					body: formData
-				})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Error when returning response');
-					}
-					return response.json();
-				})
-				// On successful deletion, remove audio from frontend
-				.then(data => {
-					audio.remove();
-					deleteBtn.remove();
-					const index = listOfSavedComments[currentMarkId].indexOf(audio_url);
-					if (index !== -1) {
-						listOfSavedComments[currentMarkId].splice(index, 1);
-					}
-					updateVoiceComments();
-				})
-			});
-			savedRecordings.appendChild(audio);
-			savedRecordings.appendChild(deleteBtn);
-		})
+							// Send request to delete audio from backend
+							fetch('/delete_voice_comment/', {
+								method: 'POST',
+								headers: {
+									'X-CSRFToken': csrftoken
+								},
+								body: formData
+							})
+							.then(response => {
+								if (!response.ok) {
+									throw new Error('Error when returning response');
+								}
+								return response.json();
+							})
+							// On successful deletion, remove audio from frontend
+							.then(data => {
+								audio.remove();
+								deleteBtn.remove();
+								const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
+								if (index !== -1) {
+									listOfSavedComments[currentMarkId][user].splice(index, 1);
+								}
+								updateVoiceComments();
+							})
+						}
+					});
+					savedRecordings.appendChild(audio);
+					savedRecordings.appendChild(deleteBtn);
+				});
+			}
+		}
 	}
 
 	voiceCommentLabel.style.display = 'none';
-	if (listOfSavedComments[currentMarkId]?.length > 0) {
-		voiceCommentLabel.style.display = 'block';
+	if (currentMarkId && listOfSavedComments[currentMarkId]) {
+		for (const comments of Object.values(listOfSavedComments[currentMarkId])) {
+			if (comments.length > 0) {
+				voiceCommentLabel.style.display = 'flex';
+				break;
+			}
+		}
 	}
-	
 
 	// Check if save button needs to be visible
 	updateSaveButton();

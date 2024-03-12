@@ -26,15 +26,20 @@ def viewer(request):
                     context['marks'] = PDFInfo.objects.get(upload = upload)
                     mark = PDFInfo.objects.get(upload = upload)
 
-                    # Generate saved comments dictionary
+                    # Generate saved comments dictionary (2D Dictionary)
+                    # outer key is mark ID inner key is user)
                     allVoiceComments = VoiceComment.objects.filter(upload=upload)
                     listOfSavedComments = {}
                     if allVoiceComments:
                         for vc in allVoiceComments:
                             if vc.mark_id not in listOfSavedComments:
-                                listOfSavedComments[vc.mark_id] = []
-                            listOfSavedComments[vc.mark_id].append(vc.audio.url)
+                                listOfSavedComments[vc.mark_id] = {}
+                            username = vc.user.username
+                            if username not in listOfSavedComments[vc.mark_id]:
+                                listOfSavedComments[vc.mark_id][username] = []
+                            listOfSavedComments[vc.mark_id][username].append(vc.audio.url)
                         context['listOfSavedComments'] = json.dumps(listOfSavedComments)
+                        print(listOfSavedComments)
 
             except Upload.DoesNotExist:
                 messages.add_message(request, messages.ERROR, "Upload does not exist!")
