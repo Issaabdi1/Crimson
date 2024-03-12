@@ -431,6 +431,3 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
 
-function finishedSearch(){
-	//remove all the lightblue spans and restore the old version of state 
-}
