@@ -1,8 +1,7 @@
-{% extends 'base_content_without_message.html' %}
-{% block content %}
 
 <html>
 <head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-uWxY/CJNBR+1zjPWmfnSnVxwRheevXITnMqoEIeG1LJrdI0GlVs/9cVSyPYXdcSF" crossorigin="anonymous">
 {%load static%}
 {% csrf_token %}
 
@@ -43,8 +42,8 @@
                 </div>
 				
 				<div id="outlineView"></div>
-				<div id="commentView">
-                    <form id="commentForm" data-id="" method="post">
+				<div id="commentView" style="display: flex; flex-direction: column;">
+                    <form id="commentForm" data-id="" method="post" style="margin-bottom: 10px;">
                         {% csrf_token %}
                         <div class="form-floating">
                             <label for="inputComments"></label>
@@ -57,7 +56,17 @@
                             <button type="button" class="btn btn-primary" id="saveButton" onclick="saveComment()">Save</button>
                         </div>
                     </form>
-                    <p id="comment"></p>
+
+                    <ul>
+                        {% for comment in comments %}
+                        <li>
+                            {{ comment.mark_id }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                        <p id="comment" style="text-align: center"></p>
+
                 </div>
 
 				<div id="bookmarksView">
@@ -646,6 +655,7 @@
 </script>
 <script src="{% static 'js/viewer.js'%}"></script>
 <script src="{% static 'js/viewer_sidebar.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 </body>
 </html>
-{% endblock %}

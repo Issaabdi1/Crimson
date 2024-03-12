@@ -80,11 +80,12 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
+				markedText = element.textContent;
 				currentMarkId = element.dataset.value;
 				markedSectionClicked = true;
 				document.getElementById('markIdInput').value = currentMarkId;
 				document.getElementById('viewComments').click();
-				document.getElementById('comment').textContent = "current mark id is: "+ currentMarkId + listOfComments[currentMarkId];
+				document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
 			});
 		});
 	}
@@ -220,7 +221,7 @@ function highlightSelectedText(event){
 		highlightedSpan.addEventListener('click', () => {
 			// Handle click event (e.g., open a modal, execute a function, etc.)
 			document.getElementById("viewComments").click();
-			document.getElementById('comment').textContent = newMark.getId() + ": " + listOfComments[newMark.getId()];
+			document.getElementById('comment').textContent = currentMarkId + ": " + JSON.parse(listOfComments)[currentMarkId]
 		});
 		count+=1;
 	});
@@ -339,41 +340,33 @@ function savePdfChanges(){
 }
 
 function saveComment() {
-    document.getElementById("saveButton").addEventListener("click", function() {
-        if (!markedSectionClicked) {
-            // If no marked section has been clicked, don't proceed with saving the comment
-			alert('select a marked first')
-            console.error("No marked section has been clicked!");
-            return;
+    var commentInput = document.getElementById("commentInput").value;
+    console.log(commentInput);
+    listOfComments[currentMarkId] = commentInput;
+    var text = listOfComments[currentMarkId];
+    var listOfCommentsJson = JSON.stringify(listOfComments);
+	console.log('this is comment json:'+listOfCommentsJson)
+
+    $.ajax({
+        url: '/save_comment/',
+        type: 'POST',
+        data: {
+            'comments': listOfCommentsJson,
+            'upload_id': upload_id,
+            'mark_id': currentMarkId,
+            'text': text,
+            'listOfComments': listOfComments
+        },
+        success: function(response) {
+            console.log("Comment saved successfully!");
+            $('#comment').text(commentInput);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error saving comment: " + xhr.status);
+        },
+        beforeSend: function(xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
-
-        var commentInput = document.getElementById("commentInput").value;
-		listOfComments[currentMarkId] = commentInput
-		var text = listOfComments[currentMarkId]
-		var listOfCommentsJson = JSON.stringify(listOfComments);
-        var formData = new FormData();
-        formData.append('comments', commentInput);
-		formData.append('upload_id', upload_id);
-		formData.append('mark_id', currentMarkId);
-		formData.append('text', text);
-		formData.append('listOfComments', listOfCommentsJson);
-
-        var xhr = new XMLHttpRequest();
-
-        xhr.open("POST", "/save_comment/", true);
-
-        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    console.log("Comment saved successfully!");
-                } else {
-                    console.error("Error saving comment: " + xhr.status);
-                }
-            }
-        };
-
-        xhr.send(formData);
     });
+	savePdfChanges()
 }

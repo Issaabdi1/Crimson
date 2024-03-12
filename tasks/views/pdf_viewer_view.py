@@ -76,11 +76,10 @@ def save_comment(request):
             date=now,
             text=comment_text,
         )
-        all_comments = Comment.objects.all()
 
-        print(all_comments)
+        print("comments: "+comment_text)
 
-        return render(request, 'viewer.html', {'all_comments': all_comments})
+        return render(request, 'viewer.html', {'text': comment_text})
     else:
         return JsonResponse({"success": False, "error": "Only POST requests are allowed"})
 
