@@ -1,3 +1,6 @@
+{% extends 'base_content_without_message.html' %}
+{% block content %}
+
 <html>
 <head>
 {%load static%}
@@ -40,7 +43,6 @@
                 </div>
 				
 				<div id="outlineView"></div>
-
 				<div id="commentView">
                     <p id="testComment" class="centered-text">Select a mark to leave a comment</p>
 					<div id="voiceRecordContainer">
@@ -70,6 +72,20 @@
 						<p id="voiceCommentLabel" class="centered-text"> Saved Voice Comments </p>
 						<div id="savedRecordings" data-saved="{{ listOfSavedComments|escapejs }}"></div>
 					</div>
+                    <form id="commentForm" data-id="" method="post">
+                        {% csrf_token %}
+                        <div class="form-floating">
+                            <label for="inputComments"></label>
+                            <textarea class="form-control" id="commentInput" name="comments"></textarea>
+                            <label>Comments</label>
+                        </div>
+                        <input type="hidden" id="markIdInput" name="mark_id">
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="saveButton" onclick="saveComment()">Save</button>
+                        </div>
+                    </form>
+                    <p id="comment"></p>
                 </div>
 
 				<div id="bookmarksView">
@@ -660,4 +676,4 @@
 <script src="{% static 'js/viewer_sidebar.js' %}"></script>
 </body>
 </html>
-
+{% endblock %}

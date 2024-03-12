@@ -29,10 +29,10 @@ function fromHTML(html, trim = true) {
 
 	// Set up a new template element
 	const template = document.createElement('template');
-	
+
 	// Set the HTML content of the template element
 	template.innerHTML = html;
-	
+
 	// Clone the content of the template
 	const content = template.content.cloneNode(true);
 
@@ -47,13 +47,16 @@ function decodeEntities(encodedString) {
 	return textarea.value;
 }
 //Other stuff
-
-var listOfMarkedSpans = []; //list of all the spans that are marked. 
+let markedSectionClicked = false;
+var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
+var currentMarkId = null;
+
+
 function setup(){
 	//get them from the stuff
 	if(savedMarks!=""){
@@ -67,7 +70,7 @@ function setup(){
 			var html = entry["html"];
 			var span = fromHTML(html);//JSON.parse(testList));
 			const textLayerContainer = document.getElementById("textLayerContainer");
-			
+
 			var spanCopy = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
 
 			spanCopy.innerHTML = "";
@@ -79,15 +82,22 @@ function setup(){
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
-		document.querySelectorAll('#markedSection').forEach(element =>{
+		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId]
+				markedSectionClicked = true;
+				document.getElementById('markIdInput').value = currentMarkId;
+				document.getElementById('viewComments').click();
+				document.getElementById('comment').textContent = "current mark id is: "+ currentMarkId + listOfComments[currentMarkId];
 			});
-		})
+		});
 	}
 	document.dispatchEvent(setupEvent);
 }
+
+
+
 
 markButton.addEventListener("click", highlightSelectedText);
 var currentStartingElement;
@@ -132,7 +142,7 @@ document.addEventListener('mousedown', function(event) {
 	document.addEventListener('mouseup', mouseUpHandler);
 });
 var seenSpan = false;
-var selectionList; 
+var selectionList;
 function mouseMoveHandler(event) {
 	const textLayerContainer = document.getElementById('textLayerContainer');
 	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)){
@@ -158,7 +168,7 @@ function mouseMoveHandler(event) {
 		//keep selection as before
 		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 	}
-	
+
 	//Turn off selection when over a highlighted seciton (because can't select it again)
 	if(event.target.id == "markedSection"){
 		//clear selection
@@ -193,7 +203,7 @@ function highlightSelectedText(event){
 	var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
 	var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
 	var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
-	console.log(elementsList);
+	console.log("elementList:"+ elementsList);
 	// Assume you have an array of objects containing information about the selected parts within each span
 	elementsList.forEach((element)=>{
 		console.log(element);
@@ -211,11 +221,13 @@ function highlightSelectedText(event){
 	selectedParts.forEach(part => {
 		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
 		highlightedSpan.dataset.value = newMark.getId();
+		var commentInput = document.getElementById("commentInput").value;
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
 			currentMarkId = highlightedSpan.dataset.value;
 			// Handle click event (e.g., open a modal, execute a function, etc.)
-			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
+			document.getElementById("viewComments").click();
+			document.getElementById('comment').textContent = newMark.getId() + ": " + listOfComments[newMark.getId()];
 		});
 		count+=1;
 	});
@@ -230,9 +242,8 @@ function highlightSelectedText(event){
 		}
 	});
 
-
-	//Add a new entry in the dictionary, associating the mark with a comment. 
-	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
+	//Add a new entry in the dictionary, associating the mark with a comment. "This comment is by mark " + newMark.getId()
+	listOfComments[newMark.getId()] =
 	//save changes
 	savePdfChanges(false);
 }
@@ -261,7 +272,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 
 	// Create a text node with the text of the highlight span after the highlight span (to mimic it being in the text)
 	const highlightText = document.createTextNode(highlightSpan.textContent);
-	
+
 	//create an empty span to separate the highlight text and the next text
 	const spacesSpan = document.createElement('span');
 	spacesSpan.style.userSelect='none';
@@ -272,14 +283,14 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	}
 	else{
 		//insert the span, and then the text before it
-		setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling); 
+		setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling);
 	}
 
 	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
 
 	//This means the order is text node | highlight | text | span | text
-	//This allows them to be selected separately. 
+	//This allows them to be selected separately.
 	return highlightSpan;
 }
 
@@ -310,10 +321,21 @@ function addPadding(base64) {
 //Send the data to the database
 async function savePdfChanges(saveCommentsFlag){
 	const xhttp = new XMLHttpRequest();
+	//pass parameters through url + "&listOfMarks=" + listOfMarksJson
+	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+	const xhttp = new XMLHttpRequest();
+	//When the request has been dealt with, get the response
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			var response = JSON.parse(xhttp.response);
+
+		}
+	};
 
 	let formData = new FormData();
 	formData.append('upload_id', upload_id);
 
+	xhttp.open("POST", "/save_pdf_marks/", true);
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
 	
@@ -625,3 +647,42 @@ document.addEventListener('saveChanges', () => {
 refreshButton.addEventListener('click', () => {
     location.reload();
 });
+function saveComment() {
+    document.getElementById("saveButton").addEventListener("click", function() {
+        if (!markedSectionClicked) {
+            // If no marked section has been clicked, don't proceed with saving the comment
+			alert('select a marked first')
+            console.error("No marked section has been clicked!");
+            return;
+        }
+
+        var commentInput = document.getElementById("commentInput").value;
+		listOfComments[currentMarkId] = commentInput
+		var text = listOfComments[currentMarkId]
+		var listOfCommentsJson = JSON.stringify(listOfComments);
+        var formData = new FormData();
+        formData.append('comments', commentInput);
+		formData.append('upload_id', upload_id);
+		formData.append('mark_id', currentMarkId);
+		formData.append('text', text);
+		formData.append('listOfComments', listOfCommentsJson);
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("POST", "/save_comment/", true);
+
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    console.log("Comment saved successfully!");
+                } else {
+                    console.error("Error saving comment: " + xhr.status);
+                }
+            }
+        };
+
+        xhr.send(formData);
+    });
+}
