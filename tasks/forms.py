@@ -188,6 +188,3 @@ class AvatarForm(forms.Form):
         self.user.avatar_url = url
         self.user.save()
         return url
-
-
-
