@@ -6,6 +6,7 @@ from tasks.models import Upload, PDFInfo
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
+
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""

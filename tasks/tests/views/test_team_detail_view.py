@@ -38,7 +38,7 @@ class TeamDetailViewTest(TestCase):
         self.upload.delete()
 
     def test_team_detail_url(self):
-        self.assertEqual(self.url, '/team_detail/1')
+        self.assertEqual(self.url, '/team_detail/1/')
 
     def test_get_team_detail(self):
         self.login(self.user)
