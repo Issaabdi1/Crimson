@@ -326,3 +326,119 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+
+//find functionality
+function escapeHtml(text) {
+	var map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	};
+	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function searchForTerm(term) {
+	const textLayer = document.getElementById("textLayerContainer");
+	const spans = textLayer.querySelectorAll('span[role="presentation"]');
+	const foundPositions = [];
+
+	spans.forEach((span, index) => {
+		let innerHTML = span.dataset.originalHtml || span.innerHTML;
+		const safeTerm = escapeHtml(term.trim()); // Ensure we're not dealing with leading/trailing spaces
+
+		// Create a regex that matches the term only if it's followed by a non-word character or at the end of the string,
+		// and only if it's preceded by a non-word character or at the start of the string.
+		// This approach accounts for punctuation, spaces, and ensures that partial matches are not highlighted.
+		const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
+
+		if (!span.dataset.originalHtml) {
+			span.dataset.originalHtml = innerHTML;
+		}
+
+		const searchResult = innerHTML.search(regex);
+
+		if (searchResult !== -1) {
+			span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
+			foundPositions.push({ span: span, index: index });
+		}
+	});
+
+	return foundPositions;
+}
+
+
+let foundPositions = [];
+let currentPosition = -1; // Start before the first position
+
+function clearSearchHighlights() {
+    const textLayer = document.getElementById("textLayerContainer");
+    const spans = textLayer.querySelectorAll('span[role="presentation"]');
+
+    spans.forEach(span => {
+        // Check if the span has the dataset property 'originalHtml'
+        if (span.dataset.originalHtml) {
+            // Restore the original HTML content
+            span.innerHTML = span.dataset.originalHtml;
+            // Remove the dataset property to prevent future conflicts
+            delete span.dataset.originalHtml;
+        }
+    });
+}
+
+function updateSearchResults() {
+    const searchTerm = document.getElementById('searchTermInput').value.trim();
+    if (searchTerm === "") {
+        // If the search term is empty, clear all highlights
+        clearSearchHighlights();
+        // Optionally, reset or clear any search-related states or variables here
+        foundPositions = [];
+        currentPosition = -1;
+    } else {
+        // Perform the search and update the display as before
+        foundPositions = searchForTerm(searchTerm);
+        currentPosition = 0; // Reset to the first result
+        if (foundPositions.length > 0) {
+            moveToPosition(currentPosition);
+        } else {
+            // Handle no results found, e.g., show a message
+        }
+    }
+}
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
+
+function moveToPosition(index) {
+	// Ensure index is within bounds
+	if (index >= 0 && index < foundPositions.length) {
+		const position = foundPositions[index];
+		
+		// Logic to scroll to the position.span or highlight it
+
+		// I put it false for now so it doesn't scroll past the main container, just the viewer
+		position.span.scrollIntoView(false);
+
+		//position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
+		
+		// Optionally highlight or otherwise indicate the current span
+	}
+}
+
+document.getElementById('nextSearchResult').addEventListener('click', () => {
+	if (foundPositions.length > 0) {
+		currentPosition = (currentPosition + 1) % foundPositions.length;
+		moveToPosition(currentPosition);
+	}
+});
+
+document.getElementById('prevSearchResult').addEventListener('click', () => {
+	if (foundPositions.length > 0) {
+		currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
+		moveToPosition(currentPosition);
+	}
+});
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
