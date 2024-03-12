@@ -24,33 +24,28 @@ def share_file(request):
     uploads = Upload.objects.filter(owner=user)
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
-        user_id = request.POST.get('user-id')
-        if file_id is not None and user_id is not None:
+        user_ids = request.POST.get('user-ids')
+        if file_id is not None and user_ids:
             shared_file = Upload.objects.get(id=file_id)
-            shared_user = User.objects.get(id=user_id)
-            entry, created = SharedFiles.objects.get_or_create(
-                shared_file=shared_file,
-                shared_by=user,
-            )
-            if (entry.shared_to.contains(shared_user)):
-                messages.error(request, 'User has already been shared this file.')
-                return redirect('share_file')
-            
-            else:
-                #Create a new notification if the file has been newly shared
-                Notification.objects.create(
-                    shared_file_instance = entry,
-                    user = shared_user,
-                    time_of_notification = timezone.now(),
-                    notification_message = f'{request.user} shared a file with you'
+            user_list = user_ids.split(',')
+            for user_id in user_list:
+                shared_user = User.objects.get(id=user_id)
+                entry, created = SharedFiles.objects.get_or_create(
+                    shared_file=shared_file,
+                    shared_by=user,
                 )
-            entry.shared_to.add(shared_user)
-            entry.save()
-            return redirect('filelist')
-        else:
-            messages.error(request, 'File and user must be selected.')
-    if not uploads.exists():
-        messages.warning(request, 'You must upload a file before sharing.')
+                if (entry.shared_to.contains(shared_user)):
+                    messages.error(request, f'User {shared_user.username} has already been shared this file.')
+                else:
+                    #Create a new notification if the file has been newly shared
+                    Notification.objects.create(
+                        shared_file_instance = entry,
+                        user = shared_user,
+                        time_of_notification = timezone.now(),
+                        notification_message = f'{request.user} shared a file with you'
+                    )
+                entry.shared_to.add(shared_user)
+                entry.save()
     
     context = {
         'uploads': uploads,

@@ -30,6 +30,13 @@
             {% endif %}
         </li>
         <li class="nav-item">
+            {% if request.path == share_file %}
+                <a class="nav-link active text-center" aria-current="page" href="{% url 'share_file' %}">Share</a>
+            {%else%}
+                <a class="nav-link text-center" aria-current="page" href="{% url 'share_file' %}">Share</a>
+            {% endif %}
+        </li>
+        <li class="nav-item">
             {% if request.path == filelist %}
                 <a class="nav-link active text-center" aria-current="page" href="{% url 'filelist' %}">My Files</a>
             {%else%}
@@ -37,7 +44,7 @@
             {% endif %}
         </li>
         <li class="nav-item">
-            {% if request.path == team_list or request.path == create_team %}
+            {% if request.path == team_list or request.path == create_team or 'team_detail' in request.path %}
                 <a class="nav-link active text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
             {%else%}
                 <a class="nav-link text-center" aria-current="page" href="{% url 'team_list' %}">My Teams</a>
