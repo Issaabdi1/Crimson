@@ -1,95 +1,117 @@
 * {
-	padding: 0;
-	margin: 0;
-	font: Helvetica;
+    padding: 0;
+    margin: 0;
+    font: Helvetica;
 }
 
-html,
-body {
-	height: 100%;
-	width: 100%;
+html, body {
+    height: 100%;
+    width: 100%;
 }
 
 body {
-	background-color: white;
+    background-color: white;
+	overflow: hidden;
 }
 
 #outerContainer {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 #mainContainer {
-	position: absolute;
-	inset: 0;
+    position: absolute;
+    inset: 0;
+	overflow: auto;
 }
 
 /* Sidebar */
-
 #sidebar {
-	position: absolute;
-	inset: 32px 0 0;
-	height: 100%;
-	width: 200px;
-	z-index: 100;
-	background-color: #ECEFF4;
+    position: absolute;
+    inset: 32px 0 0;
+    height: 100%;
+    width: 250px;
+    z-index: 100;
+    background-color: #ECEFF4;
 }
 
 #sidebarToolbar {
-	position: absolute;
-	height: 32px;
-	width: 100%;
-	display: flex;
-	justify-content: space-evenly;
-	align-items: center;
-	background-color: #D8DEE9;
+    position: absolute;
+    height: 32px;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #D8DEE9;
 }
 
 #sidebarViews {
 	position: absolute;
-	inset: 32px 0 0;
-	height: 100%;
-	width: 100%;
-	overflow: auto;
+	inset: 32px 0 0 0;
+	/*overflow: auto;*/
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
 }
 
-
-
 /* Toolbar */
-
 #toolbar {
-	position: absolute;
-	height: 32px;
-	width: 100%;
-	z-index: 999;
-	background-color: #ECEFF4;
+    position: absolute;
+    height: 32px;
+    width: 100%;
+    z-index: 999;
+    background-color: #ECEFF4;
 }
 
 #toolbarSections {
-	position: absolute;
-	height: 32px;
-	width: 100%;
-	padding: auto 4px;
-	display: flex;
-	justify-content: space-between;
+    position: absolute;
+    height: 32px;
+    width: 100%;
+    padding: auto 4px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .toolbarSection {
-	display: flex;
-	flex-direction: row;
+    display: flex;
+    flex-direction: row;
+}
+
+#pageInput {
+	width: 40px
 }
 
 /* Viewer */
-
 #viewer {
 	position: absolute;
-	height: 100%;
-	inset: 32px 0 0 200px;
+	inset: 32px 0 0 250px;
 	overflow: auto;
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+	background: #6c757d;
+}
+#container
+{
+	position: relative;
+	display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+	margin: auto;
+}
+#canvasContainer {
+	position: absolute;
+	margin: auto;
+	width: 100%;
+	height: 100%;
+}
+
+/* textLayer */
+#textLayerContainer {
+	position: absolute;
+	margin: auto;
+	width: 100%;
+	height: 100%;
 }
 
 /* Buttons, Fields, Labels, Selects */
-
 .toolbarButton {
 	height: 28px;
 	width: 28px;
@@ -114,18 +136,75 @@ body {
 	user-select: none;
 }
 
-#documentTitle {
-	text-align: center;
-	font-size: 16px;
-}
-
-#fileName {
-	text-align: center;
-	font-size: 10px;
-}
-
 .toolbarSelect {
 	height: 28px;
 	font-size: 16px;
 	margin: 2px;
+}
+
+#documentTitle {
+    text-align: center;
+    font-size: 16px;
+}
+
+#fileName {
+    text-align: center;
+    font-size: 10px;
+}
+
+#markButton {
+	height: 28px;
+	width: 45px;
+	font-size: 16px;
+	margin: auto;
+	z-index: 3; /*needs to be higher z index so that it is easy to click*/
+}
+
+/*Thumbnails view*/
+#thumbnailView {
+	overflow-y: auto;
+}
+
+.thumbnailContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 10px;
+	width: 230px;
+	background-color: transparent;
+}
+
+.pageNumberElement {
+	font-size: 14px;
+	color: #333;
+	padding-bottom: 15px;
+	padding-top: 5px;
+}
+
+.thumbnailContainer .thumbnailCanvas {
+	max-width: 100%;
+	height: auto;
+	border: 1px solid transparent;
+}
+
+.thumbnailContainer[aria-selected="true"] .thumbnailCanvas {
+	max-width: 100%;
+	height: auto;
+	border: 5px solid #ACCEF7;
+}
+
+/* Outline view */
+#outlineView div {
+  background-color: transparent;
+}
+
+#outlineView span {
+	display: block;
+	padding: 10px;
+	background-color: transparent;
+	cursor: pointer;
+}
+
+#outlineView span:hover {
+  background-color: #f5f5f5;
 }

@@ -9,26 +9,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
-    <!-- Other head elements -->
-    <style>
-		#markButton {
-			height: 60px;
-			width: 60px;
-			position: absolute;
-			inset: 0 0 0 60%;
-			z-index: 3; /*needs to be higher z index so that it is easy to click*/
-			margin-right: 20px;
-		}
-    </style>
 <body>
 	<div id="outerContainer">
+
 		<!-- Sidebar -->
 		<div id="sidebar">
 			<!--Prototype comment functionality-->
-			<p id="testComment">TEST</p>
+
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
-
 				<!-- Sidebar Toolbar View Buttons -->
 				<button id="viewThumbnails" class="toolbarButton toggled" title="View Thumbnails">
 					<i class="fa-solid fa-grip-vertical"></i>
@@ -46,17 +35,27 @@
 
 			<!-- Sidebar Views -->
 			<div id="sidebarViews">
-				<div id="thumbnailView"></div>
+				<div id="thumbnailView">
+                    <div id="thumbnailsContainer" role="tablist" aria-label="Thumbnail Tabs"></div>
+                </div>
+				
 				<div id="outlineView"></div>
-				<div id="commentView"></div>
-				<div id="bookmarksView"></div>
+
+				<div id="commentView">
+                    <p id="testComment">TEST</p>
+                </div>
+
+				<div id="bookmarksView">
+                    <h3>This is the bookmark view</h3>
+                </div>
 			</div>
 		</div>
 
 		<!-- Main Container -->
 		<div id="mainContainer">
+			
 			<!-- Toolbar -->
-			<div id="toolbar">
+			<div id="toolbar" style="position: sticky; top: 0; z-index: 1000;">
 			
 				<!-- Toolbar Sections -->
 				<div id="toolbarSections">
@@ -72,7 +71,7 @@
 						<button id="nextPage" class="toolbarButton" title="Next Page">
 							<i class="fa-solid fa-arrow-down"></i>
 						</button>
-						<input id="pageInput" class="toolbarField" title="Page" placeholder="0"></input>
+						<input id="pageInput" class="toolbarField" title="Page" value="1"></input>
 						<span id="numberPages" class="toolbarLabel">of 0</span>
 					</div>
 					
@@ -86,7 +85,10 @@
 					</div>
 					
 					<!-- Right Toolbar Section -->
-					<div id="toolbarRight" class="toolbarSection">			
+					<div id="toolbarRight" class="toolbarSection">	
+						<button id="markButton" type="button" hidden="True">
+							Mark
+						</button>		
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
 							<option id="pageFit" value="fit">Fit Page</option>
         	                        		<option id="pageWidth" value="width">Fit Width</option>
@@ -98,7 +100,18 @@
 	                                		<option value="2">200%</option>
         	                        		<option value="3">300%</option>
                 	                		<option value="4">400%</option>
-						</select>		
+						</select>	
+						
+						<!-- Search section -->
+						<button id="prevSearchResult" class="toolbarButton" title="Previous Search Result">
+							<i class="fa-solid fa-arrow-left"></i>
+						</button>
+						<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">
+						<button id="nextSearchResult" class="toolbarButton" title="Next Search Result">
+							<i class="fa-solid fa-arrow-right"></i>
+						</button>
+						<!-- end of search -->
+
 						<button id="viewFindbar" class="toolbarButton toggled" title="Find in Document">
 							<i class="fa-solid fa-magnifying-glass"></i>
 						</button>
@@ -111,103 +124,565 @@
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
-				<button id="markButton" type="button" hidden="True">
-					Mark
-				</button>
-				<canvas id="pdf"></canvas>
-				<div id="container"></div>
-				<div id="textLayer"></div>
-			</div>		
+				<div id="container">
+					<div id="canvasContainer"></div>
+					<div id="textLayerContainer"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
-		document.addEventListener("DOMContentLoaded", async function() {
-			const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
-	
-			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
-	
-			const canvas = document.getElementById("pdf");
-			const context = canvas.getContext("2d");
-	
-			const scale = 1.5;
-			const outputScale = window.devicePixelRatio || 1;
-			const pageSpacing = 0; // Adjust spacing between pages here
-	
-			const loadingTask = pdfjsLib.getDocument(pdfUrl);
-			const pdf = await loadingTask.promise;
+		/* Setup */
 
-			let totalHeight = 0;
-			let maxWidth = 0;
+        /* Constants */
+		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
+        const baseRenderQuality = 1.5;
+		const pageSpacing = 0; // Adjust spacing between pages here
+		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
+		const devicePixelRatio = window.devicePixelRatio || 1;
+        const transform = devicePixelRatio !== 1
+            ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+            : null;
+
+        /* Elements */
+		const viewer = document.getElementById("viewer");
+		const canvas = document.getElementById("pdf");
+		const container = document.getElementById("container");
+		const canvasContainer = document.getElementById("canvasContainer");
+		const textLayerContainer = document.getElementById("textLayerContainer");
+
+        /* Variables */
+		// Scales output accordingly
+		var zoomScale = 1;
+		var resolution = renderQuality * zoomScale;
+		var totalHeight = 0;
+		var maxWidth = 0;
+		var currentPage = 1; // Page the user is currently on
+		// Global variables
+		var pdf;
+		var numPages;
+		
+		document.addEventListener("DOMContentLoaded", async function() {
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
+			const loadingTask = pdfjsLib.getDocument(pdfUrl);
+			pdf = await loadingTask.promise;
+			numPages = pdf.numPages;
+
+			/// Add events ///
+			
+			// Zooming
+			var selectScale = document.getElementById("selectScale");
+				selectScale.addEventListener("change", function() {
+					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+					
+					// Get the original percentage
+					const yOriginalPercentage = viewer.scrollTop / viewer.scrollHeight; 
+                    const xOriginalPercentage = viewer.scrollLeft / viewer.scrollWidth
+
+                    // If the value is "width" or "page"
+					if (isNaN(selectedValue))
+					{
+						zoomDocument(selectScale.value, pdf, yOriginalPercentage, xOriginalPercentage);
+					}
+					else
+					{
+						zoomDocument(selectedValue, pdf, yOriginalPercentage, xOriginalPercentage);
+					}
+				});
+
+			// Page Navigation
+			const pageInput = document.getElementById("pageInput");
+			const pageMax = document.getElementById("numberPages")
+			pageMax.textContent = "of " + numPages;
+
+			pageInput.addEventListener("input", function validatePageInput (event) 
+			{
+				const inputValue = event.target.value;
+				const numbersOnly = /^\d*$/; // Regex to match numbers only
+
+				// Remove any non-numeric characters from the input value
+				if (!numbersOnly.test(inputValue)) {
+					event.target.value = inputValue.replace(/\D/g, "");
+				}
+				else if (inputValue > numPages || inputValue < 1)
+				{
+					// Remove any numeric values outside pdf page range
+					event.target.value = inputValue.replace(/\D/g, "");
+				}
+			});
+
+			pageInput.addEventListener("keyup", async function finalizeInput(event) 
+			{
+				// Check if Enter key was pressed
+				if (event.key === "Enter") {	
+					let pageNum = parseInt(event.target.value);
+					await navigateToPage(pdf, pageNum)
+					pageInput.blur(); // Remove focus onto input field
+				}
+			});
+
+            // Add Navigation function to Page Buttons
+            const nextPageButton = document.getElementById("nextPage");
+            const previousPageButton = document.getElementById("previousPage");
+
+            nextPageButton.addEventListener("click", async function ()
+            {
+                const inputValue = parseInt(pageInput.value);
+                if(inputValue !== numPages){
+                    pageInput.value = inputValue + 1;
+                    await navigateToPage(pdf, parseInt(pageInput.value));
+                }
+            });
+
+            previousPageButton.addEventListener("click", async function () {
+                const inputValue = parseInt(pageInput.value);
+                if (inputValue !== 1) {
+                    pageInput.value = inputValue - 1;
+                    await navigateToPage(pdf, parseInt(pageInput.value));
+                }
+            });
+
+			/// Setup
+
+			let yPos = 0 // Keep this for now (Vincent's stuff)
 			
 			// Work out required canvas width and height
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
 				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const pageWidth = Math.floor(viewport.width * outputScale);
-				const pageHeight = Math.floor(viewport.height * outputScale);
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+				const pageWidth = viewport.width;
+				const pageHeight = viewport.height;
 	
-				// Calculate total height required to display all pages
+				// Calculate total height required to display all pages, and max width
 				totalHeight += pageHeight + pageSpacing;
-	
-				// Update maximum width among all pages
 				maxWidth = Math.max(maxWidth, pageWidth);
 			}
-			// Adjust canvas size
-			canvas.width = maxWidth;
-			canvas.height = totalHeight;
-			canvas.style.width = maxWidth / outputScale + "px";
-        	canvas.style.height = totalHeight / outputScale + "px";
-	
-			let offsetY = 0;
 
-			// This increases the size somehow
-			const transform = outputScale !== 1
-					? [outputScale, 0, 0, outputScale, 0, 0]
-					: null;
+            // Sidebar view
 
-			var myContext = canvas.getContext("2d");
-			let yPos = 0;
-			// Render every page in pdf
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				console.log("bruh");
-				const page = await pdf.getPage(pageNumber);
-				const viewport = page.getViewport({ scale });
-				const renderContext = {
-					canvasContext: myContext,
-					transform,
-					viewport,
-				};
-				const pageTextLayer = document.getElementById('textLayer');
-				const textLayer = document.createElement("div");
-				textLayer.id = `textlayer-${pageNumber}`;
-				textLayer.classList.add("textLayer")
+            // Render the thumbnails in the thumbnail view
+			await generateThumbnails();
+            // Render the outline in the outline view
+            await renderOutline(pdf);
 
-				pageTextLayer.appendChild(textLayer);
-				await page.render(renderContext).promise;
-				textLayer.style.setProperty('--scale-factor', viewport.scale);
-				// Assign the CSS created to the text-layer element
-				const textContent = await page.getTextContent();
+			applyScrollingEffect(pdf);
 
-				// Pass the data to the method for rendering of text over the pdf canvas.
-				await pdfjsLib.renderTextLayer({
-					textContentSource: textContent,
-					container: textLayer,//pageTextLayer,
-					viewport: viewport,
-					textDivs: []
-				})//.promise.then(); 
-				// Move the correct amount to render the next page below the current one
-				textLayer.style.top = `${yPos}px`; // Set top position based on current yPos
-				let pageHeight = Math.floor(viewport.height * outputScale)
-				context.translate(0, pageHeight + pageSpacing);
-				yPos += viewport.height;//update the ypos to move the pages down
-			}
+			// Set container to required sizes
+			container.style.width = maxWidth / renderQuality + "px";
+			container.style.height = totalHeight / renderQuality + "px";
+			/*
+			canvasContainer.style.width = maxWidth / renderQuality + "px";
+			canvasContainer.style.height = totalHeight / renderQuality + "px";
+			
+			textLayerContainer.style.width = maxWidth / renderQuality + "px";
+        	textLayerContainer.style.height = totalHeight / renderQuality + "px";
+			*/
+
+			// Render pages
+			isRendering = true;
+			await renderVisiblePages();
+			isRendering = false;
+
 			setup();
+		});
+
+		async function navigateToPage(pdf, pageNum)
+		{
+			if (!pagesRendered.has(pageNum))
+			{
+				pagesRendered.add(pageNum);
+				await renderPage(pdf, pageNum);	
+			}
+			let pageCanvas = document.getElementById("page" + pageNum);
+			viewer.scrollTop = pageCanvas.offsetTop;
+		}
+
+		var pagesRendered = new Set(); // Keeps track of pages already rendered
+		var isRendering = false // Keeps track of rendering process
+
+        /* Rendering related function */
+		
+		window.addEventListener("resize", async function()
+		{
+			// Render asynchronously
+			setTimeout(async () => {
+				isRendering = true;
+				await renderVisiblePages();
+				isRendering = false;
+			}, 0);
 
 		});
 
+		viewer.addEventListener("scroll", function()
+		{
+			// Exit if rendering is taking place
+			if (isRendering) return;
+			
+			// Render asynchronously
+			setTimeout(async () => {
+				isRendering = true;
+				await renderVisiblePages();
+				isRendering = false;
+			}, 0);
+		});
 
+		async function renderVisiblePages() 
+		{
+			// Work out adjacent areas around viewer
+			let averagePageHeight = totalHeight / numPages; 
+			const viewerHeight = viewer.clientHeight;
+			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * renderQuality;
+			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * renderQuality;
+
+			let topPage = Math.floor(scrollTop / averagePageHeight) + 1;
+			let bottomPage = Math.floor(scrollBottom / averagePageHeight) + 1;
+			
+			// Makes sure indexes aren't outside range of (1, pdf pages) 
+			topPage = topPage > 1 ? topPage : 1; 
+			bottomPage = bottomPage < numPages ? bottomPage : numPages; 
+			currentPage = Math.floor((topPage + bottomPage) / 2);
+
+			// Render visible pages 
+			for (let pageNumber = topPage; pageNumber <= bottomPage; pageNumber++) {
+				if (!pagesRendered.has(pageNumber)) {
+					pagesRendered.add(pageNumber);
+					await renderPage(pdf, pageNumber);
+					console.log("finished rendering page" + pageNumber);
+				}
+			}
+		}
+
+		async function renderPage(pdf, pageNumber) 
+		{	
+			const page = await pdf.getPage(pageNumber);
+			const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+
+			// Create/Get canvas for page
+			var canvas = document.getElementById("page" + pageNumber);
+			if (canvas == null)
+			{
+				canvas = document.createElement("canvas");
+				canvas.id = "page" + pageNumber;
+			}
+
+			// Set dimensions
+			canvas.width = viewport.width * devicePixelRatio;
+			canvas.height = viewport.height * devicePixelRatio;
+			canvas.style.width = viewport.width / renderQuality + "px";
+			canvas.style.height = viewport.height / renderQuality + "px";
+
+			// Position the canvas in the right place
+			canvas.style.position = 'absolute'
+			canvas.style.margin = "auto";
+			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';			
+			
+			canvasContainer.appendChild(canvas);
+			let context = canvas.getContext("2d");
+
+			// Render the page
+			await page.render({
+				canvasContext: context,
+				transform: transform,
+				viewport: viewport
+			}).promise;
+
+			// Render the text layer
+			const textLayer = document.createElement("div");
+			textLayer.id = `textlayer-${pageNumber}`;
+			textLayer.classList.add("textLayer")
+			textLayer.style.setProperty('--scale-factor', viewport.scale / renderQuality);
+
+			textLayer.style.position = 'absolute'
+			textLayer.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';
+			//textLayer.style.top = yPos
+
+			textLayerContainer.appendChild(textLayer);
+
+			// Assign the CSS created to the text-layer element
+			const textContent = await page.getTextContent();
+
+			// Pass the data to the method for rendering of text over the pdf canvas.
+			await pdfjsLib.renderTextLayer({
+				textContentSource: textContent,
+				container: textLayer,
+				viewport: viewport,
+				textDivs: []
+			}).promise;
+				
+			//yPos += pageHeight + pageSpacing; // Update the ypos to move the pages down	
+
+		}
+
+		  // Update container dimensions based on canvases
+		  async function updateContainerDimensions(pdf) {
+
+			const bottomPage = await pdf.getPage(numPages);
+			const viewport = bottomPage.getViewport({scale: baseRenderQuality * resolution});
+			const pageWidth = viewport.width;
+			const pageHeight = viewport.height * (numPages - 1) / renderQuality + 'px';
+
+			/*
+			canvasContainer.style.width = pageWidth + 'px';
+			canvasContainer.style.height = pageHeight + 'px';
+			textLayerContainer.style.width = pageWidth + 'px';
+			textLayerContainer.style.height = pageHeight + 'px';
+
+			*/
+			container.style.width = pageWidth + 'px';
+			container.style.height = pageHeight + 'px';
+		}
+
+        /* Zooming related Function */
+
+		async function zoomDocument(scale, pdf, yPercentage, xPercentage)
+		{
+			const page = await pdf.getPage(currentPage);
+			if (scale === "fit")
+			{
+				// Fit window to the whole of current page
+				await zoomToFitPage(page);
+
+			}
+			else if (scale === "width")
+			{
+				// Fit window to current page width
+				await zoomToFitWidth(page);
+			}
+			else
+			{
+				zoomScale = scale;
+			}
+
+			pagesRendered.clear(); // Empty set of rendered pages
+				
+			// Update scaling 
+			let newResolution = renderQuality * zoomScale;
+			maxWidth =  (maxWidth / resolution) * newResolution;
+			totalHeight = (totalHeight / resolution) * newResolution;
+			resolution = newResolution;
+
+			/*
+			canvasContainer.style.width = maxWidth / renderQuality + "px";
+			canvasContainer.style.height = totalHeight / renderQuality + "px";
+			textLayerContainer.style.width = maxWidth / renderQuality + "px";
+			textLayerContainer.style.height = totalHeight / renderQuality + "px";
+			*/
+
+			container.style.width = maxWidth / renderQuality + "px";
+			container.style.height = totalHeight / renderQuality + "px";
+
+			// Remove all canvas elements from container
+			while (canvasContainer.firstChild) {
+				canvasContainer.removeChild(canvasContainer.firstChild);
+			}
+
+			// Remove all text renders from container
+			while (textLayerContainer.firstChild) {
+				textLayerContainer.removeChild(textLayerContainer.firstChild);
+			}
+
+			// Rerender pages and text layers
+			isRendering = true;
+			await renderVisiblePages();
+			isRendering = false;
+
+			setup();
+            viewer.scrollTop = yPercentage * viewer.scrollHeight;
+            viewer.scrollLeft = xPercentage * viewer.scrollWidth;
+		}
+
+		function zoomToFitPage(page) {
+			const viewport =  page.getViewport({scale: baseRenderQuality});
+			const viewerWidth = viewer.clientWidth;
+			const viewerHeight = viewer.clientHeight;
+
+			// Calculate scaling factors for width and height
+			const widthScale = viewerWidth / viewport.width;
+			const heightScale = viewerHeight / viewport.height;
+
+			// Choose the larger of the two scaling factors
+			const scale = Math.min(widthScale, heightScale);
+
+			// Apply the scaling factor to the viewer
+			zoomScale = scale;
+		}
+
+		function zoomToFitWidth(page) {
+			const viewport =  page.getViewport({scale: baseRenderQuality});
+			const viewerWidth = viewer.clientWidth;
+			const viewerHeight = viewer.clientHeight;
+
+			// Calculate scaling factors for width
+			const widthScale = viewerWidth / viewport.width;
+
+			// Apply the scaling factor to the viewer
+			zoomScale = widthScale;
+		}
+
+        /* Thumbnails related Function */
+
+        async function generateThumbnails()
+		{
+			for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const viewport = page.getViewport({scale: baseRenderQuality * resolution});
+				const pageWidth = viewport.width;
+				const pageHeight = viewport.height;
+
+				/* Hanson Stuff */
+
+				// Generate thumbnail for each page
+				const thumbnailCanvas = await makeThumb(page);
+				thumbnailCanvas.classList.add("thumbnailCanvas")
+
+				const thumbnailContainer = document.createElement("div");
+				thumbnailContainer.classList.add("thumbnailContainer");
+				thumbnailContainer.setAttribute("role", "tab");
+				thumbnailContainer.setAttribute("data-page", pageNumber);
+				if (pageNumber === 1) {
+					thumbnailContainer.setAttribute("aria-selected", "true");
+				} else {
+					thumbnailContainer.setAttribute("aria-selected", "false");
+				}
+				thumbnailContainer.appendChild(thumbnailCanvas);
+
+				// Add a page indicator
+				const pageNumberElement = document.createElement("span");
+				pageNumberElement.textContent = pageNumber.toString(10);
+				pageNumberElement.classList.add("pageNumberElement")
+				thumbnailContainer.appendChild(pageNumberElement);
+
+                // Add navigation functionality to thumbnails
+				thumbnailContainer.addEventListener("click", async function() {
+					await navigateToPage(pdf, pageNumber)
+				});
+
+				document.getElementById("thumbnailsContainer").appendChild(thumbnailContainer);
+			}
+		}
+
+		async function makeThumb(page) {
+            const vp = page.getViewport({scale: 1});
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(108 / vp.width, 140 / vp.height);
+            canvas.width = vp.width * scale;
+            canvas.height = vp.height * scale;
+            const context = canvas.getContext("2d", {alpha: false}); // alpha is set to false since transparent background
+            await page.render({canvasContext: context, viewport: page.getViewport({scale})}).promise;
+            return canvas;
+        }
+
+        /* Apply Scrolling Effect Function */
+
+		// Scrolling will also change the thumbnail aria selected effect
+		function applyScrollingEffect(pdf) {
+            const viewer = document.getElementById("viewer");
+            viewer.addEventListener("scroll", function() {
+                let totalPages = pdf.numPages
+                const maxScrollTop = viewer.scrollHeight - viewer.clientHeight;
+                const pageHeight = maxScrollTop / (totalPages - 1);
+                let currentPage = Math.floor(viewer.scrollTop / pageHeight + 0.5) + 1;
+
+                // Apply changes to thumbnails view
+                const thumbnailContainers = document.querySelectorAll(".thumbnailContainer");
+                thumbnailContainers.forEach(container => {
+                    const page = parseInt(container.getAttribute("data-page"));
+                    if (page === currentPage) {
+                        container.setAttribute("aria-selected", "true");
+                    } else {
+                        container.setAttribute("aria-selected", "false");
+                    }
+                });
+
+                // Apply changes to page Input
+                let pageInput = document.getElementById("pageInput");
+                pageInput.value = currentPage;
+
+                // Check if the selected thumbnail is outside the thumbnail view
+                const selectedThumbnail = document.querySelector(`.thumbnailContainer[data-page="${currentPage}"]`);
+                if (selectedThumbnail) {
+                    const thumbnailView = document.getElementById("thumbnailView")
+                    const thumbnailHeight = 140;
+                    const selectedThumbnailOffsetTop = selectedThumbnail.offsetTop;
+                    const selectedThumbnailBottom = selectedThumbnailOffsetTop + thumbnailHeight;
+
+                    if (selectedThumbnailBottom > thumbnailView.scrollTop + thumbnailView.offsetHeight) {
+                        // Scroll down to make the selected thumbnail visible at the bottom
+                        thumbnailView.scrollTop = selectedThumbnailBottom - thumbnailView.offsetHeight + thumbnailHeight * 0.5;
+                    } else if (selectedThumbnailOffsetTop < thumbnailView.scrollTop) {
+                        // Scroll up to make the selected thumbnail visible at the top
+                        thumbnailView.scrollTop = selectedThumbnailOffsetTop;
+                    }
+                }
+            });
+        }
+
+        /* Outline Related Function */
+
+        // Function to render the outline in the outline view
+        async function renderOutline(pdf) {
+            const outline = await pdf.getOutline();
+            const outlineView = document.getElementById("outlineView");
+
+            if (outline) {
+                // Render each outline item recursively
+                renderOutlineItem(outline, outlineView, pdf, "0px");
+            } else {
+                const noOutlineMessage = document.createElement("p");
+                noOutlineMessage.textContent = "No outline available.";
+                outlineView.appendChild(noOutlineMessage);
+            }
+        }
+
+        // Function to render an outline item recursively
+        function renderOutlineItem(outlineNodes, parentElement, pdf, ml) {
+            outlineNodes.forEach(node => {
+
+                // Create a span element to display the title of the node
+                const titleSpanWrapper = document.createElement("div")
+                titleSpanWrapper.style.marginLeft = ml
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = node.title;
+
+                // Add event listener to navigate to the destination when the title is clicked
+                titleSpan.addEventListener("click", function() {
+                    navigateToDestination(node.dest, pdf);
+                });
+
+                titleSpanWrapper.appendChild(titleSpan)
+                parentElement.appendChild(titleSpanWrapper);
+
+                // If the node has children, render them recursively
+                if (node.items && node.items.length > 0) {
+                    renderOutlineItem(node.items, titleSpanWrapper, pdf, "15px");
+                }
+            });
+        }
+
+        // Function to navigate to the destination
+        async function navigateToDestination(dest, pdf) {
+            pdf.getDestination(dest).then(destination => {
+                if (destination) {
+                    pdf.getPageIndex(destination[0]).then(async pageIndex => {
+                        const actualPage = pageIndex + 1;
+                        console.log("Section ", dest, " is on page", actualPage);
+                        const viewer = document.getElementById("viewer");
+                        const pageHeight = viewer.scrollHeight / pdf.numPages;
+                        const [x, y] = destination.slice(2);
+                        const page = await pdf.getPage(actualPage);
+                        const viewport = page.getViewport({scale: 1})
+                        // height based on page + height based on y-coordinate
+                        viewer.scrollTop = (actualPage - 1) * pageHeight + (1 - y / viewport.height) * pageHeight;
+                    });
+                } else {
+                    console.log("Destination 'section2' not found");
+                }
+            });
+        }
 	</script>
 <script>
 	//setup the variables needed to load the pdf marks given the data from django (need to do it here
@@ -219,6 +694,7 @@
 	const upload_id = "{{ upload.id }}"
 </script>
 <script src="{% static 'js/viewer.js'%}"></script>
+<script src="{% static 'js/viewer_sidebar.js' %}"></script>
 </body>
 </html>
 

@@ -62,9 +62,9 @@ function setup(){
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
 			var span = fromHTML(html);//JSON.parse(testList));
-			const textLayer = document.getElementById("textLayer");
+			const textLayerContainer = document.getElementById("textLayerContainer");
 			
-			var spanCopy = textLayer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayer.querySelectorAll('*')[indexOfSpan];
+			var spanCopy = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
 
 			spanCopy.innerHTML = "";
 			spanCopy.appendChild(span);
@@ -91,27 +91,32 @@ document.addEventListener('selectionchange', function(event){
 		var selection = window.getSelection();
 		selectionList = selection.getRangeAt(0).cloneRange();
 		currentStartingElement = selection.getRangeAt(0).startContainer;
-		endingElement = selection.getRangeAt(0).endContainer;
-		if(selectionList.length > 0){
-			const rect = currentStartingElement.parentNode.getBoundingClientRect();
+		if(selection.getRangeAt(0).endContainer.nodeName != "#text"){
+			endingElement = currentStartingElement;
+		}
+		else{
+			endingElement = selection.getRangeAt(0).endContainer;
+		}
+		if(selectionList.toString().length > 0){
+			//const rect = currentStartingElement.parentNode.getBoundingClientRect();
 			markButton.hidden = false;
 			// Set the position of the movable element to match the clicked element
-			markButton.style.top = rect.top + 'px';
+			//markButton.style.top = rect.top + 'px';
 		}
 	}
 });
 
 document.addEventListener('mousedown', function(event) {
-	// Check if the mouse is being held down over elements with id "textLayer"
-	const textLayer = document.getElementById('textLayer');
-	if (event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)) {
+	// Check if the mouse is being held down over elements with id "textLayerContainer"
+	const textLayerContainer = document.getElementById('textLayerContainer');
+	if (event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)) {
 		markButton.hidden = true;
 		// Add mousemove event listener to track mouse movement while mouse button is held down
 		document.addEventListener('mousemove', mouseMoveHandler);
 	}
 	else{
 		//if starting from blank space, don't allow selection
-		textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 		window.getSelection().empty();
 		if(event.target.nodeName!='BUTTON'){
 			markButton.hidden = true;
@@ -123,11 +128,11 @@ document.addEventListener('mousedown', function(event) {
 var seenSpan = false;
 var selectionList; 
 function mouseMoveHandler(event) {
-	const textLayer = document.getElementById('textLayer');
-	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayer.contains(event.target)){
+	const textLayerContainer = document.getElementById('textLayerContainer');
+	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)){
 		const rect = event.target.getBoundingClientRect();
 		// Set the position of the movable element to match the clicked element
-		markButton.style.top = rect.top + 'px';
+		//markButton.style.top = rect.top + 'px';
 		markButton.hidden = false;
 		if(seenSpan){
 			var selection = window.getSelection();
@@ -135,7 +140,7 @@ function mouseMoveHandler(event) {
 				selectionList = selection.getRangeAt(0).cloneRange();
 			}
 
-			textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+			textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 		}
 		else{
 			seenSpan = true;
@@ -145,7 +150,7 @@ function mouseMoveHandler(event) {
 	else{
 		seenSpan = false;
 		//keep selection as before
-		textLayer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
+		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 	}
 	
 	//Turn off selection when over a highlighted seciton (because can't select it again)
@@ -167,15 +172,15 @@ function mouseUpHandler(event) {
 	// Remove mouseup event listener when mouse button is released
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
-	textLayer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 }
 
 function highlightSelectedText(event){
 	//clear selection
 	window.getSelection().empty();
 	markButton.hidden = true;
-	const textLayer =  document.getElementById('textLayer');
-	var textLayerSpans =  Array.from(textLayer.querySelectorAll('span[role="presentation"]'));
+	const textLayerContainer =  document.getElementById('textLayerContainer');
+	var textLayerSpans =  Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
 	var totalLength = selectionList.toString().length;
 	var offset = selectionList.startOffset;
 	var selectedParts = [];
@@ -321,3 +326,119 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+
+//find functionality
+function escapeHtml(text) {
+	var map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;'
+	};
+	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+function searchForTerm(term) {
+	const textLayer = document.getElementById("textLayerContainer");
+	const spans = textLayer.querySelectorAll('span[role="presentation"]');
+	const foundPositions = [];
+
+	spans.forEach((span, index) => {
+		let innerHTML = span.dataset.originalHtml || span.innerHTML;
+		const safeTerm = escapeHtml(term.trim()); // Ensure we're not dealing with leading/trailing spaces
+
+		// Create a regex that matches the term only if it's followed by a non-word character or at the end of the string,
+		// and only if it's preceded by a non-word character or at the start of the string.
+		// This approach accounts for punctuation, spaces, and ensures that partial matches are not highlighted.
+		const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
+
+		if (!span.dataset.originalHtml) {
+			span.dataset.originalHtml = innerHTML;
+		}
+
+		const searchResult = innerHTML.search(regex);
+
+		if (searchResult !== -1) {
+			span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
+			foundPositions.push({ span: span, index: index });
+		}
+	});
+
+	return foundPositions;
+}
+
+
+let foundPositions = [];
+let currentPosition = -1; // Start before the first position
+
+function clearSearchHighlights() {
+    const textLayer = document.getElementById("textLayerContainer");
+    const spans = textLayer.querySelectorAll('span[role="presentation"]');
+
+    spans.forEach(span => {
+        // Check if the span has the dataset property 'originalHtml'
+        if (span.dataset.originalHtml) {
+            // Restore the original HTML content
+            span.innerHTML = span.dataset.originalHtml;
+            // Remove the dataset property to prevent future conflicts
+            delete span.dataset.originalHtml;
+        }
+    });
+}
+
+function updateSearchResults() {
+    const searchTerm = document.getElementById('searchTermInput').value.trim();
+    if (searchTerm === "") {
+        // If the search term is empty, clear all highlights
+        clearSearchHighlights();
+        // Optionally, reset or clear any search-related states or variables here
+        foundPositions = [];
+        currentPosition = -1;
+    } else {
+        // Perform the search and update the display as before
+        foundPositions = searchForTerm(searchTerm);
+        currentPosition = 0; // Reset to the first result
+        if (foundPositions.length > 0) {
+            moveToPosition(currentPosition);
+        } else {
+            // Handle no results found, e.g., show a message
+        }
+    }
+}
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
+
+function moveToPosition(index) {
+	// Ensure index is within bounds
+	if (index >= 0 && index < foundPositions.length) {
+		const position = foundPositions[index];
+		
+		// Logic to scroll to the position.span or highlight it
+
+		// I put it false for now so it doesn't scroll past the main container, just the viewer
+		position.span.scrollIntoView(false);
+
+		//position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
+		
+		// Optionally highlight or otherwise indicate the current span
+	}
+}
+
+document.getElementById('nextSearchResult').addEventListener('click', () => {
+	if (foundPositions.length > 0) {
+		currentPosition = (currentPosition + 1) % foundPositions.length;
+		moveToPosition(currentPosition);
+	}
+});
+
+document.getElementById('prevSearchResult').addEventListener('click', () => {
+	if (foundPositions.length > 0) {
+		currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
+		moveToPosition(currentPosition);
+	}
+});
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+

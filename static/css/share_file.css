@@ -1,0 +1,97 @@
+.thumbnail-container {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 20px;
+    max-height: 280px; 
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.thumbnail-wrapper {
+    opacity: 0;
+    animation: slide 1.2s ease forwards;
+}
+.thumbnail {
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid transparent;
+    border-radius: 7px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.thumbnail:hover {
+    border-color: rgba(0, 0, 255, 0.2);
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3);
+}
+.thumbnail.selected {
+    border-color: rgba(0, 0, 255, 0.2);
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1000px rgba(0, 0, 255, 0.1);
+}
+@keyframes slide {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+}
+
+/* width of rows inside share page */
+@media (max-width: 767px) { /* small screens */
+    .row-width {
+        width: 100%;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) { /* medium screens */
+    .row-width {
+        width: 75%;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 992px) { /* large screens */
+    .row-width {
+        width: 50%;
+        margin: 0 auto;
+    }
+}
+
+
+
+.file-name {
+    margin-top: 5px;
+}
+
+.search-bar {
+    border-radius: 100px;
+}
+.share-btn {
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+}
+.bi-box-arrow-up {
+    margin-right: 3px;
+}
+
+.search-filter {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    transition: border-color 0.3s, background-color 0.3s;
+    height: 100px;
+}
+.search-filter:hover {
+    border-color: lightblue;
+}
+.search-filter.selected {
+    border-color: lightblue;
+    background-color: rgba(173, 216, 230, 0.3);
+}
+
+.username {
+    font-size: 16px;
+}
+.pfp {
+    font-size: 30px;
+}

@@ -1,26 +1,73 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
 {% block content %}
 {% load static %}
-    <div class="col-12 p-2">
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="rectangle"></div>
+    <div class="container-fluid pt-2">
         <div class="row">
-            <div class="col-9">
-                <a href="{% url 'team_list' %}">&lt&lt back</a>
-                <div class="container py-2">
-                    <h2>Shared Files in {{ team.name }}:</h2>
+            <div class="col p-3 pt-2 border rounded shading">
+                <div class="row d-flex align-items-center justify-content-between">
+                    <div class="col-2">
+                        <a href="{% url 'team_list' %}" class="btn btn-sm team-text text-nowrap btn-outline-primary">&lt&lt Back</a>
+                    </div>
+                    <div class="col-8">
+                        <h1 class="text-center team-text my-1">Group Members</h1>
+                    </div>
+                    <div class="col-2 d-flex justify-content-end">
+                        <h4 class="team-text my-1 text-nowrap text-truncate">{{team.name}}</h4>
+                    </div>
+                </div>
+                <div class="row p-2">
+                    {% for member in members %}
+                    <div class="col-sm-6 col-md-4 col-lg-3 mb-2 fade-in">
+                        <div class="row text-center">
+                            <i class="bi bi-person-circle pfp"></i>
+                        </div>
+                        <div class="row text-center">
+                            <span class="team-text">{{ member.username }}</span>
+                        </div>
+                        <div class="row text-center">
+                            <span class="team-text text-muted">{{ member.email }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center fade-in">
+                        <button id="InvitePopup" class="btn btn-primary team-text fs-5 w-50 h-75 team-detail-button">Invite<br>User</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="popupInviteContainer" class="popup-container">
+                        <div id="popupInviteForm" class="popup text-center">
+                            <span id="closeInvitePopup" class="close-btn">&times;</span>
+                            <form action="{% url 'team_detail' team_id=team.id %}" method="post">
+                                <h2 class="team-text mb-3">Invite User</h2>
+                                {% csrf_token %}
+                                {% include 'partials/create_team_form.html' with form=form %}
+                                <input type="submit" class="btn btn-primary team-text mt-3d-block w-50"
+                                        style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                                        value="Invite">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-between">
+            <div class="col-sm-12 col-md-8 mt-4 border rounded shading">
+                <div class="container p-2">
+                    <div class="row">
+                        <h1 class="text-center team-text">Shared Files in {{ team.name }}</h1>
+                    </div>
                     {% if shared_uploads.count > 0 %}
-                        <ul>
                         {% for upload in shared_uploads %}
-                        <div class="row mb-4">
-                            <div class="card">
+                        <div class="row">
+                            <div class="col-md-11 col-lg-9 card mt-2">
                                 <div class="card-body mb-2">
                                     <h5 class="card-title">{{ upload.file.name }}</h5>
                                     <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
                                     <p class="card-text">Comment: {{ upload.comments}}</p>
-                                    <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="upload_id" value="{{ upload.id }}">
-                                        <button type="submit" class="btn btn-primary me-1">View PDF</button>
-                                    </form>
+                                    <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View PDF</a>
                                     <form method="post" class="d-inline" id="commentForm" action="{% url 'outer_comment_views' upload.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="upload_id" id="uploadIdField">
@@ -65,54 +112,21 @@
                                         <button type="button" class="btn btn-primary" onclick="confirmRename(this.parentElement);">Confirm</button>
                                         <button type="button" class="btn btn-secondary" onclick="hideRenameField(this);">Cancel</button>
                                     </form>
-                                 </div>
+                                </div>
                             </div>
+                            <div class="col-md-1 col-lg-3"></div>
                         </div>      
                         {% endfor %}
-                        </ul>
                     {% else %}
-                        <p style="margin-left: 30px">There is no shared files so far</p>
+                        <p style="margin-left: 10px">There is no shared files so far</p>
                     {% endif %}
                 </div>
             </div>
-
-            <div class="col-3">
-                <div class="container py-3">
-                    <div class="row justify-content-center">
-                        <div class="col-5">
-                            <button id="InvitePopup" class="btn btn-primary mt-2">Invite User</button>
-                        </div>
-
-                        <div id="popupContainer" class="popup-container">
-                            <div id="popupForm" class="popup text-center">
-                                <span id="closePopup" class="close-btn">&times;</span>
-                                <form action="{% url 'team_detail' team_id=team.id %}" method="post">
-                                    <h2 class="mb-3">Invite User</h2>
-                                    {% csrf_token %}
-                                    {% include 'partials/create_team_form.html' with form=form %}
-                                    <input type="submit" class="btn btn-primary mt-3d-block w-50"
-                                           style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
-                                           value="Invite">
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="col-5" style="margin-left: -20px">
-                            <a class="btn btn-primary me-1" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>      
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row justify-content-center mt-3">
-                    <div class="col-7">
-                        <h2>Members:</h2>
-                        <ul>
-                            {% for member in members %}
-                                <li>
-                                    <p>{{ member.username }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
+            <div class="col-sm-12 col-md-3 mt-4 border rounded shading">
+                <div class="container p-2">
+                    <h1 class="text-center team-text">Actions</h1>
+                    <div class="text-center team-text">
+                        <a class="btn btn-primary team-detail-button" data-bs-toggle="offcanvas" data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>
                     </div>
                 </div>
             </div>
@@ -128,5 +142,5 @@
         </div>
     </div>
 
-    <script src="{% static 'js/popup_window.js' %}"></script>
+    <script src="{% static 'js/popup_window_invite.js' %}"></script>
 {% endblock %}

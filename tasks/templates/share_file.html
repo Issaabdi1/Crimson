@@ -1,70 +1,68 @@
-{% extends 'base_content.html' %}
+{% extends 'base_content_with_sidebar.html' %}
+{% load static %}
 {% block content %}
-<div class="container mt-3">
+<link rel="stylesheet" href="{% static 'css/share_file.css' %}">
+<div class="text-center px-5 py-3 bg-light bg-opacity-0 align-items-center">
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
-    <div class="row">
+    <div class="row row-width">
       <div class="col-12">
-        <select class="form-select" name="file-id">
-          <option selected disabled> Select file: </option>
+        <select id="file-select" class="form-select d-none" name="file-id">
+          <option selected disabled></option>
           {% for upload in uploads %}
             <option value="{{ upload.id }}">{{ upload.file.name }}</option>
           {% endfor %}
         </select>
+        <h2 class=""> Select file: </h2>
+        <div class="thumbnail-container p-2 mt-3 border bg-white">
+        {% if uploads%}
+          {% for upload in uploads %}
+          <div class="thumbnail-wrapper col-12 mb-2">
+            <div class="thumbnail p-1 d-flex align-items-center" file-id="{{ upload.id }}">
+              <i class="bi bi-file-earmark-pdf fs-2 me-2"></i> 
+              <div class="file-name fs-6 me-2">{{ upload.file.name }}</div> 
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="thumbnail-wrapper col-12">
+            <span> You must upload a file before sharing. </span>
+          </div>
+        {% endif %}  
+        </div>
       </div>
     </div>
-    <br>
-    <div class="row">
-      <div class="col-12">
-        {% if uploads %}
-          <h2> Share to: </h2>
-          <input type="text" id="search" class="col-md-6 form-control" placeholder="Search for username">
-        {% endif %}
+    {% if uploads %}
+    <div class="row row-width mt-3 mb-1">
+      <div class="col">
+        <h2> Share to: </h2>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6">
-        <table class="table mt-3">
-          <tbody id="filter">
-            {% for user in all_users %}
-              <tr style="display: none">
-                <td class="align-middle">{{ user.username }}</td>
-                <td class="text-end">
-                  <button type="submit" name="user-id" value="{{ user.id }}" class="btn btn-primary">
-                    <i class="bi bi-box-arrow-up"></i> Share
-                  </button>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <div class="row row-width justify-content-center flex-nowrap mb-2">
+      <div class="col-sm-8 col-md-10 px-1">
+        <input type="text" id="search" class="form-control search-bar" placeholder="Search for username">
       </div>
+      <div class="col-auto px-1">
+        <button type="submit" name="user-ids" class="share-btn btn btn-primary">
+          <i class="bi bi-box-arrow-up"></i> Share
+        </button>
+      </div>
+    </div>
+    {% endif %}
+    <div class="row mt-1">
+      {% for user in all_users %}
+        <div class="col-sm-4 col-md-3 col-lg-2 d-none search-filter d-flex flex-column justify-content-center align-items-center" value="{{ user.id }}">
+          <div class="text-center">
+            <i class="bi bi-person-circle pfp"></i>
+          </div>
+          <div class="text-center">
+            <div class="username"><p class="mb-2">{{ user.username }}</p></div>
+          </div>
+        </div>
+      {% endfor %}
     </div>
   </form>
 </div>
 
-<script>
-  document.getElementById('search').addEventListener('input', function () {
-    const search = this.value.toLowerCase();
-    const table = document.getElementById('filter');
-    const rows = table.getElementsByTagName('tr');
-    for (const row of rows) {
-      const username = row.cells[0].textContent;
-      if (search.length >= 3) {
-        if (username.includes(search)) {
-          row.style.display = 'table-row';
-        } else {
-          row.style.display = 'none';
-        }
-      } else {
-        row.style.display = 'none';
-      }
-    }
-  });
-  document.getElementById('search').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  })
-</script>
+<script src="{% static 'js/share_file.js' %}"></script>
 {% endblock %}

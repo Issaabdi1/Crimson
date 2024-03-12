@@ -11,7 +11,7 @@ from django.contrib import messages
 def outer_comment_views(request, upload_id):
     if request.method == 'POST':
         upload = Upload.objects.get(id=upload_id)
-        comments = request.POST.get('comments')  # Assuming 'comments' is the name of your form field
+        comments = request.POST.get('comments')  # Get comments field
         if comments is not None:
             try:
                 upload.comments = comments  # Update the comments attribute of the correct Upload object

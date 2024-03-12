@@ -32,9 +32,10 @@
                             <div class="row justify-content-evenly">
                                 {% for radio in avatar_form.avatar_url %}
                                     <div class="col-2">
-                                        {{ radio.tag }}
                                         <img src="{{ radio.choice_label }}" alt="avatar of {{ user.username }}"
-                                             class="rounded-circle profile-image mb-3 medium_image">
+                                             class="rounded-circle profile-image mb-3 medium-image"
+                                             onclick="selectImage(this)">
+                                        <div style="display: none">{{ radio.tag }}</div>
                                     </div>
                                 {% endfor %}
                                 <p class="col-2"><input class="btn btn-primary mt-3" type="submit" name="update_avatar"
@@ -53,7 +54,7 @@
         <div class="row justify-content-center mt-5">
             <div class="col-9">
                 <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
-                     class="rounded-circle profile-image mb-3 large_image" id="ProfilePopup" style="cursor: pointer">
+                     class="rounded-circle profile-image mb-3 large-image" id="ProfilePopup" style="cursor: pointer">
                 <div class="profile-text mt-4">
                     <h3 class="profile-title">{{ user.full_name }}</h3>
                     <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
@@ -73,5 +74,48 @@
             </div>
         </div>
     </div>
-    <script src="{% static "js/popup_window.js" %}"></script>
+    <script src="{% static "js/popup_window_profile.js" %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let userAvatarUrl = "{{ user.avatar_url }}";
+            let avatarRadios = document.querySelectorAll('.avatar-radio input[type="radio"]');
+            let images = document.querySelectorAll('.profile-image');
+
+            avatarRadios.forEach(function (radio) {
+                if (radio.value === userAvatarUrl) {
+                    radio.checked = true;
+                }
+            });
+
+            images.forEach(function (img) {
+                if (img.getAttribute("src") === userAvatarUrl){
+                    if (img.classList.contains("medium-image")) {
+                        img.classList.add('avatar-selected');
+                    }
+                }
+            });
+        });
+
+        function selectImage(image) {
+            // Remove 'selected' class from all images
+            let images = document.querySelectorAll('.profile-image');
+            images.forEach(function (img) {
+                img.classList.remove('avatar-selected');
+            });
+
+            // Add 'selected' class to the clicked image
+            image.classList.add('avatar-selected');
+
+            // Uncheck all radio buttons
+            let radios = document.querySelectorAll('input[type="radio"]');
+            radios.forEach(function (radio) {
+                radio.checked = false;
+            });
+
+            // Check the radio button corresponding to the selected image
+            let div = image.nextElementSibling;
+            let radio = div.children[0]
+            radio.checked = true;
+        }
+    </script>
 {% endblock %}
