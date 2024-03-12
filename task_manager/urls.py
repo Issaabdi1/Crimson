@@ -43,5 +43,4 @@ urlpatterns = [
     path('pdf_viewer/', views.viewer, name='pdf_viewer'),
     path('save_pdf_marks/', views.save_pdf_info, name='save_pdf_marks'),
     path('save_comment/', views.save_comment, name='save_comment'),
-
 ]

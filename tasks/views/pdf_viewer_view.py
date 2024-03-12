@@ -21,11 +21,13 @@ def viewer(request):
             try:
                 upload = Upload.objects.get(id=upload_id)
                 context['upload'] = upload
+                comments = Comment.objects.filter(upload=upload)
+                context['comments'] = comments
                 if (PDFInfo.objects.filter(upload=upload).exists()):
                     # get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload=upload)
                     mark = PDFInfo.objects.get(upload=upload)
-                    print("List of omments is ", mark.listOfComments)
+                    print("List of comments is ", mark.listOfComments)
 
             except Upload.DoesNotExist:
                 messages.add_message(request, messages.ERROR, "Upload does not exist!")
@@ -63,11 +65,12 @@ def save_comment(request):
     if request.method == "POST":
         comment_text = request.POST.get('comments')
         mark_id = request.POST.get('mark_id')
-
+        upload_id = request.POST.get('upload_id')
         commenter = request.user
 
         now = timezone.now()
         Comment.objects.create(
+            upload_id=upload_id,
             mark_id=mark_id,
             commenter=commenter,
             date=now,
@@ -80,3 +83,6 @@ def save_comment(request):
         return render(request, 'viewer.html', {'all_comments': all_comments})
     else:
         return JsonResponse({"success": False, "error": "Only POST requests are allowed"})
+
+
+

@@ -43,30 +43,21 @@
                 </div>
 				
 				<div id="outlineView"></div>
-
 				<div id="commentView">
-                    <form id="commentForm" method="post">
+                    <form id="commentForm" data-id="" method="post">
                         {% csrf_token %}
                         <div class="form-floating">
                             <label for="inputComments"></label>
-                            <textarea class="form-control" id="commentInput" name="comments" style="border-radius: 20px;"></textarea>
-                            <label>Descriptions</label>
+                            <textarea class="form-control" id="commentInput" name="comments"></textarea>
+                            <label>Comments</label>
                         </div>
+                        <input type="hidden" id="markIdInput" name="mark_id">
+
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+                            <button type="button" class="btn btn-primary" id="saveButton" onclick="saveComment()">Save</button>
                         </div>
                     </form>
-                    <p>
-                        {% for comment in all_comments %}
-                            <li>{{ comment }}</li>
-                        {% endfor %}
-                    </p>
-                        
-                    <p id="testComment">
-                        {% for comment in all_comments %}
-                            <li>{{ comment }}</li>
-                        {% endfor %}
-                    </p>
+                    <p id="comment"></p>
                 </div>
 
 				<div id="bookmarksView">
