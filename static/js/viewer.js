@@ -322,9 +322,9 @@ function savePdfChanges(){
 	return true; //Show the request has been sent successfully
 }
 
-// find functionality 
+//find functionality
 function escapeHtml(text) {
-     var map = {
+	var map = {
 		'&': '&amp;',
 		'<': '&lt;',
 		'>': '&gt;',
@@ -339,60 +339,71 @@ function searchForTerm(term) {
 	const spans = textLayer.querySelectorAll('span[role="presentation"]');
 	const foundPositions = [];
 
-	// Log the original search term for debugging
-	console.log("Original search term:", term);
-
 	spans.forEach((span, index) => {
 		let innerHTML = span.dataset.originalHtml || span.innerHTML;
-		const safeTerm = escapeHtml(term);
+		const safeTerm = escapeHtml(term.trim()); // Ensure we're not dealing with leading/trailing spaces
 
-		// Log the escaped search term
-		console.log("Escaped search term for regex:", safeTerm);
-
-		const regex = new RegExp(`\\b(${safeTerm})\\b`, 'gi');
-
-		// Log the constructed regex
-		console.log("Constructed regex:", regex);
+		// Create a regex that matches the term only if it's followed by a non-word character or at the end of the string,
+		// and only if it's preceded by a non-word character or at the start of the string.
+		// This approach accounts for punctuation, spaces, and ensures that partial matches are not highlighted.
+		const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
 
 		if (!span.dataset.originalHtml) {
 			span.dataset.originalHtml = innerHTML;
 		}
 
-		// Perform a search to see if any match is found before attempting replacement
 		const searchResult = innerHTML.search(regex);
-		console.log(`Search result in span ${index}:`, searchResult);
 
 		if (searchResult !== -1) {
 			span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
 			foundPositions.push({ span: span, index: index });
-			console.log(`Match found and highlighted in span ${index}`);
-		} else {
-			console.log(`No match found in span ${index}`);
 		}
 	});
-
-	// Log the total number of positions where the term was found and highlighted
-	console.log("Total found positions:", foundPositions.length);
 
 	return foundPositions;
 }
 
 
-
 let foundPositions = [];
 let currentPosition = -1; // Start before the first position
 
-function updateSearchResults() {
-	const searchTerm = document.getElementById('searchTermInput').value;
-	foundPositions = searchForTerm(searchTerm); // Update with your actual search function
-	currentPosition = 0; // Reset to the first result
-	if (foundPositions.length > 0) {
-		moveToPosition(currentPosition);
-	} else {
-		// Handle no results found, e.g., show a message
-	}
-	setup();
+function clearSearchHighlights() {
+    const textLayer = document.getElementById("textLayer");
+    const spans = textLayer.querySelectorAll('span[role="presentation"]');
+
+    spans.forEach(span => {
+        // Check if the span has the dataset property 'originalHtml'
+        if (span.dataset.originalHtml) {
+            // Restore the original HTML content
+            span.innerHTML = span.dataset.originalHtml;
+            // Remove the dataset property to prevent future conflicts
+            delete span.dataset.originalHtml;
+        }
+    });
 }
+
+function updateSearchResults() {
+    const searchTerm = document.getElementById('searchTermInput').value.trim();
+    if (searchTerm === "") {
+        // If the search term is empty, clear all highlights
+        clearSearchHighlights();
+        // Optionally, reset or clear any search-related states or variables here
+        foundPositions = [];
+        currentPosition = -1;
+    } else {
+        // Perform the search and update the display as before
+        foundPositions = searchForTerm(searchTerm);
+        currentPosition = 0; // Reset to the first result
+        if (foundPositions.length > 0) {
+            moveToPosition(currentPosition);
+        } else {
+            // Handle no results found, e.g., show a message
+        }
+    }
+}
+
+document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
 
 function moveToPosition(index) {
 	// Ensure index is within bounds
@@ -419,3 +430,7 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 });
 
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
+function finishedSearch(){
+	//remove all the lightblue spans and restore the old version of state 
+}
