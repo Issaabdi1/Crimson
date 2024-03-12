@@ -48,6 +48,7 @@ function confirmRename(form) {
         console.error("Unable to find .card-title element");
     }
 }
+
 document.addEventListener("DOMContentLoaded", function () {
     const selectAllCheckbox = document.getElementById('flexCheckDefault');
     const deleteAllForm = document.getElementById('delete-all');
@@ -96,4 +97,5 @@ $('.save-button').click(function(){
     var uploadId = $(this).data('upload-id');
     var formId = '#commentForm_' + uploadId;
     $(formId).submit();
+
 });

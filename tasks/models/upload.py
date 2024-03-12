@@ -3,6 +3,7 @@ from .user import User
 from task_manager.storage_backends import MediaStorage
 from django.core.validators import FileExtensionValidator
 from django.core.files.base import ContentFile
+
 import os
 
 
@@ -32,7 +33,7 @@ class Upload(models.Model):
             return self.sharedfiles_set.all()[0].shared_to.all()
         else:
             return None
-    
+
     def get_shared_teams(self):
         """Returns a query set of all the teams who have been shared this file"""
 
