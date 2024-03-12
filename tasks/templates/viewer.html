@@ -44,6 +44,34 @@
 				
 				<div id="outlineView"></div>
 				<div id="commentView">
+                    <p id="testComment" class="centered-text">Select a mark to leave a comment</p>
+					<div id="voiceRecordContainer">
+						<div id="voiceRecord">
+							<div id="playCircle">
+								<i id="play" class="fas fa-play" title="Start Recording"></i>
+							</div>
+							<div title="Recording...">
+								<div class="animation-block block-1"></div>
+								<div class="animation-block block-2"></div>
+								<div class="animation-block block-3"></div>
+							</div>
+						</div>
+						<div id="recordings"></div>
+						<div id="saveContainer">
+							<button id="save" style="display: none;">Save Comments</button>
+						</div>
+						<br>
+						<div id="refreshContainer" style="display: none;">
+							<p class="centered-text">Voice comments saved</p>
+							<p class="centered-text">
+								Refresh page to view:
+								<button id="refresh"><i class="fas fa-redo"></i></button>
+							</p>
+							<br>
+						</div>
+						<p id="voiceCommentLabel" class="centered-text"> Saved Voice Comments </p>
+						<div id="savedRecordings" data-saved="{{ listOfSavedComments|escapejs }}"></div>
+					</div>
                     <form id="commentForm" data-id="" method="post">
                         {% csrf_token %}
                         <div class="form-floating">
