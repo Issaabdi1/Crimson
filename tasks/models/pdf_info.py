@@ -11,3 +11,4 @@ class PDFInfo(models.Model):
     #This should probably be a many to many field for a comments object
     listOfComments = models.JSONField() #This should be a foreign key to a comment model? or something. I'm not sure what comments will be
 
+
