@@ -187,7 +187,7 @@ function highlightSelectedText(event){
 	var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
 	var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
 	var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
-	console.log(elementsList);
+	console.log("elementList:"+ elementsList);
 	// Assume you have an array of objects containing information about the selected parts within each span
 	elementsList.forEach((element)=>{
 		console.log(element);
@@ -223,9 +223,10 @@ function highlightSelectedText(event){
 		}
 	});
 
-
-	//Add a new entry in the dictionary, associating the mark with a comment. 
-	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
+	//Add a new entry in the dictionary, associating the mark with a comment. "This comment is by mark " + newMark.getId()
+	listOfComments[newMark.getId()] = document.getElementById('commentInput').value;
+	print(document.getElementById('commentInput').value)
+	console.log(document.getElementById('commentInput').value)
 	//save changes
 	savePdfChanges();
 }
@@ -326,3 +327,27 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+
+document.getElementById("saveButton").addEventListener("click", function() {
+    var commentInput = document.getElementById("commentInput").value;
+
+    var formData = new FormData();
+    formData.append('comments', commentInput);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/save_comment/", true);
+
+    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                console.log("Comment saved successfully!");
+            } else {
+                console.error("Error saving comment: " + xhr.status);
+            }
+        }
+    };
+
+    xhr.send(formData);
+});

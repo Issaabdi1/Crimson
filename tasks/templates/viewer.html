@@ -1,3 +1,6 @@
+{% extends 'base_content_without_message.html' %}
+{% block content %}
+
 <html>
 <head>
 {%load static%}
@@ -42,7 +45,28 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
-                    <p id="testComment">TEST</p>
+                    <form id="commentForm" method="post">
+                        {% csrf_token %}
+                        <div class="form-floating">
+                            <label for="inputComments"></label>
+                            <textarea class="form-control" id="commentInput" name="comments" style="border-radius: 20px;"></textarea>
+                            <label>Descriptions</label>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="saveButton">Save</button>
+                        </div>
+                    </form>
+                    <p>
+                        {% for comment in all_comments %}
+                            <li>{{ comment }}</li>
+                        {% endfor %}
+                    </p>
+                        
+                    <p id="testComment">
+                        {% for comment in all_comments %}
+                            <li>{{ comment }}</li>
+                        {% endfor %}
+                    </p>
                 </div>
 
 				<div id="bookmarksView">
@@ -633,4 +657,4 @@
 <script src="{% static 'js/viewer_sidebar.js' %}"></script>
 </body>
 </html>
-
+{% endblock %}
