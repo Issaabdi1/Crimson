@@ -51,7 +51,7 @@ function decodeEntities(encodedString) {
 var listOfMarkedSpans = []; //list of all the spans that are marked. 
 var listOfComments = {} //this should be passed in from outside.
 function setup(){
-	//get them from the stuff
+	//Load all the info and marks into the pdf
 	if(savedMarks!=""){
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
 		var jsonString = decodeEntities(marksListOfSpans);//"{{marks.listOfSpans}}");
@@ -61,13 +61,15 @@ function setup(){
 		dict.forEach((entry)=>{
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
+			console.log("original htkl is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
+			console.log(span);
 			const textLayerContainer = document.getElementById("textLayerContainer");
 			
-			var spanCopy = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
+			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
 
-			spanCopy.innerHTML = "";
-			spanCopy.appendChild(span);
+			spanToInsertInto.innerHTML = "";
+			spanToInsertInto.appendChild(span);
 			//add to marked spans
 			var str = html;
 			str = str.replace(/"/g, '\\"');
@@ -83,6 +85,31 @@ function setup(){
 	}
 }
 
+function renderAfterZoom(){
+	//Render the marks after zooming. This does not require loading the saved marks, but just using the local lists
+	//Go through every mark saved, and add it
+	if(listOfMarkedSpans.length>0){
+		listOfMarkedSpans.forEach((entry)=>{
+			var indexOfSpan = entry["index"];
+			var html = entry["html"];
+			var span = fromHTML(html.replace(/\\"/g, '"')); //remove the escape characters from the html (as it is not JSON)
+			const textLayerContainer = document.getElementById("textLayerContainer");
+			
+			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];
+			spanToInsertInto.innerHTML = "";
+			spanToInsertInto.appendChild(span);
+		})
+		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
+		//the code currently changes the text of a test element
+		document.querySelectorAll('#markedSection').forEach(element =>{
+			element.addEventListener('click', () => {
+				document.getElementById('testComment').textContent = listOfComments[element.dataset.value]
+			});
+		})
+	}
+}
+
+
 markButton.addEventListener("click", highlightSelectedText);
 var currentStartingElement;
 var endingElement;
@@ -97,12 +124,31 @@ document.addEventListener('selectionchange', function(event){
 		else{
 			endingElement = selection.getRangeAt(0).endContainer;
 		}
+
 		if(selectionList.toString().length > 0){
 			//const rect = currentStartingElement.parentNode.getBoundingClientRect();
 			markButton.hidden = false;
 			// Set the position of the movable element to match the clicked element
 			//markButton.style.top = rect.top + 'px';
 		}
+		//Check if the slection inlcuides a highlighted span. If so, remove it
+		var pastEndElement = false;
+		selectionList.cloneContents().querySelectorAll('*').forEach((element)=>{
+			if(element == endingElement){
+				pastEndElement = true;
+			}
+			if(element.id =="markedSection" && !pastEndElement){
+				//clear selection
+				window.getSelection().empty();
+				markButton.hidden = true;
+				seenSpan = false;
+				// Remove mousemove event listener when mouse button is released
+				document.removeEventListener('mousemove', mouseMoveHandler);
+				// Remove mouseup event listener when mouse button is released
+				document.removeEventListener('mouseup', mouseUpHandler);
+			}
+		})
+
 	}
 });
 
@@ -153,6 +199,7 @@ function mouseMoveHandler(event) {
 		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 	}
 	
+
 	//Turn off selection when over a highlighted seciton (because can't select it again)
 	if(event.target.id == "markedSection"){
 		//clear selection
@@ -164,6 +211,7 @@ function mouseMoveHandler(event) {
 		// Remove mouseup event listener when mouse button is released
 		document.removeEventListener('mouseup', mouseUpHandler);
 	}
+
 }
 
 function mouseUpHandler(event) {
@@ -247,7 +295,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	highlightSpan.id = "markedSection";
 	highlightSpan.style.backgroundColor = 'yellow'; // Set highlight color
 	highlightSpan.style.cursor = 'pointer'; // Change cursor to pointer
-
+	highlightSpan.style.userSelect= 'none';
 	// Wrap the selected text with the highlight span
 	range.surroundContents(highlightSpan);
 
