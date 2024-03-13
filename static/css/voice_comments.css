@@ -58,7 +58,7 @@
 		transform-origin: bottom;
 	}
 }
-#recordings > *, #savedRecordings > * {
+#recordings > *, #savedRecordings > div[id^="userMenu_"] > * {
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -77,32 +77,36 @@
 .centered-text {
 	text-align: center;
 }
+.button-large {
+	font-size: 14px;
+	padding: 3px;
+	margin-right: 4px;
+}
 
 /* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
 audio {
-	max-width: 90%;
+	max-width: 85%;
 	height: 5%;
 	padding: 2px;
 }
-audio::-webkit-media-controls-current-time-display, 
+#savedRecordings audio {
+	max-width: 75%;
+}
 audio::-webkit-media-controls-current-time-display {
 	font-size: 1em;
 }
 audio::-webkit-media-controls-time-remaining-display,
-audio::-webkit-media-controls-time-remaining-display {
+audio::-webkit-media-controls-overflow-button {
 	display: none !important;
 }
 
 /* Collapsible Menu CSS */
-#voiceCommentLabel {
+#voiceCommentLabel, .user-label {
+	display: flex;
 	padding-top: 5px;
-	padding-bottom: 5px;
     align-items: center;
 	justify-content: center;
 	width: 100%;
-}
-.collapse-menu {
-    padding: 0px;
 }
 .collapse-button {
 	width: 18px;

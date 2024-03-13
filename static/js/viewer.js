@@ -432,6 +432,8 @@ playButton.addEventListener('click', () => {
 function createAudioElement(audio_object, isBlob) {
     const audio = document.createElement('audio');
     audio.controls = true;
+	audio.controlsList.add('nodownload');
+	audio.controlsList.add('noplaybackrate'); 
 	if (isBlob) {
 		audio.src = URL.createObjectURL(audio_object);
 	} else {
@@ -440,13 +442,25 @@ function createAudioElement(audio_object, isBlob) {
     return audio;
 }
 
+// Function to create and configure reply buttons (functionality of replying not implemented)
+function createReplyButton() {
+	const reply = document.createElement('button');
+	const replyIcon = document.createElement('i');
+	replyIcon.className = 'fas fa-reply';
+	reply.appendChild(replyIcon);
+	reply.classList.add('button-large');
+	reply.title = 'Reply to voice comment';
+	return reply;
+}
+
 // Function to create and configure delete buttons
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
     const trashIcon = document.createElement('i');
     trashIcon.className = 'fa solid fa-trash';
     deleteBtn.appendChild(trashIcon);
-    deleteBtn.title = 'Delete recording';
+	deleteBtn.classList.add('button-large');
+    deleteBtn.title = 'Delete voice comment';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -513,6 +527,48 @@ function checkCurrentMark() {
 	}
 }
 
+// Functions to create user label, button and menu to sort voice comments
+function createUserLabel (user, userBtn) {
+	const userLabel = document.createElement('div');
+	userLabel.classList.add('user-label');
+	userLabel.appendChild(userBtn);
+	userLabel.appendChild(document.createTextNode(user));
+	return userLabel;
+}
+
+function createUserButton (user) {
+	const userButton = document.createElement('div');
+	userButton.id = 'userButton_' + user;
+	userButton.classList.add('collapse-button');
+	const chevron = document.createElement('i');
+	chevron.className = 'fas fa-chevron-right';
+	userButton.appendChild(chevron);
+
+	// Embed event listener to toggle correct menu
+	userButton.addEventListener('click', function() {
+		const userMenu = document.getElementById('userMenu_' + user);
+		console.log(userMenu);
+        if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
+			console.log('yes');
+            userMenu.style.display = "block";
+            userButton.classList.add("rotate-down");
+        } else {
+			console.log('No');
+            userMenu.style.display = "none";
+            userButton.classList.remove("rotate-down");
+        }
+	});
+
+	return userButton;
+}
+
+function createUserMenu (user) {
+	const userMenu = document.createElement('div');
+	userMenu.id = 'userMenu_' + user;
+	userMenu.style.display = 'none';
+	return userMenu;
+}
+
 // Updates voice comments in current recordings and saved recordings dynamically
 function updateVoiceComments() {
 	allRecordings.innerHTML = '';
@@ -544,12 +600,22 @@ function updateVoiceComments() {
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
 		for (const markId in listOfSavedComments) {
 			for (const user in listOfSavedComments[markId]) {
+
+				// Create collapsible button for each user
+				const userButton = createUserButton(user);
+
+				// Create user menu for each user
+				const userMenu = createUserMenu(user);
+
+				// Create user label to store user and button
+				const userLabel = createUserLabel(user, userButton);
 				
 				// Loop over each user's voice comments
 				listOfSavedComments[markId][user].forEach(audio_url => {
 
-					// Call functions for audio + delete button 
+					// Call functions for audio + reply + delete button 
 					var audio = createAudioElement(audio_url, false);
+					var replyBtn = createReplyButton();
 					var deleteBtn = createDeleteButton(() => {
 							
 						// Warn user that deletion is permanent
@@ -584,9 +650,15 @@ function updateVoiceComments() {
 							})
 						}
 					});
-					savedRecordings.appendChild(audio);
-					savedRecordings.appendChild(deleteBtn);
+
+					userMenu.appendChild(audio);
+					userMenu.appendChild(replyBtn);
+					userMenu.appendChild(deleteBtn);
+
 				});
+
+				savedRecordings.appendChild(userLabel);
+				savedRecordings.appendChild(userMenu);
 			}
 		}
 	}
@@ -611,9 +683,11 @@ document.addEventListener('afterSetup', () => {
 	console.log('Setup has occured.')
 	checkCurrentMark();
 
-	// Call update everytime a click occurs
-	document.addEventListener('click', () => {
-		updateVoiceComments();
+	// Call update everytime a button / marked section is clicked
+	document.addEventListener('click', e => {
+		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
+			updateVoiceComments();
+		}
 	});
 
 });
@@ -637,4 +711,18 @@ document.addEventListener('saveChanges', () => {
 // Reload the page when the button is clicked
 refreshButton.addEventListener('click', () => {
     location.reload();
+});
+11
+// Clicking a marked section directs user to viewComments tab
+document.addEventListener('click', e => {
+	if (e.target.classList.contains('markedSection')) {
+		const thumbnailsView = document.getElementById("thumbnailView");
+		const outlineView = document.getElementById("outlineView");
+		const commentView = document.getElementById("commentView");
+		const bookmarksView = document.getElementById("bookmarksView");
+		thumbnailsView.style.display = "none";
+        outlineView.style.display = "none";
+        commentView.style.display = "block";
+        bookmarksView.style.display = "none";
+	}
 });
