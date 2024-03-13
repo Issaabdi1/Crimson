@@ -21,8 +21,8 @@
                 <div class="row p-2">
                     {% for member in members %}
                     <div class="col-sm-6 col-md-4 col-lg-3 mb-2 fade-in">
-                        <div class="row text-center">
-                            <i class="bi bi-person-circle pfp"></i>
+                        <div class="text-center">
+                            <img src="{{ member.avatar_url }}" class="rounded-circle medium-image" alt="Avatar of {{ member.username }}">
                         </div>
                         <div class="row text-center">
                             <span class="team-text">{{ member.username }}</span>
