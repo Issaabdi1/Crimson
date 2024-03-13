@@ -531,7 +531,7 @@ function checkCurrentMark() {
 // Functions to create user label, button and menu to sort voice comments
 function createUserLabel (user, userBtn) {
 	const userLabel = document.createElement('div');
-	userLabel.classList.add('user-label');
+	userLabel.id = 'userLabel_' + user;
 	userLabel.appendChild(userBtn);
 	userLabel.appendChild(document.createTextNode(` ${user}`));
 	return userLabel;
@@ -548,7 +548,6 @@ function createUserButton (user) {
 	// Embed event listener to toggle correct menu
 	userButton.addEventListener('click', function() {
 		const userMenu = document.getElementById('userMenu_' + user);
-		console.log(userMenu);
         if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
             userMenu.style.display = "block";
             userButton.classList.add("rotate-down");
@@ -607,52 +606,63 @@ function updateVoiceComments() {
 				const userMenu = createUserMenu(user);
 
 				// Create user label to store user and button
-				const userLabel = createUserLabel(user, userButton);
+				const userLabel = createUserLabel(user, userButton, userMenu);
 				
 				// Loop over each user's voice comments
 				listOfSavedComments[markId][user].forEach(audio_url => {
 
-					// Call functions for audio + reply + delete button 
+					// Call functions for audio + reply button 
 					var audio = createAudioElement(audio_url, false);
 					var replyBtn = createReplyButton();
-					var deleteBtn = createDeleteButton(() => {
-							
-						// Warn user that deletion is permanent
-						if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
-							var csrftoken = getCookie('csrftoken');
-							var formData = new FormData();
-							formData.append('audio-url', audio_url);
+					var deleteBtn;
 
-							// Send request to delete audio from backend
-							fetch('/delete_voice_comment/', {
-								method: 'POST',
-								headers: {
-									'X-CSRFToken': csrftoken
-								},
-								body: formData
-							})
-							.then(response => {
-								if (!response.ok) {
-									throw new Error('Error when returning response');
-								}
-								return response.json();
-							})
-							// On successful deletion, remove audio from frontend
-							.then(data => {
-								audio.remove();
-								deleteBtn.remove();
-								const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
-								if (index !== -1) {
-									listOfSavedComments[currentMarkId][user].splice(index, 1);
-								}
-								updateVoiceComments();
-							})
-						}
-					});
+					// Delete button can only be seen by the user who uploaded the PDF (subject to change)
+					if (currentUser === fileOwner) {
+						deleteBtn = createDeleteButton(() => {
+								
+							// Warn user that deletion is permanent
+							if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+								var csrftoken = getCookie('csrftoken');
+								var formData = new FormData();
+								formData.append('audio-url', audio_url);
+
+								// Send request to delete audio from backend
+								fetch('/delete_voice_comment/', {
+									method: 'POST',
+									headers: {
+										'X-CSRFToken': csrftoken
+									},
+									body: formData
+								})
+								.then(response => {
+									if (!response.ok) {
+										throw new Error('Error when returning response');
+									}
+									return response.json();
+								})
+								// On successful deletion, remove audio from frontend
+								.then(data => {
+									audio.remove();
+									deleteBtn.remove();
+									const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
+									if (index !== -1) {
+										listOfSavedComments[currentMarkId][user].splice(index, 1);
+									}
+									if (listOfSavedComments[currentMarkId][user].length == 0) {
+										delete listOfSavedComments[currentMarkId][user];
+									}
+									updateVoiceComments();
+								})
+							}
+						});
+					}
 
 					userMenu.appendChild(audio);
 					userMenu.appendChild(replyBtn);
-					userMenu.appendChild(deleteBtn);
+					
+					if (deleteBtn) {
+						userMenu.appendChild(deleteBtn);
+					}
 
 				});
 
@@ -671,9 +681,6 @@ function updateVoiceComments() {
 			}
 		}
 	}
-	if (voiceCommentLabel.style.display == 'none') {
-		collapseMenu.style.display = 'none';
-	}
 
 	// Check if save button needs to be visible
 	updateSaveButton();
@@ -682,7 +689,6 @@ function updateVoiceComments() {
 
 // this code is only called after setup() function is completed
 document.addEventListener('afterSetup', () => {
-	console.log('Setup has occured.')
 	checkCurrentMark();
 
 	// Call update everytime a button / marked section is clicked

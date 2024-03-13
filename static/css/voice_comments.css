@@ -62,6 +62,9 @@
 	display: inline-block;
 	vertical-align: middle;
 }
+div[id^="userMenu_"] {
+	text-align: center;
+}
 #saveContainer {
 	display: flex;
 	padding: 5px;
@@ -101,7 +104,7 @@ audio::-webkit-media-controls-overflow-button {
 }
 
 /* Collapsible Menu CSS */
-#voiceCommentLabel, .user-label {
+#voiceCommentLabel, div[id^="userLabel_"] {
 	display: flex;
 	padding-bottom: 5px;
     align-items: center;
