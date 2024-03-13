@@ -103,7 +103,7 @@ audio::-webkit-media-controls-overflow-button {
 /* Collapsible Menu CSS */
 #voiceCommentLabel, .user-label {
 	display: flex;
-	padding-top: 5px;
+	padding-bottom: 5px;
     align-items: center;
 	justify-content: center;
 	width: 100%;

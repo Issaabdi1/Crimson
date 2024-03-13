@@ -376,6 +376,7 @@ async function savePdfChanges(saveCommentsFlag){
 /* -------------------------------------------------------------------------------- */
 
 const voiceCommentLabel = document.getElementById('voiceCommentLabel');
+const collapseMenu = document.getElementById('collapseMenu');
 const playButton = document.getElementById('playCircle');
 const playIcon = document.getElementById('play');
 const saveButton = document.getElementById('save');
@@ -532,7 +533,7 @@ function createUserLabel (user, userBtn) {
 	const userLabel = document.createElement('div');
 	userLabel.classList.add('user-label');
 	userLabel.appendChild(userBtn);
-	userLabel.appendChild(document.createTextNode(user));
+	userLabel.appendChild(document.createTextNode(` ${user}`));
 	return userLabel;
 }
 
@@ -549,11 +550,9 @@ function createUserButton (user) {
 		const userMenu = document.getElementById('userMenu_' + user);
 		console.log(userMenu);
         if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
-			console.log('yes');
             userMenu.style.display = "block";
             userButton.classList.add("rotate-down");
         } else {
-			console.log('No');
             userMenu.style.display = "none";
             userButton.classList.remove("rotate-down");
         }
@@ -671,6 +670,9 @@ function updateVoiceComments() {
 				break;
 			}
 		}
+	}
+	if (voiceCommentLabel.style.display == 'none') {
+		collapseMenu.style.display = 'none';
 	}
 
 	// Check if save button needs to be visible

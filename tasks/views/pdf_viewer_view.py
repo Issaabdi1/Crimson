@@ -74,7 +74,12 @@ def save_pdf_comments(request):
     """Saves the voice comments added to each mark on the PDF"""
     if request.method == "POST":
         voice_comment_str = request.POST.get('voice-comment-list')
-        voice_comment_list = json.loads(voice_comment_str)
+
+        try:
+            voice_comment_list = json.loads(voice_comment_str)
+        except Exception as e:
+            return JsonResponse({}, status=400)
+
         upload_id = request.POST.get('upload_id')
         upload = Upload.objects.get(id=upload_id)
         user = request.user
@@ -91,6 +96,8 @@ def save_pdf_comments(request):
                         audio=audio_file,
                     )
             vc = VoiceComment.objects.all()
+        else:
+            return JsonResponse({}, status=404)
     return JsonResponse({})
             
 def delete_voice_comment(request):
@@ -105,9 +112,11 @@ def delete_voice_comment(request):
             if voice_comment is not None:
                 try:
                     default_storage.delete(voice_comment.audio.name)
-                except e:
+                except Exception as e:
                     return JsonResponse({}, status=500)
                 voice_comment.audio.delete()
                 voice_comment.delete()
+            else:
+                return JsonResponse({}, status=404)
     return JsonResponse({})
 
