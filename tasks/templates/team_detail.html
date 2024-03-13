@@ -37,9 +37,9 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id="popupInviteContainer" class="popup-container">
+                    <div id="popupContainer" class="popup-container">
                         <div id="popupInviteForm" class="popup text-center">
-                            <span id="closeInvitePopup" class="close-btn">&times;</span>
+                            <span id="closePopup" class="close-btn">&times;</span>
                             <form action="{% url 'team_detail' team_id=team.id %}" method="post">
                                 <h2 class="team-text mb-3">Invite User</h2>
                                 {% csrf_token %}
@@ -142,5 +142,5 @@
         </div>
     </div>
 
-    <script src="{% static 'js/popup_window_invite.js' %}"></script>
+    <script src="{% static 'js/popup_window.js' %}"></script>
 {% endblock %}

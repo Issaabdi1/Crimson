@@ -2,7 +2,7 @@
 {% block content %}
     {% load static %}
     
-    <div id="popupContainer" class="profile-popup-container">
+    <div id="popupContainer" class="profile-popup-container popup-container">
         <div id="popupForm" class="profile-popup text-center" style="height: 375px; width: 800px">
             <span id="closePopup" class="close-btn">&times;</span>
             <h1>Update Profile Image</h1>
@@ -75,7 +75,7 @@
             </div>
         </div>
     </div>
-    <script src="{% static "js/popup_window_profile.js" %}"></script>
+    <script src="{% static "js/popup_window.js" %}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let userAvatarUrl = "{{ user.avatar_url }}";
