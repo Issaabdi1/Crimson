@@ -490,7 +490,8 @@
 			await renderVisiblePages();
 			isRendering = false;
 
-			setup();
+			//setup();
+			renderAfterZoom();
             viewer.scrollTop = yPercentage * viewer.scrollHeight;
             viewer.scrollLeft = xPercentage * viewer.scrollWidth;
 		}
