@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm
-from tasks.models import User
+from tasks.models import User, Team
 
 
 @login_required
@@ -27,7 +27,11 @@ def list_team_view(request):
 @login_required
 def team_detail_view(request, team_id):
     current_user = request.user
-    team = current_user.team_set.get(id=team_id)
+    try:
+        team = current_user.team_set.get(id=team_id)
+    except Team.DoesNotExist:
+        messages.add_message(request, messages.ERROR, f'You are not allowed to access this team')
+        return redirect('team_list')
     members = team.members.all()
     shared_uploads = team.shared_uploads.all()
     if request.method == 'POST':

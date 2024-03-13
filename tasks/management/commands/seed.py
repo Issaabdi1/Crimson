@@ -16,7 +16,11 @@ user_fixtures = [
 class Command(BaseCommand):
     """Build automation command to seed the database."""
 
-    USER_COUNT = 300
+    USER_COUNT = 200
+    TEAM_COUNT = 50
+    UPLOAD_COUNT = 1000
+    IMAGE_COUNT = 600
+    UPLOAD_PER_USER = UPLOAD_COUNT / USER_COUNT
     DEFAULT_PASSWORD = 'Password123'
     help = 'Seeds the database with sample data'
 

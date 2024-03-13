@@ -1,7 +1,8 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% block content %}
 {% load static %}
     <div class="col-12 p-2">
+         {% include 'partials/messages.html' %}
         <div class="row">
             <div class="col-12 text-center">
                 <h5 class="team-text fw-light">Create or join a group to share files with others easier.</h5>
