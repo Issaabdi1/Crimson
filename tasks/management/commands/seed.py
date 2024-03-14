@@ -18,13 +18,16 @@ user_fixtures = [
 class Command(BaseCommand):
     """Build automation command to seed the database."""
 
+    # Seeding User, Upload, Team, ProfileImage, SharedFile
     USER_COUNT = 20
     TEAM_COUNT = 15
     UPLOAD_COUNT = 100
     IMAGE_COUNT = USER_COUNT
+    SHARED_FILE_COUNT = USER_COUNT * 3
     UPLOAD_PER_USER = int(UPLOAD_COUNT / USER_COUNT)  # Remember to make it to be integer
     USER_PER_TEAM = 5
     UPLOAD_PER_TEAM = 2 * USER_PER_TEAM
+    USER_PER_SHARED_FILE = 4
     DEFAULT_PASSWORD = 'Password123'
     pdf_url_prefix = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/seeder_data/pdf/sample_file_'
     image_url_prefix = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/seeder_data/image/image'

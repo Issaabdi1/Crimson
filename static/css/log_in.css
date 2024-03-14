@@ -1,0 +1,216 @@
+@import url("https://fonts.googleapis.com/css?family=Raleway:400,400i,700");
+
+:root {
+    --success-base: #1fa47c;
+    --gray-base: #151618;
+    --accent-tint-90: #eaf6f8;
+    --gray-tint-10: #2c2d2f;
+    --gray-tint-20: #444546;
+    --gray-tint-40: #737374;
+    --accent-base: #2fa2bd;
+}
+
+html {
+    font-size: 16px;
+    line-height: 1.5;
+    font-family: "Raleway";
+}
+
+body {
+    background-image: url("../image/3418448.jpg");
+}
+
+img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+#backLink {
+    position: absolute;
+    left: -40px;
+    top: -40px;
+}
+
+.loginContainer {
+    border: 1rem;
+    padding: .5rem;
+    display: grid;
+    grid-template-columns: 1fr 19fr 40fr;
+    align-items: center;
+    height: 100vh;
+}
+
+.well {
+    background-color: white;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    border-radius: .5rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5em;
+}
+
+h2 {
+    margin-top: 1.0rem;
+    font-size: 0.8rem;
+    font-weight: 200;
+    color: var(--gray-tint-20);
+}
+
+hggroup {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+a, p {
+    font-size: 0.8125rem;
+}
+
+form {
+    width: 100%;
+}
+
+form > div {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+label {
+    color: var(--gray-tint-40);
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+input {
+    border: none;
+    border-bottom: 1px solid var(--gray-tint-40);
+    height: 2.25rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    border-color: var(--gray-base);
+}
+
+/*input:focus + label,*/
+/*input:valid + label{*/
+/*    !*transform: translateY(-1.25rem);*!*/
+/*    top: 0;*/
+/*    font-size: 0.8125rem;*/
+/*    color: var(--gray-base);*/
+/*}*/
+
+a {
+    color: var(--accent-base);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--gray-base);
+}
+
+#forgot-passwd {
+    display: block;
+    margin-bottom: 4rem;
+}
+
+/* buttons */
+
+.button {
+    width: 100%;
+    background-color: var(--gray-base);
+    appearence: none;
+    border: none;
+    padding: 1rem 2rem;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 100px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+
+}
+
+.button:hover {
+    background-color: var(--gray-tint-10);
+}
+
+.button:active {
+    transform: translate3d(3px, 3px, 0);
+}
+
+.button-loader {
+    display: flex;
+    gap: .25rem;
+}
+
+.button-loader > div {
+    width: .8rem;
+    height: .8rem;
+    background-color: white;
+    border-radius: 50%;
+    animation: 1.2s infinite ease-in-out scaleUp;
+}
+
+.button-loader div:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.button-loader div:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 3.5rem;
+}
+
+.button-loader {
+    display: none;
+}
+
+.button.loading .button-text {
+    display: none;
+}
+
+.button.loading .button-loader {
+    display: flex;
+}
+
+.button.success {
+    background-color: var(--success-base);
+}
+
+.button.loading {
+    cursor: wait;
+}
+
+
+@keyframes scaleUp {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+.backFont {
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -1,15 +1,31 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <h1>Sign up</h1>
-      <form action="{% url 'sign_up' %}" method="post">
-        {% csrf_token %}
-        {% include 'partials/bootstrap_form.html' with form=form %}
-        <input type="submit" value="Sign up" class="btn btn-primary">
-      </form>
+    {% load static %}
+    {% load widget_tweaks %}
+    <link href="{% static "css/sign_up.css" %}" rel="stylesheet">
+    <div class="loginContainer">
+        <div>
+        </div>
+        <div class="well">
+            <form action="{% url 'sign_up' %}" method="post">
+                {% csrf_token %}
+                <div>
+                    <a href="{% url 'home' %}" id="backLink"><i class="bi bi-arrow-left backFont"></i></a>
+                </div>
+                <hggroup class="text-start">
+                    <h1>Sign up</h1>
+                    <h3 style="margin-top: 1rem">Welcome! Start adding your voice to PDFs.</h3>
+                    <h3>Register as member to experience</h3>
+                </hggroup>
+                <br>
+                {{ form.as_div }}
+                <br>
+                <button type="submit" class=button id="btn-submit">
+                    <span class="button-text">Sign Up</span>
+                </button>
+            </form>
+            <p>Already a Member? <a href="{% url 'log_in' %}">Log in</a>.</p>
+        </div>
     </div>
-  </div>
-</div>
+    <script src="{% static 'js/form_input_label_handler.js' %}"></script>
 {% endblock %}
