@@ -20,10 +20,11 @@ class Command(BaseCommand):
 
     USER_COUNT = 20
     TEAM_COUNT = 15
-    UPLOAD_COUNT = 200
+    UPLOAD_COUNT = 100
     IMAGE_COUNT = USER_COUNT
-    UPLOAD_PER_USER = UPLOAD_COUNT / USER_COUNT
+    UPLOAD_PER_USER = int(UPLOAD_COUNT / USER_COUNT)  # Remember to make it to be integer
     USER_PER_TEAM = 5
+    UPLOAD_PER_TEAM = 2 * USER_PER_TEAM
     DEFAULT_PASSWORD = 'Password123'
     pdf_url_prefix = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/seeder_data/pdf/sample_file_'
     image_url_prefix = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/seeder_data/image/image'
@@ -124,7 +125,6 @@ class Command(BaseCommand):
             team_count = Team.objects.count()
         print("Team seeding complete.      ")
 
-
     def generate_user(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
@@ -146,7 +146,8 @@ class Command(BaseCommand):
     def generate_team(self, users):
         name = create_team_name()
         users = users
-        self.try_create_team({'users': users, 'name': name})
+        shared_uploads = self.create_shared_uploads(users)
+        self.try_create_team({'users': users, 'name': name, 'shared_uploads': shared_uploads})
 
     def try_create_user(self, data):
         try:
@@ -220,13 +221,26 @@ class Command(BaseCommand):
             print('image create unsuccessfully')
             return None
 
-    def create_team(self,data):
+    def create_team(self, data):
         team = Team.objects.create(
             name=data['name'],
         )
         for user in data['users']:
             team.members.add(user)
+        for upload in data['shared_uploads']:
+            team.shared_uploads.add(upload)
         team.save()
+
+    def create_shared_uploads(self, users):
+        shared_uploads = []
+        for user in users:
+            users_upload = Upload.objects.filter(owner=user)
+            for i in range(0, int(self.UPLOAD_PER_TEAM / self.USER_PER_TEAM)):
+                upload = users_upload[randint(0, self.UPLOAD_PER_USER - 1)]
+                while upload in shared_uploads:
+                    upload = users_upload[randint(0, self.UPLOAD_PER_USER - 1)]
+                shared_uploads.append(upload)
+        return shared_uploads
 
 
 def create_username(first_name, last_name):
