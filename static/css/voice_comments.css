@@ -1,0 +1,132 @@
+/* Voice comment view */
+#voiceRecord {
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	margin-bottom: 4px;
+}
+#playCircle {
+	width: 33px;
+	height: 33px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: background-color 0.5s ease;
+}
+#playCircle:hover {
+	background-color: #D8DEE4;
+}
+#playCircle:hover #play {
+	font-size: 1.2em;
+}
+#play {
+	font-size: 1.4em;
+	transition: font-size 0.3s ease;
+}
+
+.animation-block {
+	width: 3px;
+	height: 15px;
+	margin-bottom: 8px;
+	background-color: black;
+	display: none;
+	transform: scaleY(0.2);
+	transform-origin: bottom;
+}
+.block-1 {
+	animation: play 1.4s infinite ease;
+}
+.block-2 {
+	animation: play 1.4s infinite ease 0.2s;
+}
+.block-3 {
+	animation: play 1.4s infinite ease 0.4s;
+}
+@keyframes play {
+	0% {
+		transform: scaleY(0.2);
+		transform-origin: bottom;
+	}
+	50% {
+		transform: scaleY(0.5);
+		transform-origin: bottom;
+	}
+	100% {
+		transform: scaleY(0.2);
+		transform-origin: bottom;
+	}
+}
+#recordings > *, #savedRecordings > div[id^="userMenu_"] > * {
+	display: inline-block;
+	vertical-align: middle;
+}
+div[id^="userMenu_"] {
+	text-align: center;
+}
+#saveContainer {
+	display: flex;
+	padding: 5px;
+	justify-content: center;
+}
+#save {
+	padding: 2px;
+}
+#refresh {
+	padding: 4px;
+	margin-left: 4px;
+}
+.centered-text {
+	text-align: center;
+}
+.button-large {
+	font-size: 14px;
+	padding: 3px;
+	margin-right: 4px;
+}
+
+/* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
+audio {
+	max-width: 85%;
+	height: 5%;
+	padding: 2px;
+}
+#savedRecordings audio {
+	max-width: 75%;
+}
+audio::-webkit-media-controls-current-time-display {
+	font-size: 1em;
+}
+audio::-webkit-media-controls-time-remaining-display,
+audio::-webkit-media-controls-overflow-button {
+	display: none !important;
+}
+
+/* Collapsible Menu CSS */
+#voiceCommentLabel, div[id^="userLabel_"] {
+	display: flex;
+	padding-bottom: 5px;
+    align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+.collapse-button {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: transform 0.5s ease, background-color 0.5s ease; 
+}
+.collapse-button:hover {
+	background-color: #D8DEE4;
+}
+.fa-chevron-right {
+	font-size: 0.75em;
+}
+.rotate-down {
+    transform: rotate(90deg);
+}

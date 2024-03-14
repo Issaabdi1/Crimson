@@ -50,6 +50,10 @@ function decodeEntities(encodedString) {
 
 var listOfMarkedSpans = []; //list of all the spans that are marked. 
 var listOfComments = {} //this should be passed in from outside.
+var listOfVoiceComments = {};
+var currentMarkId;
+const setupEvent = new Event('afterSetup')
+const saveChanges = new Event('saveChanges');
 function setup(){
 	//Load all the info and marks into the pdf
 	if(savedMarks!=""){
@@ -79,9 +83,11 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
-				document.getElementById('testComment').textContent = listOfComments[element.dataset.value]
+				currentMarkId = element.dataset.value;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
 			});
 		})
+		document.dispatchEvent(setupEvent);
 	}
 }
 
@@ -103,7 +109,8 @@ function renderAfterZoom(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
-				document.getElementById('testComment').textContent = listOfComments[element.dataset.value]
+				currentMarkId = element.dataset.value;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
 			});
 		})
 	}
@@ -256,7 +263,8 @@ function highlightSelectedText(event){
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
 			// Handle click event (e.g., open a modal, execute a function, etc.)
-			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
+			currentMarkId = highlightedSpan.dataset.value;
+			document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
 		});
 		count+=1;
 	});
@@ -275,7 +283,7 @@ function highlightSelectedText(event){
 	//Add a new entry in the dictionary, associating the mark with a comment. 
 	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
 	//save changes
-	savePdfChanges();
+	savePdfChanges(false); // THIS LINE COULD BE THE BUG
 }
 
 // Example function to highlight selected text within a span
@@ -293,6 +301,10 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	// Create a highlight span element
 	const highlightSpan = document.createElement('span');
 	highlightSpan.id = "markedSection";
+
+	// ISSA CODE
+	//highlightSpan.classList.add('markedSection');
+
 	highlightSpan.style.backgroundColor = 'yellow'; // Set highlight color
 	highlightSpan.style.cursor = 'pointer'; // Change cursor to pointer
 	highlightSpan.style.userSelect= 'none';
@@ -341,6 +353,78 @@ function getCookie(name) {
 	return cookieValue;
 }
 
+// Adds padding to encoded audio to ensure correct length
+function addPadding(base64) {
+    const padding = '='.repeat((4 - base64.length % 4) % 4);
+    return base64 + padding;
+}
+
+//Send the data to the database
+async function savePdfChanges(saveCommentsFlag){
+	const xhttp = new XMLHttpRequest();
+
+	let formData = new FormData();
+	formData.append('upload_id', upload_id);
+
+	// Get CSRF token from cookie
+	let csrftoken = getCookie('csrftoken');
+
+	if (!saveCommentsFlag) {
+		var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+		var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+
+		//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
+		var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+		formData.append('mark_id', Mark.instanceCount);
+		formData.append('listOfComments', listOfCommentsJson);
+		formData.append('listOfSpans', listOfMarkedSpansJson);
+		xhttp.open("POST", "/save_pdf_marks/", true); 
+	} else {
+		var listOfVoiceCommentsJson = {};
+		// Convert audio into base64 to be compatible with JSON
+		for (const markId in listOfVoiceComments) {
+			if (listOfVoiceComments.hasOwnProperty(markId)) {
+				const blobs = listOfVoiceComments[markId];
+				const base64array = blobs.map(blob => {
+					return new Promise ((resolve) => {
+						const reader = new FileReader();
+						reader.onload = () => {
+							const b64string = reader.result.split(',')[1];
+							resolve(addPadding(b64string));
+						};
+						reader.readAsDataURL(blob);
+					});
+				});
+				listOfVoiceCommentsJson[markId] = await Promise.all(base64array);
+			}
+		}
+		var listOfVoiceCommentsJsonString = JSON.stringify(listOfVoiceCommentsJson);
+		formData.append('voice-comment-list', listOfVoiceCommentsJsonString);
+		xhttp.open("POST", "/save_pdf_comments/", true);
+	}
+
+	// Set CSRF token in request header
+	xhttp.setRequestHeader("X-CSRFToken", csrftoken);
+	xhttp.send(formData);
+
+	//When the request has been dealt with, clear the dictionary
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			if (this.status === 200) {
+				listOfVoiceComments = {};
+				if (saveCommentsFlag) {
+					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
+				}
+			}
+		}
+	};
+
+	return true; //Show the request has been sent successfully
+}
+
+
+/* Old Save PDF Function 
+
 //Send the data to the database
 function savePdfChanges(){
 	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
@@ -374,8 +458,9 @@ function savePdfChanges(){
 
 	return true; //Show the request has been sent successfully
 }
+*/
 
-//find functionality
+/* Search for Term Javascript */
 function escapeHtml(text) {
 	var map = {
 		'&': '&amp;',
@@ -489,4 +574,368 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 });
 
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
+/* -------------------------------------------------------------------------------- */
+/* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
+/* -------------------------------------------------------------------------------- */
+
+const voiceCommentLabel = document.getElementById('voiceCommentLabel');
+const collapseMenu = document.getElementById('collapseMenu');
+const playButton = document.getElementById('playCircle');
+const playIcon = document.getElementById('play');
+const saveButton = document.getElementById('save');
+const allRecordings = document.getElementById('recordings');
+const savedRecordings = document.getElementById('savedRecordings');
+const animationBlocks = document.querySelectorAll('.animation-block');
+const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
+const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match => 
+  String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
+);
+var listOfSavedComments = {};
+if (decodedJSONString) {
+	listOfSavedComments= JSON.parse(decodedJSONString);
+}
+
+
+let mediaRecorder;
+let chunks = [];
+
+// function to display delete all button if there is audio
+function updateSaveButton() {
+	if (allRecordings.querySelectorAll('audio').length > 0) {
+		saveButton.style.display = 'block';
+	} else {
+		saveButton.style.display = 'none';
+	}
+}
+
+// Initial call for displaying delete all button
+updateSaveButton();
+
+// Play or stop recording when clicked
+playButton.addEventListener('click', () => {
+	if (mediaRecorder && mediaRecorder.state === 'recording') {
+		stopRecording();
+		playIcon.classList.remove('fa-stop');
+		playIcon.classList.add('fa-play');
+		playIcon.setAttribute('title', 'Start Recording');
+		animationBlocks.forEach(block => {
+			block.style.display = 'none';
+		});
+	} else {
+		startRecording();
+		playIcon.classList.remove('fa-play');
+		playIcon.classList.add('fa-stop');
+		playIcon.setAttribute('title', 'Stop Recording');
+		animationBlocks.forEach(block => {
+			block.style.display = 'inline-block';
+		});
+	}
+});
+
+// Function to create and configure audio
+function createAudioElement(audio_object, isBlob) {
+    const audio = document.createElement('audio');
+    audio.controls = true;
+	audio.controlsList.add('nodownload');
+	audio.controlsList.add('noplaybackrate'); 
+	if (isBlob) {
+		audio.src = URL.createObjectURL(audio_object);
+	} else {
+		audio.src = audio_object;
+	}
+    return audio;
+}
+
+// Function to create and configure reply buttons (functionality of replying not implemented)
+function createReplyButton() {
+	const reply = document.createElement('button');
+	const replyIcon = document.createElement('i');
+	replyIcon.className = 'fas fa-reply';
+	reply.appendChild(replyIcon);
+	reply.classList.add('button-large');
+	reply.title = 'Reply to voice comment';
+	return reply;
+}
+
+// Function to create and configure delete buttons
+function createDeleteButton(deleteFunction) {
+    const deleteBtn = document.createElement('button');
+    const trashIcon = document.createElement('i');
+    trashIcon.className = 'fa solid fa-trash';
+    deleteBtn.appendChild(trashIcon);
+	deleteBtn.classList.add('button-large');
+    deleteBtn.title = 'Delete voice comment';
+    deleteBtn.addEventListener('click', deleteFunction);
+    return deleteBtn;
+}
+
+// function to record user's voice
+async function startRecording() {
+	const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+	mediaRecorder = new MediaRecorder(stream);
+	mediaRecorder.addEventListener('dataavailable', (e) => {
+		chunks.push(e.data);
+	});
+
+	mediaRecorder.addEventListener('stop', () => {
+		// Initialise file for recording
+		const blob = new Blob(chunks, { type: 'audio/wav' });
+
+		// Call functions for audio + delete button 
+		const audio = createAudioElement(blob, true)
+		const deleteBtn = createDeleteButton(() => {
+			audio.remove();
+			deleteBtn.remove();
+			const index = listOfVoiceComments[currentMarkId].indexOf(blob);
+			if (index !== -1) {
+				listOfVoiceComments[currentMarkId].splice(index, 1)
+			}
+			chunks = [];
+			updateSaveButton();
+		});
+
+		// Add audio + delete button to div
+		allRecordings.appendChild(audio);
+		allRecordings.appendChild(deleteBtn);
+
+		// Check if save button needs to be visible
+		updateSaveButton();
+
+		// Reset audio for the next recording
+		chunks = [];
+
+		// Update voice comment dictionary with new recording
+		if (currentMarkId) {
+			if (!listOfVoiceComments[currentMarkId]) {
+				listOfVoiceComments[currentMarkId] = [];
+			}
+			listOfVoiceComments[currentMarkId].push(blob);
+		}
+	});
+
+	mediaRecorder.start();
+}
+
+// function to stop recording
+function stopRecording() {
+	mediaRecorder.stop();
+}
+
+// function to chcek if a mark has been selected, user cannot record voice comments otherwise
+function checkCurrentMark() {
+	const voiceRecordContainer = document.getElementById('voiceRecordContainer');
+	if (!currentMarkId) {
+		voiceRecordContainer.style.display = 'none';
+	} else {
+		voiceRecordContainer.style.display = 'block';
+	}
+}
+
+// Functions to create user label, button and menu to sort voice comments
+function createUserLabel (user, userBtn) {
+	const userLabel = document.createElement('div');
+	userLabel.id = 'userLabel_' + user;
+	userLabel.appendChild(userBtn);
+	userLabel.appendChild(document.createTextNode(` ${user}`));
+	return userLabel;
+}
+
+function createUserButton (user) {
+	const userButton = document.createElement('div');
+	userButton.id = 'userButton_' + user;
+	userButton.classList.add('collapse-button');
+	const chevron = document.createElement('i');
+	chevron.className = 'fas fa-chevron-right';
+	userButton.appendChild(chevron);
+
+	// Embed event listener to toggle correct menu
+	userButton.addEventListener('click', function() {
+		const userMenu = document.getElementById('userMenu_' + user);
+        if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
+            userMenu.style.display = "block";
+            userButton.classList.add("rotate-down");
+        } else {
+            userMenu.style.display = "none";
+            userButton.classList.remove("rotate-down");
+        }
+	});
+
+	return userButton;
+}
+
+function createUserMenu (user) {
+	const userMenu = document.createElement('div');
+	userMenu.id = 'userMenu_' + user;
+	userMenu.style.display = 'none';
+	return userMenu;
+}
+
+// Updates voice comments in current recordings and saved recordings dynamically
+function updateVoiceComments() {
+	allRecordings.innerHTML = '';
+	savedRecordings.innerHTML = '';
+	// Displays audio recently recorded by the user
+	if (currentMarkId && listOfVoiceComments[currentMarkId]) {
+		listOfVoiceComments[currentMarkId].forEach(blob => {
+
+			// Call functions for audio + delete button 
+			var audio = createAudioElement(blob, true);
+			var deleteBtn = createDeleteButton(() => {
+				audio.remove();
+				deleteBtn.remove();
+				const index = listOfVoiceComments[currentMarkId].indexOf(blob);
+				if (index !== -1) {
+					listOfVoiceComments[currentMarkId].splice(index, 1)
+				}
+				chunks = [];
+				updateSaveButton();
+			});
+
+			// Add audio + delete button to div
+			allRecordings.appendChild(audio);
+			allRecordings.appendChild(deleteBtn);
+
+		});
+	}
+	// Displays audio saved in the database
+	if (currentMarkId && listOfSavedComments[currentMarkId]) {
+		for (const markId in listOfSavedComments) {
+			for (const user in listOfSavedComments[markId]) {
+
+				// Create collapsible button for each user
+				const userButton = createUserButton(user);
+
+				// Create user menu for each user
+				const userMenu = createUserMenu(user);
+
+				// Create user label to store user and button
+				const userLabel = createUserLabel(user, userButton, userMenu);
+
+				// Loop over each user's voice comments
+				listOfSavedComments[markId][user].forEach(audio_url => {
+
+					// Call functions for audio + reply button 
+					var audio = createAudioElement(audio_url, false);
+					var replyBtn = createReplyButton();
+					var deleteBtn;
+
+					// Delete button can only be seen by the user who uploaded the PDF (subject to change)
+					if (currentUser === fileOwner) {
+						deleteBtn = createDeleteButton(() => {
+
+							// Warn user that deletion is permanent
+							if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+								var csrftoken = getCookie('csrftoken');
+								var formData = new FormData();
+								formData.append('audio-url', audio_url);
+
+								// Send request to delete audio from backend
+								fetch('/delete_voice_comment/', {
+									method: 'POST',
+									headers: {
+										'X-CSRFToken': csrftoken
+									},
+									body: formData
+								})
+								.then(response => {
+									if (!response.ok) {
+										throw new Error('Error when returning response');
+									}
+									return response.json();
+								})
+								// On successful deletion, remove audio from frontend
+								.then(data => {
+									audio.remove();
+									deleteBtn.remove();
+									const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
+									if (index !== -1) {
+										listOfSavedComments[currentMarkId][user].splice(index, 1);
+									}
+									if (listOfSavedComments[currentMarkId][user].length == 0) {
+										delete listOfSavedComments[currentMarkId][user];
+									}
+									updateVoiceComments();
+								})
+							}
+						});
+					}
+
+					userMenu.appendChild(audio);
+					userMenu.appendChild(replyBtn);
+
+					if (deleteBtn) {
+						userMenu.appendChild(deleteBtn);
+					}
+
+				});
+
+				savedRecordings.appendChild(userLabel);
+				savedRecordings.appendChild(userMenu);
+			}
+		}
+	}
+
+	voiceCommentLabel.style.display = 'none';
+	if (currentMarkId && listOfSavedComments[currentMarkId]) {
+		for (const comments of Object.values(listOfSavedComments[currentMarkId])) {
+			if (comments.length > 0) {
+				voiceCommentLabel.style.display = 'flex';
+				break;
+			}
+		}
+	}
+
+	// Check if save button needs to be visible
+	updateSaveButton();
+	checkCurrentMark();
+}
+
+// this code is only called after setup() function is completed
+document.addEventListener('afterSetup', () => {
+	checkCurrentMark();
+
+	// Call update everytime a button / marked section is clicked
+	document.addEventListener('click', e => {
+		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
+			updateVoiceComments();
+		}
+	});
+
+});
+
+// function to call save PDF changes with correct flag
+saveButton.addEventListener('click' , () => {
+	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>'
+	savePdfChanges(true)
+});
+
+const refreshContainer = document.getElementById('refreshContainer');
+const refreshButton = document.getElementById('refresh');
+
+// Once save is complete, an event is dispatched, calling this function
+document.addEventListener('saveChanges', () => {
+	saveButton.innerHTML = 'Save Comments';
+	updateVoiceComments();
+	refreshContainer.style.display = 'block';
+});
+
+// Reload the page when the button is clicked
+refreshButton.addEventListener('click', () => {
+    location.reload();
+});
+11
+// Clicking a marked section directs user to viewComments tab
+document.addEventListener('click', e => {
+	if (e.target.classList.contains('markedSection')) {
+		const thumbnailsView = document.getElementById("thumbnailView");
+		const outlineView = document.getElementById("outlineView");
+		const commentView = document.getElementById("commentView");
+		const bookmarksView = document.getElementById("bookmarksView");
+		thumbnailsView.style.display = "none";
+        outlineView.style.display = "none";
+        commentView.style.display = "block";
+        bookmarksView.style.display = "none";
+	}
+});
 
