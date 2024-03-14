@@ -1,4 +1,4 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
@@ -7,6 +7,7 @@
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
 
 <body>
+{% include 'partials/messages.html'%}
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">
@@ -27,10 +28,10 @@
                     {% for upload in uploads %}
                     <div class="flex-column flex-md-row list-item" aria-current="true">
                         <div class="text-list-item p-3 gap-2 w-100">
-                            <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm">
+                            <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm{{ upload.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="upload_id" value="{{ upload.id }}">
-                                    <a href="#" onclick="document.getElementById('viewerForm{}').submit();return false;" style="text-decoration: none">
+                                    <a href="#" onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;" style="text-decoration: none">
                                         <div class="item-content">
                                         <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
                                             <div class="mb-1">

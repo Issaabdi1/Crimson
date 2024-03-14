@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     # Seeding User, Upload, Team, ProfileImage, SharedFile
     USER_COUNT = 20
-    TEAM_COUNT = 15
+    TEAM_COUNT = 30
     UPLOAD_COUNT = 100
     IMAGE_COUNT = USER_COUNT
     SHARED_FILE_COUNT = USER_COUNT * 3
