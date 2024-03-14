@@ -2,10 +2,10 @@
 {% block content %}
     {% load static %}
     {% load widget_tweaks %}
-    <link href="{% static 'css/log_in.css' %}" rel="stylesheet">
-    <div class="loginContainer">
+    <link href="{% static 'css/login_and_signup.css' %}" rel="stylesheet">
+    <div class="mainContainer">
         <div></div>
-        <div class="well">
+        <div class="formContainer">
             <form action="{% url 'log_in' %}" method="post">
                 {% csrf_token %}
                 <div>
@@ -26,6 +26,5 @@
         </div>
         <div></div>
     </div>
-    <script src="{% static 'js/form_input_label_handler.js' %}">
-    </script>
+    <script src="{% static 'js/form_input_label_handler.js' %}"></script>
 {% endblock %}

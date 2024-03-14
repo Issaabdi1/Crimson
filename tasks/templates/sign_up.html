@@ -2,11 +2,10 @@
 {% block content %}
     {% load static %}
     {% load widget_tweaks %}
-    <link href="{% static "css/sign_up.css" %}" rel="stylesheet">
-    <div class="loginContainer">
-        <div>
-        </div>
-        <div class="well">
+    <link href="{% static "css/login_and_signup.css" %}" rel="stylesheet">
+    <div class="mainContainer">
+        <div></div>
+        <div class="formContainer">
             <form action="{% url 'sign_up' %}" method="post">
                 {% csrf_token %}
                 <div>
@@ -14,8 +13,8 @@
                 </div>
                 <hggroup class="text-start">
                     <h1>Sign up</h1>
-                    <h3 style="margin-top: 1rem">Welcome! Start adding your voice to PDFs.</h3>
-                    <h3>Register as member to experience</h3>
+                    <h2 style="margin-top: 1rem">Welcome! Start adding your voice to PDFs.</h2>
+                    <h2>Register as member to experience</h2>
                 </hggroup>
                 <br>
                 {{ form.as_div }}
@@ -26,6 +25,7 @@
             </form>
             <p>Already a Member? <a href="{% url 'log_in' %}">Log in</a>.</p>
         </div>
+        <div></div>
     </div>
     <script src="{% static 'js/form_input_label_handler.js' %}"></script>
 {% endblock %}

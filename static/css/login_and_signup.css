@@ -13,7 +13,7 @@
 html {
     font-size: 16px;
     line-height: 1.5;
-    font-family: "Raleway";
+    font-family: "Raleway", serif;
 }
 
 body {
@@ -32,7 +32,12 @@ img {
     top: -40px;
 }
 
-.loginContainer {
+.backFont {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.mainContainer {
     border: 1rem;
     padding: .5rem;
     display: grid;
@@ -41,7 +46,7 @@ img {
     height: 100vh;
 }
 
-.well {
+.formContainer {
     background-color: white;
     padding: 4rem;
     display: flex;
@@ -104,14 +109,6 @@ input {
 input:focus {
     border-color: var(--gray-base);
 }
-
-/*input:focus + label,*/
-/*input:valid + label{*/
-/*    !*transform: translateY(-1.25rem);*!*/
-/*    top: 0;*/
-/*    font-size: 0.8125rem;*/
-/*    color: var(--gray-base);*/
-/*}*/
 
 a {
     color: var(--accent-base);
@@ -208,9 +205,4 @@ a:hover {
     40% {
         transform: scale(1);
     }
-}
-
-.backFont {
-    font-size: 20px;
-    font-weight: bold;
 }
