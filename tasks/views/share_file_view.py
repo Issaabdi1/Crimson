@@ -22,6 +22,8 @@ def share_file(request):
     user = request.user
     all_users = User.objects.exclude(username=user.username)
     uploads = Upload.objects.filter(owner=user)
+    if Upload.objects.filter(owner=user).count() == 0:
+        messages.warning(request, 'Please upload a file before sharing.')
     if request.method == 'POST':
         file_id = request.POST.get('file-id')
         user_ids = request.POST.get('user-ids')
@@ -34,10 +36,10 @@ def share_file(request):
                     shared_file=shared_file,
                     shared_by=user,
                 )
-                if (entry.shared_to.contains(shared_user)):
+                if entry.shared_to.contains(shared_user):
                     messages.error(request, f'User {shared_user.username} has already been shared this file.')
                 else:
-                    #Create a new notification if the file has been newly shared
+                    # Create a new notification if the file has been newly shared
                     Notification.objects.create(
                         shared_file_instance = entry,
                         user = shared_user,
@@ -46,6 +48,8 @@ def share_file(request):
                     )
                 entry.shared_to.add(shared_user)
                 entry.save()
+        elif file_id is None and user_ids:
+            messages.error(request, 'Please select a file to share.')
     
     context = {
         'uploads': uploads,

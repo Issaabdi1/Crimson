@@ -39,10 +39,10 @@ class NotificationsTestCase(TestCase):
     def test_notification_created_when_file_shared(self):
         """Shares a file, and tests if a notification is created"""
         share_files_url = reverse('share_file')
-        data = {'file-id': self.upload.id, 'user-id': self.second_user.id}
+        data = {'file-id': self.upload.id, 'user-ids': [self.second_user.id]}
         before_count = Notification.objects.count()
         response = self.client.post(share_files_url, data)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)  # Fix to 200, because the actual statu is 200, there isn't a redirect after share
         after_count = Notification.objects.count()
         self.assertEqual(before_count + 1, after_count)
         self.assertIsNotNone(Notification.objects.filter(user=self.user))

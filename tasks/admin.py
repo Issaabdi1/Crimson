@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload, Team, ProfileImage, SharedFiles
+from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification
 # Register your models here.
 
 
@@ -38,4 +38,11 @@ class SharedFilesAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for SharedFiles"""
     list_display = [
         'shared_file', 'shared_by', 'shared_date'
+    ]
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for Notifications"""
+    list_display = [
+        'shared_file_instance', 'user', 'time_of_notification', 'notification_message'
     ]

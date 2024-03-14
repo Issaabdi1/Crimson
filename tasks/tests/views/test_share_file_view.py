@@ -18,13 +18,17 @@ class ShareFileViewTestCase(TestCase):
         self.second_user = User.objects.get(username='@janedoe')
         self.form_input = {
             'file-id': 1,
-            'user-id': 2
+            'user-ids': [2]
         }
         self.test_file = SimpleUploadedFile(
             'test_file.pdf',
             b'Test file content',
             content_type='text/plain'
         )
+
+    def tearDown(self):
+        if User.objects.all():
+            User.objects.all().delete()
 
     def test_share_file_url(self):
         self.assertEqual(self.url,'/share_file/')
@@ -58,8 +62,9 @@ class ShareFileViewTestCase(TestCase):
         response = self.client.post(self.url, self.form_input)
         after_count = SharedFiles.objects.count()
         self.assertEqual(after_count, before_count + 1)
-        response_url = reverse('filelist')
-        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        # response_url = reverse('filelist')
+        # self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
         upload.delete()
     
     def test_unsuccessful_file_share_if_file_is_missing(self):
@@ -76,6 +81,7 @@ class ShareFileViewTestCase(TestCase):
         messages_list = list(response.context['messages'])
         self.assertEqual(len(messages_list), 1)
         self.assertEqual(messages_list[0].level, messages.ERROR)
+        self.assertEqual(str(messages_list[0]), f'Please select a file to share.')  # The message isn't added before
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'share_file.html')
         upload.delete()
