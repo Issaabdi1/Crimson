@@ -197,3 +197,34 @@ body {
 #outlineView span:hover {
   background-color: #f5f5f5;
 }
+
+.toggleContainer {
+	text-align: center;
+	margin-top: 50px;
+}
+.toggle-button{
+	padding: 10px 20px;
+	background-color: #fff;
+	color: #000;
+	border: none;
+	cursor: pointer;
+	border-radius: 5px;
+	transition: all 0.3s ease;
+}
+
+.input-box{
+	padding: 10px 20px;
+	background-color: #fff;
+	color: #000;
+	border: none;
+	cursor: pointer;
+	border-radius: 5px;
+	transition: all 0.3s ease;
+
+}
+.toggle-button {
+	display: inline-block;
+}
+.input-box {
+	display: none;
+}

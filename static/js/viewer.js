@@ -85,7 +85,11 @@ function setup(){
 				markedSectionClicked = true;
 				document.getElementById('markIdInput').value = currentMarkId;
 				document.getElementById('viewComments').click();
-				document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
+				if(currentMarkId!==undefined){
+					document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
+				}else{
+					document.getElementById('comment').textContent = "No comment in mark " + currentMarkId+ " yet.."
+				}
 			});
 		});
 	}
@@ -219,9 +223,17 @@ function highlightSelectedText(event){
 		var commentInput = document.getElementById("commentInput").value;
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
-			// Handle click event (e.g., open a modal, execute a function, etc.)
-			document.getElementById("viewComments").click();
-			document.getElementById('comment').textContent = currentMarkId + ": " + JSON.parse(listOfComments)[currentMarkId]
+			try {
+				var parsedComments = JSON.stringify(listOfComments)
+				if (parsedComments !== undefined) {
+					document.getElementById('comment').textContent = currentMarkId + ": " + parsedComments[newMark.getId()];
+				} else {
+					document.getElementById('comment').textContent = "No comment in mark " + currentMarkId + " yet..";
+				}
+			} catch (error) {
+				console.error("Error parsing JSON:", error);
+			}
+
 		});
 		count+=1;
 	});
@@ -236,8 +248,6 @@ function highlightSelectedText(event){
 		}
 	});
 
-	//Add a new entry in the dictionary, associating the mark with a comment. "This comment is by mark " + newMark.getId()
-	listOfComments[newMark.getId()] =
 	//save changes
 	savePdfChanges();
 }
@@ -341,11 +351,13 @@ function savePdfChanges(){
 
 function saveComment() {
     var commentInput = document.getElementById("commentInput").value;
-    console.log(commentInput);
-    listOfComments[currentMarkId] = commentInput;
-    var text = listOfComments[currentMarkId];
-    var listOfCommentsJson = JSON.stringify(listOfComments);
-	console.log('this is comment json:'+listOfCommentsJson)
+	listOfComments[currentMarkId] = commentInput;
+	var text = listOfComments[currentMarkId];
+	var listOfCommentsJson = JSON.stringify(listOfComments);
+	console.log("List of comments:"+listOfComments)
+	console.log('Comment json:'+listOfCommentsJson)
+
+
 
     $.ajax({
         url: '/save_comment/',
@@ -353,7 +365,7 @@ function saveComment() {
         data: {
             'comments': listOfCommentsJson,
             'upload_id': upload_id,
-            'mark_id': currentMarkId,
+            'comment_mark_id': currentMarkId,
             'text': text,
             'listOfComments': listOfComments
         },
@@ -369,4 +381,60 @@ function saveComment() {
         }
     });
 	savePdfChanges()
+}
+
+/**
+ *  clear all comments
+ */
+function clearAllComments(){
+	const clearCommentsBtn = document.getElementById('clear-comments-btn');
+	clearCommentsBtn.addEventListener('click', () => {
+		fetch('/clear_comment/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken')
+			},
+			body: JSON.stringify({})
+		})
+		.then(response => {
+			if (response.ok) {
+				location.reload();
+			} else {
+				console.error('Failed to clear comments');
+			}
+		})
+		.catch(error => {
+			console.error('Error:', error);
+		});
+	});
+}
+document.getElementById('clear-comments-btn').addEventListener('click', clearAllComments);
+
+function toggleInput() {
+        var button = document.querySelector('.toggle-button');
+        var inputBox = document.querySelector('.input-box');
+        button.style.display = 'none';
+        inputBox.style.display = 'inline-block';
+        inputBox.focus();
+    }
+
+function saveInput() {
+	var button = document.querySelector('.toggle-button');
+	var inputBox = document.querySelector('.input-box');
+	var inputValue = inputBox.value;
+	button.innerText = inputValue;
+	button.style.display = 'inline-block';
+	inputBox.style.display = 'none';
+	localStorage.setItem('savedInput', inputValue);
+}
+
+window.onload = function() {
+	var savedInput = localStorage.getItem('savedInput');
+	if (savedInput) {
+		var button = document.querySelector('.toggle-button');
+		var inputBox = document.querySelector('.input-box');
+		button.innerText = savedInput;
+		inputBox.style.display = 'none';
+	}
 }
