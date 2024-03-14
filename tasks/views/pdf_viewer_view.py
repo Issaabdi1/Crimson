@@ -7,7 +7,8 @@ from django.http import JsonResponse
 from django.utils import timezone
 from tasks.models import Comment
 from django.forms.models import model_to_dict
-
+from django.shortcuts import HttpResponse
+from django.views.decorators.http import require_POST
 
 @login_required
 def viewer(request):
@@ -23,6 +24,8 @@ def viewer(request):
                 context['upload'] = upload
                 comments = Comment.objects.filter(upload=upload)
                 context['comments'] = comments
+                mark_id = request.POST.get('comment_mark_id')
+                context['current_id'] = mark_id
                 if (PDFInfo.objects.filter(upload=upload).exists()):
                     # get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload=upload)
@@ -63,10 +66,11 @@ def save_pdf_info(request):
 
 def save_comment(request):
     if request.method == "POST":
-        comment_text = request.POST.get('comments')
+        comments = request.POST.get('comments')
         mark_id = request.POST.get('mark_id')
         upload_id = request.POST.get('upload_id')
         commenter = request.user
+        text = request.POST.get('text')
 
         now = timezone.now()
         Comment.objects.create(
@@ -74,14 +78,17 @@ def save_comment(request):
             mark_id=mark_id,
             commenter=commenter,
             date=now,
-            text=comment_text,
+            text=text,
         )
 
-        print("comments: "+comment_text)
+        print("comments: " + text)
 
-        return render(request, 'viewer.html', {'text': comment_text})
+        return render(request, 'viewer.html', {'text': text})
     else:
         return JsonResponse({"success": False, "error": "Only POST requests are allowed"})
 
 
-
+@require_POST
+def clear_comment(request):
+    Comment.objects.all().delete()
+    return HttpResponse(status=204)
