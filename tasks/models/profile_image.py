@@ -21,3 +21,14 @@ class ProfileImage(models.Model):
                 oldest_avatar = self.user.profileimage_set.order_by('id').first()
                 oldest_avatar.delete()
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to handle user's profile image"""
+        is_using = self.user.avatar_url == self.image.url
+        super().delete(*args, **kwargs)
+        if is_using:
+            if self.user.profileimage_set.count() > 0:
+                self.user.avatar_url = self.user.profileimage_set.order_by('id').first().image.url
+            else:
+                self.user.avatar_url = "default_avatar_url.jpg"
+            self.user.save()
