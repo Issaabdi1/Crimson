@@ -116,7 +116,10 @@ class Command(BaseCommand):
             print(f"Seeding team {team_count}/{self.TEAM_COUNT}", end='\r')
             users = []
             for i in range(0, self.USER_PER_TEAM):
-                users.append(self.users[randint(0, self.USER_COUNT - 1)])
+                user = self.users[randint(0, self.USER_COUNT - 1)]
+                while user in users:
+                    user = self.users[randint(0, self.USER_COUNT - 1)]
+                users.append(user)
             self.generate_team(users)
             team_count = Team.objects.count()
         print("Team seeding complete.      ")
