@@ -208,3 +208,15 @@ body {
 #outlineView span:hover {
   background-color: #f5f5f5;
 }
+
+/* Navigation pills */
+#comment-pills {
+	display: flex;
+	justify-content: center;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+.navigation {
+	margin: 4px;
+	padding: 8px 36px !important;
+}
