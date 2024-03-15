@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'tasks',
     'storages',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -168,3 +169,5 @@ MESSAGE_TAGS = {
 
 # Default profile image for user who not upload own profile image
 DEFAULT_IMAGE_URL = 'https://mypdfbucket01.s3.eu-west-2.amazonaws.com/media/profile_image/default_image.png'
+
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"

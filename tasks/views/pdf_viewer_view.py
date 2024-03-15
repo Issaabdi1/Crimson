@@ -100,7 +100,8 @@ def get_comments(request):
         mark_id = request.GET.get('mark_id')
         if upload_id is not None:
             try:
-                comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id ).values()
+                comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id).values()
+                print(mark_id)
                 return JsonResponse({"comments": list(comments)})
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=500)

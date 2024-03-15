@@ -81,6 +81,8 @@ function setup(){
 		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
 				markedText = element.textContent;
+				console.log("current mark id:"+currentMarkId)
+
 				currentMarkId = element.dataset.value;
 				markedSectionClicked = true;
 				document.getElementById('markIdInput').value = currentMarkId;
@@ -98,7 +100,6 @@ function setup(){
 							commentCard.innerHTML = '';
 							var ul = document.createElement('ul');
 
-							// 遍历评论数组，创建并添加 <li> 元素
 							response.comments.forEach(function(comment) {
 								var li = document.createElement('li');
 								li.textContent = comment.text;
@@ -106,16 +107,12 @@ function setup(){
 							});
 
 							commentCard.appendChild(ul);
+							savePdfChanges()
 						},
 						error: function(xhr, status, error) {
 							console.error("Error fetching comments:", error);
 						}
 					});
-				// if(currentMarkId!==undefined){
-				// 	document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
-				// }else{
-				// 	document.getElementById('comment').textContent = "No comment in mark " + currentMarkId+ " yet.."
-				// }
 			});
 		});
 	}
@@ -250,6 +247,7 @@ function highlightSelectedText(event){
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
 			document.getElementById('commentSide').click();
+			console.log("current mark id:"+currentMarkId)
 			$.ajax({
 				url: '/get_comments/',
 				type: 'GET',
@@ -269,6 +267,7 @@ function highlightSelectedText(event){
 					});
 
 					commentCard.appendChild(ul);
+					savePdfChanges()
 				},
 				error: function(xhr, status, error) {
 					console.error("Error fetching comments:", error);
