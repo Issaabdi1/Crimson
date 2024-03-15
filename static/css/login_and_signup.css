@@ -88,7 +88,7 @@ form > div {
     margin-bottom: 2rem;
 }
 
-label {
+.mainContainer label {
     color: var(--gray-tint-40);
     position: absolute;
     left: 0;
@@ -97,7 +97,7 @@ label {
     cursor: pointer;
 }
 
-input {
+.mainContainer input {
     border: none;
     border-bottom: 1px solid var(--gray-tint-40);
     height: 2.25rem;
@@ -106,7 +106,7 @@ input {
     transition: border-color 0.3s ease;
 }
 
-input:focus {
+.mainContainer input:focus {
     border-color: var(--gray-base);
 }
 

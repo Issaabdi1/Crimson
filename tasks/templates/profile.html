@@ -1,7 +1,8 @@
 {% extends 'base_content.html' %}
 {% block content %}
     {% load static %}
-    
+    {% load widget_tweaks %}
+    <link href="{% static 'css/password_and_profile.css' %}" rel="stylesheet">
     <div id="popupContainer" class="profile-popup-container popup-container">
         <div id="popupForm" class="profile-popup text-center" style="height: 375px; width: 800px">
             <span id="closePopup" class="close-btn">&times;</span>
@@ -17,9 +18,12 @@
                                     <i class="bi bi-cloud-upload"></i> {{ upload_form.image.label_tag }} {{ upload_form.image }}
                                 </label>
                             </div>
-                            <p class="col-4"><input class="btn btn-primary mt-3" type="submit"
-                                                    name="upload_image"
-                                                    value="Upload"/></p>
+                            <p class="col-4">
+                                <button type="submit" class=button id="btn-submit" name="upload_image"
+                                        style="width: 60%; margin: auto">
+                                    <span class="button-text">Upload</span>
+                                </button>
+                            </p>
                         </div>
                     </form>
                     <br>
@@ -39,8 +43,12 @@
                                         <div style="display: none">{{ radio.tag }}</div>
                                     </div>
                                 {% endfor %}
-                                <p class="col-2"><input class="btn btn-primary mt-3" type="submit" name="update_avatar"
-                                                        value="Save"/></p>
+                                <p class="col-2">
+                                    <button type="submit" class=button id="btn-submit" name="update_avatar"
+                                            style="width: 80%; margin: auto">
+                                        <span class="button-text">Save</span>
+                                    </button>
+                                </p>
                             </div>
                         </form>
                     {% else %}
@@ -51,30 +59,34 @@
         </div>
     </div>
 
-    <div class="container mt-3">
-        <div class="row justify-content-center mt-5">
-            <div class="col-9">
-                <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
-                     class="rounded-circle profile-image mb-3 large-image" id="ProfilePopup" style="cursor: pointer">
-                <div class="profile-text mt-4">
-                    <h3 class="profile-title">{{ user.full_name }}</h3>
-                    <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm p-3 min-vh-100">
-                <div class="col-12">
+    <div class="mainContainer">
+        <div class="formContainer">
+            <form action="{% url 'profile' %}" method="post">
+                {% csrf_token %}
+
+                <hggroup class="text-start">
                     <h1>Edit profile</h1>
-                    <form action="{% url 'profile' %}" method="post">
-                        {% csrf_token %}
-                        {% include 'partials/bootstrap_form.html' with form=profile_form %}
-                        <input type="submit" name="update_profile" value="Update" class="btn btn-primary">
-                    </form>
+                </hggroup>
+                <div style="margin-bottom: 3.5rem">
+                    <img src="{{ user.avatar_url }}" alt="Profile image of {{ user.username }}"
+                         class="rounded-circle profile-image mb-3 large-image" id="ProfilePopup"
+                         style="cursor: pointer">
+                    <div class="profile-text mt-4">
+                        <h3 class="profile-title">{{ user.full_name }}</h3>
+                        <p class="profile-title mt-1 profile-username">{{ user.username }}</p>
+                    </div>
                 </div>
-            </div>
+                <br>
+                {{ profile_form.as_div }}
+                <br>
+                <button type="submit" class=button id="btn-submit" name="update_profile">
+                    <span class="button-text">Update</span>
+                </button>
+            </form>
         </div>
     </div>
+
+
     <script src="{% static "js/popup_window.js" %}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -89,7 +101,7 @@
             });
 
             images.forEach(function (img) {
-                if (img.getAttribute("src") === userAvatarUrl){
+                if (img.getAttribute("src") === userAvatarUrl) {
                     if (img.classList.contains("medium-image")) {
                         img.classList.add('avatar-selected');
                     }
@@ -119,4 +131,5 @@
             radio.checked = true;
         }
     </script>
+    <script src="{% static 'js/form_input_label_handler.js' %}"></script>
 {% endblock %}
