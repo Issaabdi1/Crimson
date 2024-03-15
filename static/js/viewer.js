@@ -744,7 +744,7 @@ function createUserLabel (user, markId, userBtn) {
 
 function createUserButton (user, markId) {
 	const userButton = document.createElement('div');
-	userButton.id = 'userButton_' + user + currentMarkId;
+	userButton.id = 'userButton_' + user + markId;
 	userButton.classList.add('collapse-button');
 	const chevron = document.createElement('i');
 	chevron.className = 'fas fa-chevron-right';
@@ -821,7 +821,6 @@ function updateVoiceComments() {
 				var deleteBtn;
 
 				// Delete button can only be seen by the user who uploaded the PDF (subject to change)
-				console.log(currentUser + ' a ' + fileOwner)
 				if (currentUser === fileOwner) {
 					deleteBtn = createDeleteButton(() => {
 
@@ -898,7 +897,11 @@ document.addEventListener('afterSetup', () => {
 	// Call update everytime a button / marked section is clicked
 	document.addEventListener('click', e => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
-			updateVoiceComments();
+
+			// Do not update the voice comments when clicking buttons located in the voice-comment menu
+			if (!e.target.classList.contains('button-large')) {
+				updateVoiceComments();
+			}
 		}
 	});
 
