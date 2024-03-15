@@ -45,7 +45,7 @@ def viewer(request):
                 messages.add_message(request, messages.ERROR, "Upload does not exist!")
         else:
             messages.add_message(request, messages.ERROR, f'Upload id was not specified in the form!')
-            context['current_user'] = request.user
+    context['current_user'] = request.user
     return render(request, 'viewer.html', context)
 
 def save_pdf_info(request):

@@ -87,8 +87,9 @@ function setup(){
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
 			});
 		})
-		document.dispatchEvent(setupEvent);
+		
 	}
+	document.dispatchEvent(setupEvent);
 }
 
 function renderAfterZoom(){
@@ -303,7 +304,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	highlightSpan.id = "markedSection";
 
 	// ISSA CODE
-	//highlightSpan.classList.add('markedSection');
+	highlightSpan.classList.add('markedSection');
 
 	highlightSpan.style.backgroundColor = 'yellow'; // Set highlight color
 	highlightSpan.style.cursor = 'pointer'; // Change cursor to pointer
@@ -733,17 +734,17 @@ function checkCurrentMark() {
 }
 
 // Functions to create user label, button and menu to sort voice comments
-function createUserLabel (user, userBtn) {
+function createUserLabel (user, markId, userBtn) {
 	const userLabel = document.createElement('div');
-	userLabel.id = 'userLabel_' + user;
+	userLabel.id = 'userLabel_' + user + markId;
 	userLabel.appendChild(userBtn);
 	userLabel.appendChild(document.createTextNode(` ${user}`));
 	return userLabel;
 }
 
-function createUserButton (user) {
+function createUserButton (user, markId) {
 	const userButton = document.createElement('div');
-	userButton.id = 'userButton_' + user;
+	userButton.id = 'userButton_' + user + markId;
 	userButton.classList.add('collapse-button');
 	const chevron = document.createElement('i');
 	chevron.className = 'fas fa-chevron-right';
@@ -751,7 +752,7 @@ function createUserButton (user) {
 
 	// Embed event listener to toggle correct menu
 	userButton.addEventListener('click', function() {
-		const userMenu = document.getElementById('userMenu_' + user);
+		const userMenu = document.getElementById('userMenu_' + user + markId);
         if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
             userMenu.style.display = "block";
             userButton.classList.add("rotate-down");
@@ -764,9 +765,9 @@ function createUserButton (user) {
 	return userButton;
 }
 
-function createUserMenu (user) {
+function createUserMenu (user, markId) {
 	const userMenu = document.createElement('div');
-	userMenu.id = 'userMenu_' + user;
+	userMenu.id = 'userMenu_' + user + markId;
 	userMenu.style.display = 'none';
 	return userMenu;
 }
@@ -800,79 +801,77 @@ function updateVoiceComments() {
 	}
 	// Displays audio saved in the database
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		for (const markId in listOfSavedComments) {
-			for (const user in listOfSavedComments[markId]) {
+		for (const user in listOfSavedComments[currentMarkId]) {
 
-				// Create collapsible button for each user
-				const userButton = createUserButton(user);
+			// Create collapsible button for each user
+			const userButton = createUserButton(user, currentMarkId);
 
-				// Create user menu for each user
-				const userMenu = createUserMenu(user);
+			// Create user menu for each user
+			const userMenu = createUserMenu(user, currentMarkId);
 
-				// Create user label to store user and button
-				const userLabel = createUserLabel(user, userButton, userMenu);
+			// Create user label to store user and button
+			const userLabel = createUserLabel(user, currentMarkId, userButton);
 
-				// Loop over each user's voice comments
-				listOfSavedComments[markId][user].forEach(audio_url => {
+			// Loop over each user's voice comments
+			listOfSavedComments[currentMarkId][user].forEach(audio_url => {
 
-					// Call functions for audio + reply button 
-					var audio = createAudioElement(audio_url, false);
-					var replyBtn = createReplyButton();
-					var deleteBtn;
+				// Call functions for audio + reply button 
+				var audio = createAudioElement(audio_url, false);
+				var replyBtn = createReplyButton();
+				var deleteBtn;
 
-					// Delete button can only be seen by the user who uploaded the PDF (subject to change)
-					if (currentUser === fileOwner) {
-						deleteBtn = createDeleteButton(() => {
+				// Delete button can only be seen by the user who uploaded the PDF (subject to change)
+				if (currentUser === fileOwner) {
+					deleteBtn = createDeleteButton(() => {
 
-							// Warn user that deletion is permanent
-							if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
-								var csrftoken = getCookie('csrftoken');
-								var formData = new FormData();
-								formData.append('audio-url', audio_url);
+						// Warn user that deletion is permanent
+						if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+							var csrftoken = getCookie('csrftoken');
+							var formData = new FormData();
+							formData.append('audio-url', audio_url);
 
-								// Send request to delete audio from backend
-								fetch('/delete_voice_comment/', {
-									method: 'POST',
-									headers: {
-										'X-CSRFToken': csrftoken
-									},
-									body: formData
-								})
-								.then(response => {
-									if (!response.ok) {
-										throw new Error('Error when returning response');
-									}
-									return response.json();
-								})
-								// On successful deletion, remove audio from frontend
-								.then(data => {
-									audio.remove();
-									deleteBtn.remove();
-									const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
-									if (index !== -1) {
-										listOfSavedComments[currentMarkId][user].splice(index, 1);
-									}
-									if (listOfSavedComments[currentMarkId][user].length == 0) {
-										delete listOfSavedComments[currentMarkId][user];
-									}
-									updateVoiceComments();
-								})
-							}
-						});
-					}
+							// Send request to delete audio from backend
+							fetch('/delete_voice_comment/', {
+								method: 'POST',
+								headers: {
+									'X-CSRFToken': csrftoken
+								},
+								body: formData
+							})
+							.then(response => {
+								if (!response.ok) {
+									throw new Error('Error when returning response');
+								}
+								return response.json();
+							})
+							// On successful deletion, remove audio from frontend
+							.then(data => {
+								audio.remove();
+								deleteBtn.remove();
+								const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
+								if (index !== -1) {
+									listOfSavedComments[currentMarkId][user].splice(index, 1);
+								}
+								if (listOfSavedComments[currentMarkId][user].length == 0) {
+									delete listOfSavedComments[currentMarkId][user];
+								}
+								updateVoiceComments();
+							})
+						}
+					});
+				}
 
-					userMenu.appendChild(audio);
-					userMenu.appendChild(replyBtn);
+				userMenu.appendChild(audio);
+				userMenu.appendChild(replyBtn);
 
-					if (deleteBtn) {
-						userMenu.appendChild(deleteBtn);
-					}
+				if (deleteBtn) {
+					userMenu.appendChild(deleteBtn);
+				}
 
-				});
+			});
 
-				savedRecordings.appendChild(userLabel);
-				savedRecordings.appendChild(userMenu);
-			}
+			savedRecordings.appendChild(userLabel);
+			savedRecordings.appendChild(userMenu);
 		}
 	}
 
@@ -898,7 +897,11 @@ document.addEventListener('afterSetup', () => {
 	// Call update everytime a button / marked section is clicked
 	document.addEventListener('click', e => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
-			updateVoiceComments();
+
+			// Do not update the voice comments when clicking buttons located in the voice-comment menu
+			if (!e.target.classList.contains('button-large')) {
+				updateVoiceComments();
+			}
 		}
 	});
 
