@@ -24,7 +24,7 @@ def viewer(request):
                 context['upload'] = upload
                 comments = Comment.objects.filter(upload=upload)
                 context['comments'] = comments
-                mark_id = request.POST.get('comment_mark_id')
+                mark_id = request.POST.get('mark_id')
                 context['current_id'] = mark_id
                 if (PDFInfo.objects.filter(upload=upload).exists()):
                     # get the mark instance
@@ -80,10 +80,9 @@ def save_comment(request):
             date=now,
             text=text,
         )
+        comments = Comment.objects.filter(mark_id=mark_id, upload_id=upload_id)
 
-        print("comments: " + text)
-
-        return render(request, 'viewer.html', {'text': text})
+        return render(request, 'viewer.html', {'comments': comments})
     else:
         return JsonResponse({"success": False, "error": "Only POST requests are allowed"})
 
@@ -92,3 +91,20 @@ def save_comment(request):
 def clear_comment(request):
     Comment.objects.all().delete()
     return HttpResponse(status=204)
+
+
+
+def get_comments(request):
+    if request.method == "GET":
+        upload_id = request.GET.get('upload_id')
+        mark_id = request.GET.get('mark_id')
+        if upload_id is not None:
+            try:
+                comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id ).values()
+                return JsonResponse({"comments": list(comments)})
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
+        else:
+            return JsonResponse({"error": "Upload ID not provided"}, status=400)
+    else:
+        return JsonResponse({"error": "Only GET requests are allowed"}, status=405)

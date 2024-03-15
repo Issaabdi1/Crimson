@@ -84,12 +84,38 @@ function setup(){
 				currentMarkId = element.dataset.value;
 				markedSectionClicked = true;
 				document.getElementById('markIdInput').value = currentMarkId;
-				document.getElementById('viewComments').click();
-				if(currentMarkId!==undefined){
-					document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
-				}else{
-					document.getElementById('comment').textContent = "No comment in mark " + currentMarkId+ " yet.."
-				}
+				document.getElementById('commentSide').click();
+					$.ajax({
+						url: '/get_comments/',
+						type: 'GET',
+						data: {
+							'upload_id': upload_id,
+							'mark_id': currentMarkId
+						},
+						success: function(response) {
+							console.log("Comments:", response.comments);
+							var commentCard = document.getElementById('commentCard');
+							commentCard.innerHTML = '';
+							var ul = document.createElement('ul');
+
+							// 遍历评论数组，创建并添加 <li> 元素
+							response.comments.forEach(function(comment) {
+								var li = document.createElement('li');
+								li.textContent = comment.text;
+								ul.appendChild(li);
+							});
+
+							commentCard.appendChild(ul);
+						},
+						error: function(xhr, status, error) {
+							console.error("Error fetching comments:", error);
+						}
+					});
+				// if(currentMarkId!==undefined){
+				// 	document.getElementById('comment').textContent = currentMarkId + ": " + listOfComments[currentMarkId]
+				// }else{
+				// 	document.getElementById('comment').textContent = "No comment in mark " + currentMarkId+ " yet.."
+				// }
 			});
 		});
 	}
@@ -223,17 +249,31 @@ function highlightSelectedText(event){
 		var commentInput = document.getElementById("commentInput").value;
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
-			try {
-				var parsedComments = JSON.stringify(listOfComments)
-				if (parsedComments !== undefined) {
-					document.getElementById('comment').textContent = currentMarkId + ": " + parsedComments[newMark.getId()];
-				} else {
-					document.getElementById('comment').textContent = "No comment in mark " + currentMarkId + " yet..";
-				}
-			} catch (error) {
-				console.error("Error parsing JSON:", error);
-			}
+			document.getElementById('commentSide').click();
+			$.ajax({
+				url: '/get_comments/',
+				type: 'GET',
+				data: {
+					'upload_id': upload_id,
+					'mark_id': currentMarkId
+				},
+				success: function(response) {
+					console.log("Comments:", response.comments);
+					var commentCard = document.getElementById('commentCard');
+					commentCard.innerHTML = '';
+					var ul = document.createElement('ul');
+					response.comments.forEach(function(comment) {
+						var li = document.createElement('li');
+						li.textContent = comment.text;
+						ul.appendChild(li);
+					});
 
+					commentCard.appendChild(ul);
+				},
+				error: function(xhr, status, error) {
+					console.error("Error fetching comments:", error);
+				}
+			});
 		});
 		count+=1;
 	});
@@ -365,7 +405,7 @@ function saveComment() {
         data: {
             'comments': listOfCommentsJson,
             'upload_id': upload_id,
-            'comment_mark_id': currentMarkId,
+            'mark_id': currentMarkId,
             'text': text,
             'listOfComments': listOfComments
         },
@@ -427,6 +467,7 @@ function saveInput() {
 	button.style.display = 'inline-block';
 	inputBox.style.display = 'none';
 	localStorage.setItem('savedInput', inputValue);
+	saveComment()
 }
 
 window.onload = function() {

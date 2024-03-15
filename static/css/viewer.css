@@ -22,7 +22,7 @@ body {
 #mainContainer {
     position: absolute;
     inset: 0;
-	overflow: auto;
+    overflow: auto;
 }
 
 /* Sidebar */
@@ -227,4 +227,48 @@ body {
 }
 .input-box {
 	display: none;
+}
+
+:root {
+	--secondary-color: #422C73;
+}
+
+/* Right sidebar */
+#rightSidebar {
+    position: fixed;
+    top: 200px; /* Adjust as needed */
+    right: 0;
+    width: auto; /* Adjust width as needed */
+    height: auto;
+    background-color: #25D831;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+	border-radius: 30px
+}
+
+#rightSidebar a {
+    font-size: 20px;
+    color: #fff;
+    text-decoration: none;
+    padding: 20px;
+    text-align: center;
+}
+
+.offcanvas {
+	padding: 10px;
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-box{
+	width: auto;
+	height: auto;
+	padding: 10px;
 }

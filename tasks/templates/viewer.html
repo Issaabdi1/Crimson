@@ -38,6 +38,58 @@
 				</button>
 			</div>
 
+            <!-- Right sidebar -->
+            <div id="rightSidebar">
+                <a id="commentSide" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="bi bi-chat-quote"></i></a>
+            </div>
+            <!-- off canvas -->
+            <div class="offcanvas offcanvas-end " tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+              <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+                  <div class="offcanvas-body">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal">
+                            + Add Comment
+                        </button>
+                        <button class="btn-primary" id="clear-comments-btn">Clear All</button>
+                        <br>
+{#                        <ul>#}
+{#                            {% for comment in comments %}#}
+{#                                {% if comment.mark_id == current_id %}#}
+{#                                    <div class="card" style="width: 13rem;">#}
+{#                                        <div class="card-header" style="align-items: end">#}
+{#                                            <div class="flex items-center mb-6">#}
+{#                                                <img src="{{ comment.commenter.mini_gravatar }}" alt="Avatar" class="rounded-full mr-4" style="border-radius: 50%;">#}
+{#                                                {{ comment.commenter }}#}
+{#                                                <div class="toggleContainer">#}
+{#                                                    {{ comment.text }}#}
+{#                                                    <button class="toggle-button" onclick="toggleInput()">#}
+{#                                                    </button>#}
+{#                                                    <label for="inputBox"></label><input type="text" class="input-box" id="inputBox" onblur="saveInput()">#}
+{#                                                        <div class="card-body"> <p id="comment" style="text-align: center"></p></div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        </ul>#}
+
+                            <div class="card" style="width: 13rem;" id="commentCard">
+{#                                <div class="card-header" style="align-items: end">#}
+{#                                    <div class="flex items-center mb-6">#}
+{#                                        <img src="{{ comment.commenter.mini_gravatar }}" alt="Avatar" class="rounded-full mr-4" style="border-radius: 50%;">#}
+{#                                        {{ comment.commenter }}#}
+{#                                        <div class="toggleContainer">#}
+{#                                            {{ comment.text }}#}
+{#                                         </div>#}
+{#                                    </div>#}
+                                </div>
+
+
+                  </div>
+            </div>
 			<!-- Sidebar Views -->
 			<div id="sidebarViews">
 				<div id="thumbnailView">
@@ -46,33 +98,6 @@
 				
 				<div id="outlineView"></div>
 				<div id="commentView" style="display: flex; flex-direction: column;">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#commentModal">
-                        + Add Comment
-                    </button>
-                    <button class="btn-primary" id="clear-comments-btn">Clear All</button>
-                    <br>
-                    <ul>
-                        {% for comment in comments %}
-                            {% if comment.mark_id == current_id %}
-                                <div class="card" style="width: 13rem;">
-                                    <div class="card-header" style="align-items: end">
-                                        <div class="flex items-center mb-6">
-                                            <img src="{{ comment.commenter.mini_gravatar }}" alt="Avatar" class=" rounded-full mr-4">
-                                            {{ comment.commenter }}
-                                        </div>
-                                    </div>
-                                    <div class="card-body"> <p id="comment" style="text-align: center"></p></div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-            <div class="toggleContainer">
-                <button class="toggle-button" onclick="toggleInput()">Click to Input</button>
-                <input type="text" class="input-box" id="inputBox" onblur="saveInput()">
-            </div>
-                
-
-
 
                 </div>
 
@@ -81,6 +106,8 @@
                 </div>
 			</div>
 		</div>
+
+
 
         <!-- comment modal -->
         <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
@@ -167,6 +194,8 @@
 					</div>
 				</div>
 			</div>
+
+
 		
 			<!-- PDF Viewer -->
 			<div id="viewer">
@@ -177,8 +206,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
 
