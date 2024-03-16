@@ -409,6 +409,35 @@ Dark mode
   background: rgb(100,100,100);
 }
 
+.dark-mode .profile-popup {
+  border: transparent;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(211,211,211);
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  height: 300px;
+  width: 300px;
+}
+
+.dark-mode .popup {
+    border: transparent;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(211,211,211);
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    height: auto;
+    width: 80%;
+    max-width: 300px;
+}
+
 /*
 Orange mode
 */
