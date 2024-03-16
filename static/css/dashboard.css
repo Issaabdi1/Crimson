@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);
+/*@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);*/
 
 /*.get-start {*/
 /*    margin-bottom: 40px;*/
@@ -51,13 +51,7 @@
 /*}*/
 
 
-a{
-    text-decoration: none;
-}
 
-table#dataTable {
-    width: 100%;
-}
 
 .icon-btn {
     width: 1em;
@@ -110,7 +104,7 @@ animation: slideIn 0.5s ease-in-out;
     button {
       background: transparent; outline: none;
       position: relative;
-      /*border: 2px solid #111;*/
+      border: 2px solid #111;
       padding: 15px 50px;
       overflow: hidden;
     }
@@ -139,6 +133,13 @@ animation: slideIn 0.5s ease-in-out;
         transition: all .3s ease-in-out;
       }
 
+a{
+    text-decoration: none;
+}
+
+table#dataTable {
+    width: 100%;
+}
 
 .searchbar-container {
     max-width: 600px;
@@ -155,4 +156,16 @@ animation: slideIn 0.5s ease-in-out;
 .searchbar-container .col-md-6 {
     flex: 0 0 auto;
     width: auto;
+}
+
+.avatar {
+    border-radius: 30px;
+    width: 40px;
+    height: 40px;
+    display: block;
+    margin: auto;
+}
+
+.td {
+    text-align: center;
 }

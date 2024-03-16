@@ -397,15 +397,15 @@ Dark mode
 }
 .dark-mode .dropdown-custom-theme  {
   background-color: rgb(211,211,211) ;
-  color: rgb(76, 76, 76) !important;
+  color: rgb(100,100,100) !important;
 }
 
 .dark-mode .sidebar {
   background-color: rgb(211,211,211) ;
 }
 
-.dark-mode a {
-  color: #ffffff; 
+.dark-mode .a {
+  background: rgb(100,100,100);
 }
 
 /*

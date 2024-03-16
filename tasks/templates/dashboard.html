@@ -24,7 +24,7 @@
 <div class="collapse" id="collapseExample">
     <!-- <div class="get-start">
         <div class="d-grid gap-2 col-6 mx-auto">
-            <button class="start-button" type="button" onclick="window.location='{% url 'upload_file' %}'">#}
+            <button class="start-button" type="button" onclick="window.location='{% url 'upload_file' %}'">
                 Get Start
             </button>
         </div>
@@ -103,7 +103,10 @@
                         </td>
                         <td scope="row">{{ forloop.counter }}</td>
                         <td>{{ upload.get_simple_file_name}}</td>
-                        <td>{{ upload.owner }}</td>
+                        <td>
+                            <img src="{{ upload.owner.avatar_url }}" alt="Mini Gravatar" class="avatar">
+                            {{ upload.owner.username }}
+                        </td>
                         <td>{{ upload.uploaded_at }}</td>
                         {% if upload.comments %}
                             <td>{{ upload.comments }}</td>
