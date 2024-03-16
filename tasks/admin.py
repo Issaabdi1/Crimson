@@ -23,7 +23,7 @@ class UploadAdmin(admin.ModelAdmin):
 class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for teams"""
     list_display = [
-        'name',
+        'name', 'invitation_code'
     ]
 
 @admin.register(ProfileImage)

@@ -17,8 +17,12 @@ class ListTeamViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.get(username='@johndoe')
         self.url = reverse('team_list')
-        self.form_input = {
+        self.form_input_create = {
+            'create_group': 'True',
             'name': "test team"
+        }
+        self.form_input_join = {
+            'join_group': 'True'
         }
 
     def test_list_team_url(self):
@@ -41,7 +45,7 @@ class ListTeamViewTest(TestCase):
     def test_successful_team_created(self):
         self.login(self.user)
         before_count = Team.objects.count()
-        response = self.client.post(self.url, self.form_input, follow=True)
+        response = self.client.post(self.url, self.form_input_create, follow=True)
         after_count = Team.objects.count()
         self.assertEqual(after_count, before_count+1)
         self.assertTemplateUsed(response, 'list_team.html')
@@ -51,9 +55,9 @@ class ListTeamViewTest(TestCase):
 
     def test_unsuccessful_team_create_with_empty_form_input(self):
         self.login(self.user)
-        self.form_input = {}
+        self.form_input_create = {}
         before_count = Team.objects.count()
-        response = self.client.post(self.url, self.form_input, follow=True)
+        response = self.client.post(self.url, self.form_input_create, follow=True)
         after_count = Team.objects.count()
         self.assertEqual(after_count, before_count)
         self.assertTemplateUsed(response, 'list_team.html')
@@ -63,7 +67,7 @@ class ListTeamViewTest(TestCase):
 
     def test_post_list_team_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)
-        response = self.client.post(self.url, self.form_input)
+        response = self.client.post(self.url, self.form_input_create)
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def login(self, user):

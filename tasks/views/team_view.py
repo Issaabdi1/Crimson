@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm
+from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
 from tasks.models import User, Team
 
 
@@ -9,18 +9,28 @@ from tasks.models import User, Team
 def list_team_view(request):
     current_user = request.user
     team_joined = current_user.team_set.all()
+    create_form = CreateTeamForm()
+    join_form = JoinTeamForm()
     if request.method == 'POST':
-        form = CreateTeamForm(request.POST)
-        if form.is_valid():
-            team = form.save()
-            team.members.add(current_user)
-            team.save()
-            return redirect('team_list')
-    else:
-        form = CreateTeamForm()
+        if 'create_group' in request.POST:
+            create_form = CreateTeamForm(request.POST)
+            if create_form.is_valid():
+                team = create_form.save()
+                team.members.add(current_user)
+                team.save()
+                return redirect('team_list')
+        elif 'join_group' in request.POST:
+            join_form = JoinTeamForm(request.POST)
+            if join_form.is_valid():
+                team = Team.objects.all().filter(invitation_code=join_form.cleaned_data['invitation_code'])[0]
+                team.members.add(current_user)
+                team.save()
+                return redirect('team_list')
+
     context = {'user': current_user,
                'team_joined': team_joined,
-               'form': form,}
+               'create_form': create_form,
+               'join_form': join_form}
     return render(request, 'list_team.html',  context=context)
 
 
