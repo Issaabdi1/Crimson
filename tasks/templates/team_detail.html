@@ -65,8 +65,7 @@
                            data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>
                     </div>
                     <div class="text-center team-text mt-2 action-button">
-                        <a class="action-link" data-bs-toggle="offcanvas"
-                           data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Leave Team</a>
+                        <a class="action-link" href="{% url 'team_leave' team_id=team.id %}">Leave Team</a>
                     </div>
                     <div class="text-center team-text mt-2 action-button">
                         <a class="action-link" data-bs-toggle="offcanvas"

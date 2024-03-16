@@ -149,7 +149,7 @@ class Command(BaseCommand):
     def generate_team(self, users):
         name = create_team_name()
         users = users
-        shared_uploads = self.create_shared_uploads(users)
+        shared_uploads = self.create_team_shared_uploads(users)
         self.try_create_team({'users': users, 'name': name, 'shared_uploads': shared_uploads})
 
     def try_create_user(self, data):
@@ -234,7 +234,7 @@ class Command(BaseCommand):
             team.shared_uploads.add(upload)
         team.save()
 
-    def create_shared_uploads(self, users):
+    def create_team_shared_uploads(self, users):
         shared_uploads = []
         for user in users:
             users_upload = Upload.objects.filter(owner=user)

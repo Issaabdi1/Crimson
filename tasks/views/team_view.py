@@ -57,5 +57,16 @@ def team_detail_view(request, team_id):
 
 
 @login_required
-def list_team_file_view(request):
-    return render(request, 'list_team_file.html')
+def leave_team_view(request, team_id):
+    current_user = request.user
+    try:
+        team = current_user.team_set.get(id=team_id)
+    except Team.DoesNotExist:
+        messages.add_message(request, messages.ERROR, f'You are not allowed to access this team')
+        return redirect('team_list')
+    team.members.remove(current_user)
+    if team.members.count() > 0:
+        team.save()
+    else:
+        team.delete()
+    return redirect('team_list')
