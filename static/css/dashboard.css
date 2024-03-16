@@ -83,7 +83,7 @@ animation: slideIn 0.5s ease-in-out;
   padding: 0; margin: 0;
   font: 300 1em/1.5 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
   text-decoration: none;
-  color: #111;
+  /*color: #111;*/
 }
 
   section.container{
@@ -91,7 +91,7 @@ animation: slideIn 0.5s ease-in-out;
     margin: 10% auto;
     text-align: center;
   }
-    a:hover{border-bottom: 1px solid #111;}
+    /*a:hover{border-bottom: 1px solid #111;}*/
     h1{font-size: 2em; padding: 20px 0;}
     p{
       font-size: .75em;

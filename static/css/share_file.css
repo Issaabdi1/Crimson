@@ -16,6 +16,7 @@
     border: 2px solid transparent;
     border-radius: 7px;
     transition: border-color 0.3s, box-shadow 0.3s;
+    color: #000;
 }
 .thumbnail:hover {
     border-color: rgba(0, 0, 255, 0.2);
@@ -60,6 +61,7 @@
 
 .file-name {
     margin-top: 5px;
+    color: #000;
 }
 
 .search-bar {
