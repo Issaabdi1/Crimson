@@ -112,3 +112,26 @@ $('.icon-btn').click(function() {
     sortTable(columnIndex, order);
 });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const collapseSection = document.getElementById('collapseExample');
+    const collapseButton = document.querySelector('[data-bs-target="#collapseExample"]');
+
+    if (collapseButton) {
+        collapseButton.addEventListener('click', function() {
+            const isCollapsed = !collapseSection.classList.contains('show');
+            localStorage.setItem('collapseState', isCollapsed);
+            console.log("localstorage click!");
+        });
+    } else {
+        console.log("Collapse button not found");
+    }
+
+    const storedState = localStorage.getItem('collapseState') === 'true';
+
+    if (storedState) {
+        collapseSection.classList.add('show');
+    } else {
+        collapseSection.classList.remove('show');
+    }
+});
