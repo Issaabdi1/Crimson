@@ -1,54 +1,54 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);
+/*@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,800);*/
 
-.get-start {
-    margin-bottom: 40px;
-}
+/*.get-start {*/
+/*    margin-bottom: 40px;*/
+/*}*/
 
-.start-button {
-  background-color: rgb(155,35,33);
-  border: 0;
-  border-radius: 56px;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: system-ui,-apple-system,system-ui,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  outline: 0;
-  padding: 16px 21px;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  transition: all .3s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
+/*.start-button {*/
+/*  background-color: rgb(155,35,33);*/
+/*  border: 0;*/
+/*  border-radius: 56px;*/
+/*  color: #fff;*/
+/*  cursor: pointer;*/
+/*  display: inline-block;*/
+/*  font-family: system-ui,-apple-system,system-ui,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",sans-serif;*/
+/*  font-size: 18px;*/
+/*  font-weight: 600;*/
+/*  outline: 0;*/
+/*  padding: 16px 21px;*/
+/*  position: relative;*/
+/*  text-align: center;*/
+/*  text-decoration: none;*/
+/*  transition: all .3s;*/
+/*  user-select: none;*/
+/*  -webkit-user-select: none;*/
+/*  touch-action: manipulation;*/
+/*}*/
 
-.start-button:before {
-  background-color: initial;
-  background-image: linear-gradient(#fff 0, rgba(255, 255, 255, 0) 100%);
-  border-radius: 125px;
-  content: "";
-  height: 50%;
-  left: 4%;
-  opacity: .5;
-  position: absolute;
-  top: 0;
-  transition: all .3s;
-  width: 92%;
-}
+/*.start-button:before {*/
+/*  background-color: initial;*/
+/*  background-image: linear-gradient(#fff 0, rgba(255, 255, 255, 0) 100%);*/
+/*  border-radius: 125px;*/
+/*  content: "";*/
+/*  height: 50%;*/
+/*  left: 4%;*/
+/*  opacity: .5;*/
+/*  position: absolute;*/
+/*  top: 0;*/
+/*  transition: all .3s;*/
+/*  width: 92%;*/
+/*}*/
 
-.start-button:hover {
-  box-shadow: rgba(255, 255, 255, .2) 0 3px 15px inset, rgba(0, 0, 0, .1) 0 3px 5px, rgba(0, 0, 0, .1) 0 10px 13px;
-  transform: scale(1.05);
-}
+/*.start-button:hover {*/
+/*  box-shadow: rgba(255, 255, 255, .2) 0 3px 15px inset, rgba(0, 0, 0, .1) 0 3px 5px, rgba(0, 0, 0, .1) 0 10px 13px;*/
+/*  transform: scale(1.05);*/
+/*}*/
 
-@media (min-width: 768px) {
-  .start-button {
-    padding: 16px 48px;
-  }
-}
+/*@media (min-width: 768px) {*/
+/*  .start-button {*/
+/*    padding: 16px 48px;*/
+/*  }*/
+/*}*/
 
 
 
@@ -83,7 +83,7 @@ animation: slideIn 0.5s ease-in-out;
   padding: 0; margin: 0;
   font: 300 1em/1.5 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
   text-decoration: none;
-  /*color: #111;*/
+  color: #111;
 }
 
   section.container{
@@ -91,7 +91,7 @@ animation: slideIn 0.5s ease-in-out;
     margin: 10% auto;
     text-align: center;
   }
-    /*a:hover{border-bottom: 1px solid #111;}*/
+    a:hover{border-bottom: 1px solid #111;}
     h1{font-size: 2em; padding: 20px 0;}
     p{
       font-size: .75em;
@@ -104,7 +104,7 @@ animation: slideIn 0.5s ease-in-out;
     button {
       background: transparent; outline: none;
       position: relative;
-      /*border: 2px solid #111;*/
+      border: 2px solid #111;
       padding: 15px 50px;
       overflow: hidden;
     }
