@@ -25,6 +25,7 @@
 
 .modal-body {
     border-radius: 20px;
+
 }
 
 .list-group{
@@ -64,6 +65,7 @@
     margin-bottom: 5px;
     margin-right: 5px;
     border-radius: 35px;
+    align-items: center;
 }
 
 .button-container {
@@ -100,4 +102,12 @@ textarea{
 }
 .a:hover {
     color: blue;
+}
+
+#textInput {
+    background-color: whitesmoke;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
 }
