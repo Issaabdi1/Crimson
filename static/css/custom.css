@@ -404,8 +404,8 @@ Dark mode
   background-color: rgb(211,211,211) ;
 }
 
-.dark-mode a {
-  color: #ffffff; 
+.dark-mode .a {
+  background: rgb(76, 76, 76);
 }
 
 /*
