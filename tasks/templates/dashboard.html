@@ -103,7 +103,11 @@
                         </td>
                         <td scope="row">{{ forloop.counter }}</td>
                         <td>{{ upload.get_simple_file_name}}</td>
-                        <td>{{ upload.owner }}</td>
+                        <td>
+                            <img src="{{ upload.owner.avatar_url }}" alt="Mini Gravatar" style="border-radius: 30px; width: 30px; height: 30px;">
+                            &nbsp&nbsp
+                            {{ upload.owner.username }}
+                        </td>
                         <td>{{ upload.uploaded_at }}</td>
                         {% if upload.comments %}
                             <td>{{ upload.comments }}</td>
@@ -121,5 +125,4 @@
     </a>
 </div>
 </body>
-
 {% endblock %}

@@ -30,7 +30,7 @@
                             <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm{{ upload.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="upload_id" value="{{ upload.id }}">
-                                    <a href="#" onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;" style="text-decoration: none">
+                                    <a href="#" class="a" onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;" style="text-decoration: none">
                                         <div class="item-content">
                                         <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
                                             <div class="mb-1">
