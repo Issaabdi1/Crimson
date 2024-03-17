@@ -54,7 +54,7 @@
       {% for user in all_users %}
         <div class="col-sm-4 col-md-3 col-lg-2 d-none search-filter d-flex flex-column justify-content-center align-items-center" value="{{ user.id }}">
           <div class="text-center">
-            <i class="bi bi-person-circle pfp"></i>
+            <img src="{{ user.avatar_url }}" class="rounded-circle medium-small-image" alt="Avatar of {{ member.username }}">
           </div>
           <div class="text-center">
             <div class="username"><p class="mb-2">{{ user.username }}</p></div>

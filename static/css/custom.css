@@ -335,6 +335,11 @@ Fade in transition
     width: 70px;
 }
 
+.medium-small-image{
+    height: 45px;
+    width: 45px;
+}
+
 .small-image{
     height: 20px;
     width: 20px;

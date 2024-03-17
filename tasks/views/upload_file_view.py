@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from tasks.forms import FileForm
-from tasks.models import Upload, SharedFiles, Team
+from tasks.models import User, Upload, SharedFiles, Team
 from django.core.exceptions import ValidationError
 
 
@@ -30,6 +30,28 @@ def upload_file_view(request):
                     if team_id is not None:
                         team = Team.objects.get(id=team_id)
                         team.add_upload(upload)
+                    
+                    # Share to given username / email
+                    share_to = request.POST.get("share")
+                    if share_to is not None:
+                        try:
+                            user = User.objects.get(username=share_to)
+                            share_instance = SharedFiles.objects.create(
+                                shared_file=upload,
+                                shared_by=request.user
+                            )
+                            share_instance.shared_to.add(user)
+                        except User.DoesNotExist:
+                            try:
+                                user = User.objects.get(email=share_to)
+                                share_instance = SharedFiles.objects.create(
+                                    shared_file=upload,
+                                    shared_by=request.user
+                                )
+                                share_instance.shared_to.add(user)
+                            except User.DoesNotExist:
+                                messages.add_message(request, messages.WARNING, f'File has been uploaded but not shared. Provided username or email does not exist.')
+
 
                 except ValidationError as e:
                     messages.add_message(request, messages.ERROR, e.message_dict['file'][0])

@@ -14,16 +14,16 @@
 			<p class="mt-2 text-sm text-gray-400">File size no more than 100M</p>
 		</div>
 
-    <div class="container mt-8 space-y-2">
-        <div class="grid grid-cols-1 space-y-2">
-            <label class="text-sm font-bold text-gray-500 tracking-wide">Share To (optional)</label>
-            <input class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" type="" placeholder="mail@gmail.com">
-        </div>
+        <div class="container mt-8 space-y-2">
+        <form class="mt-2 space-y-2" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data" onsubmit="enableUploadButton()">
+        {% csrf_token %}
+            <div class="grid grid-cols-1 space-y-2">
+                <label class="text-sm font-bold text-gray-500 tracking-wide">Share To (optional)</label>
+                <input name="share" class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" type="" placeholder="Email or Username">
+            </div>
 
-        <div class="grid grid-cols-1 space-y-2">
-            <label class="text-sm font-bold text-gray-500 tracking-wide">Attach Document</label>
-                <form class="mt-2 space-y-2" action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data" onsubmit="enableUploadButton()">
-                {% csrf_token %}
+            <div class="grid grid-cols-1 space-y-2">
+                <label class="text-sm font-bold text-gray-500 tracking-wide">Attach Document</label>
                 <div class="flex items-center justify-center w-full">
                     <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">
                         <div class="h-full w-full text-center flex flex-col items-center justify-center items-center">
@@ -74,10 +74,10 @@
                         Upload
                     </button>
                 </div>
-            </form>
+            </div>
+        </form>
         </div>
     </div>
-</div>
 </div>
 
 <script>
