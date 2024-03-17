@@ -30,9 +30,8 @@ class UploadModelTestCase(TestCase):
             self.uploads.append(upload)
 
     def tearDown(self):
-        if self.uploads:
-            for upload in self.uploads:
-                upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def test_valid_upload(self):
         """Test that the uploads are valid."""
@@ -86,6 +85,24 @@ class UploadModelTestCase(TestCase):
         """Test that uploads are ordered by uploaded_at."""
         uploads = Upload.objects.all()
         self.assertEqual(list(uploads), self.uploads)
+
+    def test_upload_with_no_file_has_zero_size(self):
+        mock_file = SimpleUploadedFile(f'test_upload_model_file_other.pdf', b'file size')
+        upload = Upload.objects.create(owner=self.user,  file=mock_file)
+        upload.file.delete(save=False)
+        upload.save()
+        self.assertEqual(upload.get_file_size_mb(), 0.0)
+
+    def test_upload_with_no_file_has_empty_name(self):
+        mock_file = SimpleUploadedFile(f'test_upload_model_file_other.pdf', b'file size')
+        upload = Upload.objects.create(owner=self.user,  file=mock_file)
+        upload.file.delete(save=False)
+        upload.save()
+        self.assertEqual(upload.get_simple_file_name(), '')
+
+    def test_rename_upload_with_exist_name_should_fail(self):
+        with self.assertRaises(ValueError):
+            self.uploads[0].rename_file('test_upload_model_file_2')
 
     def _assert_upload_is_valid(self, upload):
         try:

@@ -88,7 +88,8 @@ ul.errorlist {
 
 .profile-text {
   overflow:hidden;
-  padding-left:20px
+  padding-left:20px;
+  padding-top:20px;
 }
 
 h3.profile-title {
@@ -352,11 +353,11 @@ Fade in transition
     cursor: pointer;
 }
 
-.input-file label {
+#popupContainer .input-file label {
     cursor: pointer;
 }
 
-.input-file input[type="file"] {
+#popupContainer .input-file input[type="file"] {
     opacity: 0;
     width: 0.1px;
     height: 0.1px;
@@ -406,6 +407,35 @@ Dark mode
 
 .dark-mode .a {
   background: rgb(100,100,100);
+}
+
+.dark-mode .profile-popup {
+  border: transparent;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(211,211,211);
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  height: 300px;
+  width: 300px;
+}
+
+.dark-mode .popup {
+    border: transparent;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(211,211,211);
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    height: auto;
+    width: 80%;
+    max-width: 300px;
 }
 
 /*

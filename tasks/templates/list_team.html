@@ -1,7 +1,8 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% block content %}
 {% load static %}
     <div class="col-12 p-2">
+         {% include 'partials/messages.html' %}
         <div class="row">
             <div class="col-12 text-center">
                 <h5 class="team-text fw-light">Create or join a group to share files with others easier.</h5>
@@ -17,16 +18,29 @@
                 </button>
             </div>
         </div>
-        <div id="popupContainer" class="popup-container">
+        <div id="popupContainerCreate" class="popup-container">
             <div id="popupForm" class="popup text-center">
-                <span id="closePopup" class="close-btn">&times;</span>
+                <span id="closePopupCreate" class="close-btn">&times;</span>
                 <form action="{% url 'team_list' %}" method="post">
                     <h3 class="team-text">Create group name</h3>
                     {% csrf_token %}
-                    {% include 'partials/create_team_form.html' with form=form %}
+                    {% include 'partials/create_team_form.html' with form=create_form %}
                     <input type="submit" class="team-text btn btn-primary mt-3d-block w-50"
                            style="height: 40px; border-radius: 70px;background: #0d6efd;"
-                           value="Create">
+                           value="Create" name="create_group">
+                </form>
+            </div>
+        </div>
+        <div id="popupContainerJoin" class="popup-container">
+            <div id="popupForm" class="popup text-center">
+                <span id="closePopupJoin" class="close-btn">&times;</span>
+                <form action="{% url 'team_list' %}" method="post">
+                    <h3 class="team-text">Join Group</h3>
+                    {% csrf_token %}
+                    {% include 'partials/create_team_form.html' with form=join_form %}
+                    <input type="submit" class="team-text btn btn-primary mt-3d-block w-50"
+                           style="height: 40px; border-radius: 70px;background: #0d6efd;"
+                           value="Join" name="join_group">
                 </form>
             </div>
         </div>
@@ -57,5 +71,5 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'js/popup_window_create_team.js' %}"></script>
+    <script src="{% static 'js/popup_window_team.js' %}"></script>
 {% endblock %}

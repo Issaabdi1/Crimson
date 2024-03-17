@@ -1,16 +1,30 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12 col-md-6 offset-md-3">
-      <h1>Log in</h1>
-      <form action="{% url 'log_in' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {% include 'partials/bootstrap_form.html' with form=form %}
-        <input type="submit" value="Log in" class="btn btn-primary">
-      </form>
+    {% load static %}
+    {% load widget_tweaks %}
+    <link href="{% static 'css/login_and_signup.css' %}" rel="stylesheet">
+    <div class="mainContainer">
+        <div></div>
+        <div class="formContainer">
+            <form action="{% url 'log_in' %}" method="post">
+                {% csrf_token %}
+                <div>
+                    <a href="{% url 'home' %}" id="backLink"><i class="bi bi-arrow-left backFont"></i></a>
+                </div>
+                <hggroup class="text-start">
+                    <h1>Log in</h1>
+                    <h2>Log in to join the conversation on PDFs with voice comments.</h2>
+                </hggroup>
+                <br>
+                {{ form.as_div }}
+                <br>
+                <button type="submit" class=button id="btn-submit" name="">
+                    <span class="button-text">Log In</span>
+                </button>
+            </form>
+            <p>Not a member yet? <a href="{% url 'sign_up' %}">Sign Up</a>.</p>
+        </div>
+        <div></div>
     </div>
-  </div>
-</div>
+    <script src="{% static 'js/form_input_label_handler.js' %}"></script>
 {% endblock %}

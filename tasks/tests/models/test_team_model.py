@@ -27,11 +27,35 @@ class TeamModelTestCase(TestCase):
         self.team.shared_uploads.add(self.upload)
 
     def tearDown(self):
-        self.upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def test_valid_upload(self):
         """Test that the team are valid."""
         self._assert_team_is_valid()
+
+    def test_team_shared_uploads(self):
+        """Test that the team shared uploads are valid."""
+        file_content = b'test file content'
+        mock_file = SimpleUploadedFile(f'test_team_model_shared_file.pdf', file_content)
+        dummy_upload = Upload.objects.create(owner=self.user1, file=mock_file)
+        before_count = self.team.shared_uploads.count()
+        self.team.add_upload(dummy_upload)
+        self._assert_team_is_valid()
+        after_count = self.team.shared_uploads.count()
+        self.assertEqual(before_count + 1, after_count)
+
+    def test_team_without_members_must_be_deleted(self):
+        """Test that the team without members must be deleted."""
+        team = Team.objects.create(name='Test Team')
+        team.members.add(self.user1)
+        self.user1.delete()
+        self.assertQuerysetEqual(Team.objects.filter(pk=team.pk), Team.objects.none())
+
+    def test_team_with_members_must_not_be_deleted(self):
+        """Test that the team with members must not be deleted."""
+        self.user1.delete()
+        self.assertIsNotNone(Team.objects.filter(pk=self.team.pk).first())
 
     def _assert_team_is_valid(self):
         try:

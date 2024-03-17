@@ -15,3 +15,13 @@ def delete_upload(request, upload_id):
         return HttpResponseRedirect(reverse('filelist'))
     else:
         return HttpResponseRedirect(reverse('filelist'))
+
+
+@login_required
+def delete_all_upload_views(request):
+    if request.method == 'POST':
+        upload = Upload.objects.all()
+        upload.delete()
+        return HttpResponseRedirect(reverse('filelist'))
+    else:
+        return HttpResponseRedirect(reverse('filelist'))

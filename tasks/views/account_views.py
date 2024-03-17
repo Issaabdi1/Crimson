@@ -40,24 +40,6 @@ class PasswordView(LoginRequiredMixin, FormView):
         return reverse('dashboard')
 
 
-# class ProfileUpdateView(LoginRequiredMixin, UpdateView):
-#     """Display user profile editing screen, and handle profile modifications."""
-#
-#     model = UserForm
-#     template_name = "profile.html"
-#     form_class = UserForm
-#
-#     def get_object(self):
-#         """Return the object (user) to be updated."""
-#         user = self.request.user
-#         return user
-#
-#     def get_success_url(self):
-#         """Return redirect URL after successful update."""
-#         messages.add_message(self.request, messages.SUCCESS, "Profile updated!")
-#         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
-
-
 class SignUpView(LoginProhibitedMixin, FormView):
     """Display the sign up screen and handle sign ups."""
 

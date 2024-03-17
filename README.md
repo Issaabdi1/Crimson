@@ -27,10 +27,13 @@ Password: UfbnDsjntpo
 ```
 
 ## Amazon S3 Bucket
+
 People can inspect the bucket via [here](https://aws.amazon.com)
+```
 - Account ID: 975050003861
 - IAM user name: hanson
 - Password: ^VkC12-w
+```
 
 ## Installation instructions
 To install the software and use it in your local development environment, you must first set up and activate a local development environment.  From the root of the project:

@@ -88,6 +88,21 @@ class ProfileImageModelTestCase(TestCase):
         self.assertEqual(ProfileImage.objects.count(), 0)
         self.images.clear()
 
+    def test_using_profile_image_delete_should_change_avatar_url(self):
+        """Test that the ProfileImage delete will change the avatar_url of the user"""
+        self.user.avatar_url = self.images[0].image.url
+        self.user.save()
+        self.images[0].delete()
+        self.assertEqual(self.user.avatar_url, self.images[1].image.url)
+        self.images[1].delete()
+        self.assertEqual(self.user.avatar_url, self.images[2].image.url)
+        self.images[2].delete()
+        self.assertEqual(self.user.avatar_url, self.images[3].image.url)
+        self.images[3].delete()
+        self.assertEqual(self.user.avatar_url, self.images[4].image.url)
+        self.images[4].delete()
+        self.assertEqual(self.user.avatar_url, settings.DEFAULT_IMAGE_URL)
+
     def _assert_profile_image_is_valid(self, image):
         try:
             image.full_clean()

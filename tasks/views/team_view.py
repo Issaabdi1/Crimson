@@ -1,33 +1,47 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm
-from tasks.models import User
+from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
+from tasks.models import User, Team
 
 
 @login_required
 def list_team_view(request):
     current_user = request.user
     team_joined = current_user.team_set.all()
+    create_form = CreateTeamForm()
+    join_form = JoinTeamForm()
     if request.method == 'POST':
-        form = CreateTeamForm(request.POST)
-        if form.is_valid():
-            team = form.save()
-            team.members.add(current_user)
-            team.save()
-            return redirect('team_list')
-    else:
-        form = CreateTeamForm()
+        if 'create_group' in request.POST:
+            create_form = CreateTeamForm(request.POST)
+            if create_form.is_valid():
+                team = create_form.save()
+                team.members.add(current_user)
+                team.save()
+                return redirect('team_list')
+        elif 'join_group' in request.POST:
+            join_form = JoinTeamForm(request.POST)
+            if join_form.is_valid():
+                team = Team.objects.all().filter(invitation_code=join_form.cleaned_data['invitation_code'])[0]
+                team.members.add(current_user)
+                team.save()
+                return redirect('team_list')
+
     context = {'user': current_user,
                'team_joined': team_joined,
-               'form': form,}
+               'create_form': create_form,
+               'join_form': join_form}
     return render(request, 'list_team.html',  context=context)
 
 
 @login_required
 def team_detail_view(request, team_id):
     current_user = request.user
-    team = current_user.team_set.get(id=team_id)
+    try:
+        team = current_user.team_set.get(id=team_id)
+    except Team.DoesNotExist:
+        messages.add_message(request, messages.ERROR, f'You are not allowed to access this team')
+        return redirect('team_list')
     members = team.members.all()
     shared_uploads = team.shared_uploads.all()
     if request.method == 'POST':
@@ -53,5 +67,16 @@ def team_detail_view(request, team_id):
 
 
 @login_required
-def list_team_file_view(request):
-    return render(request, 'list_team_file.html')
+def leave_team_view(request, team_id):
+    current_user = request.user
+    try:
+        team = current_user.team_set.get(id=team_id)
+    except Team.DoesNotExist:
+        messages.add_message(request, messages.ERROR, f'You are not allowed to access this team')
+        return redirect('team_list')
+    team.members.remove(current_user)
+    if team.members.count() > 0:
+        team.save()
+    else:
+        team.delete()
+    return redirect('team_list')

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
-from tasks.models import User, Upload
+from tasks.models import User, Upload, Team
 from tasks.forms import FileForm
 from tasks.tests.helpers import reverse_with_next
 
@@ -23,6 +23,10 @@ class UploadFileViewTest(TestCase):
         self.form_input = {
             'file': mock_file
         }
+
+    def tearDown(self):
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def test_upload_file_url(self):
         self.assertEqual(self.url, '/upload_file/')
@@ -91,6 +95,16 @@ class UploadFileViewTest(TestCase):
         self.assertTemplateUsed(response, 'upload_file.html')
         form = response.context['form']
         self.assertTrue(isinstance(form, FileForm))
+
+    def test_post_upload_file_to_a_team(self):
+        self.login(self.user)
+        team = Team.objects.create(name='Test Team upload')
+        team.members.add(self.user)
+        team.save()
+        self.form_input['team_id'] = 1
+        response = self.client.post(self.url, self.form_input)
+        self.assertEqual(team.shared_uploads.count(), 1)
+
 
     def test_post_upload_file_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)

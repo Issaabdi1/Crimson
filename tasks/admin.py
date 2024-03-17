@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload, Team, ProfileImage
+from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification
 # Register your models here.
 
 
@@ -23,7 +23,7 @@ class UploadAdmin(admin.ModelAdmin):
 class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for teams"""
     list_display = [
-        'name',
+        'name', 'invitation_code'
     ]
 
 @admin.register(ProfileImage)
@@ -31,4 +31,18 @@ class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for ProfileImages"""
     list_display = [
         'user'
+    ]
+
+@admin.register(SharedFiles)
+class SharedFilesAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for SharedFiles"""
+    list_display = [
+        'shared_file', 'shared_by', 'shared_date'
+    ]
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for Notifications"""
+    list_display = [
+        'shared_file_instance', 'user', 'time_of_notification', 'notification_message'
     ]

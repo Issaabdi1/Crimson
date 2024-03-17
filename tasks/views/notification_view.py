@@ -15,7 +15,7 @@ def process_notification_delete(request):
         if notification_id=="delete-all":
                 #delete all the notifications of this user
                 Notification.objects.filter(user = request.user).delete()
-        elif notification_id is not None:
+        elif notification_id != '':
             #delete the notification passed in
             Notification.objects.filter(id=int(notification_id)).delete()
         notifications = list(reversed(Notification.objects.filter(user = request.user)))

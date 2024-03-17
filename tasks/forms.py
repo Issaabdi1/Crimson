@@ -8,8 +8,8 @@ from .models import User, Team, ProfileImage, Upload
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
 
-    username = forms.CharField(label="Username")
-    password = forms.CharField(label="Password", widget=forms.PasswordInput())
+    username = forms.CharField(label="Username", label_suffix='')
+    password = forms.CharField(label="Password", widget=forms.PasswordInput(), label_suffix='')
 
     def get_user(self):
         """Returns authenticated user if possible."""
@@ -97,6 +97,11 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].label_suffix = ''
+
     def save(self):
         """Create a new user."""
 
@@ -139,6 +144,11 @@ class CreateTeamForm(forms.ModelForm):
 
         model = Team
         fields = ['name']
+
+
+class JoinTeamForm(forms.Form):
+
+    invitation_code = forms.CharField(label='Invitation Code')
 
 
 class AddUserToTeamForm(forms.Form):

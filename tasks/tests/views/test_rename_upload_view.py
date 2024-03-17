@@ -9,6 +9,7 @@ from django.contrib.messages import get_messages
 
 from tasks.models import Upload
 from tasks.models.user import User
+from tasks.tests.helpers import reverse_with_next
 
 
 class RenameUploadViewTest(TestCase):
@@ -27,6 +28,16 @@ class RenameUploadViewTest(TestCase):
 
     def log_in(self):
         self.client.login(username='@johndoe', password='Password123')
+
+    def test_get_rename_upload_view(self):
+        self.client.login(username='@johndoe', password='Password123')
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('filelist'), status_code=302, target_status_code=200)
+
+    def test_get_rename_upload_view_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_rename_upload_view(self):
         self.client.login(username='@johndoe', password='Password123')

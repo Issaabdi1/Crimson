@@ -1,4 +1,4 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
@@ -7,6 +7,7 @@
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
 
 <body>
+{% include 'partials/messages.html'%}
 <div class="col-12 p-2">
     <div class="row d-flex justify-content-between">
         <div class="col-lg-4 col-sm-6">

@@ -1,11 +1,13 @@
 import os
 
+from django.contrib import messages
 from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.messages import get_messages
 
 from tasks.models import User, Upload
+from tasks.tests.helpers import reverse_with_next
 
 
 class OuterCommentViewsTestCase(TestCase):
@@ -22,10 +24,22 @@ class OuterCommentViewsTestCase(TestCase):
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
 
     def tearDown(self):
-        self.upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def log_in(self):
         self.client.login(username='@johndoe', password='Password123')
+
+    def test_get_outer_comment(self):
+        self.client.login(username=self.user.username, password='Password123')
+        response = self.client.get(self.url)
+        redirect_url = reverse('filelist')
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_get_outer_comment_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_outer_comment_views_post(self):
         self.client.login(username='@johndoe', password='Password123')
@@ -42,6 +56,15 @@ class OuterCommentViewsTestCase(TestCase):
         updated_upload = Upload.objects.get(id=self.upload.id)
         self.assertEqual(updated_upload.comments, 'Test comment')  # Check if comments updated correctly
 
+    def test_unsuccessful_outer_comment_views_post(self):
+        self.client.login(username='@johndoe', password='Password123')
+        comments_data = {'comments': 'Test comment'}
+        response = self.client.post(reverse('outer_comment_views', args=[999]), comments_data, follow=True)
+        messages_list = list(response.context['messages'])
+        self.assertEqual(len(messages_list), 1)
+        self.assertEqual(messages_list[0].level, messages.ERROR)
+        self.assertEqual(str(messages_list[0]), f'Upload not found.')
+
     def test_outer_comment_views_post_no_comments(self):
         self.client.login(username='@johndoe', password='Password123')
         response = self.client.post(reverse('outer_comment_views', args=[self.upload.id]))
@@ -56,3 +79,8 @@ class OuterCommentViewsTestCase(TestCase):
 
         updated_upload = Upload.objects.get(id=self.upload.id)
         self.assertEqual(updated_upload.comments, '')
+
+    def test_post_outer_comment_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.post(reverse('outer_comment_views', args=[self.upload.id]), {})
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

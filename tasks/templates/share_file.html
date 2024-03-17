@@ -1,7 +1,8 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/share_file.css' %}">
+{% include 'partials/messages.html' %}
 <div class="text-center px-5 py-3 bg-light bg-opacity-0 align-items-center">
   <form method="post" action="{% url 'share_file' %}">
     {% csrf_token %}
