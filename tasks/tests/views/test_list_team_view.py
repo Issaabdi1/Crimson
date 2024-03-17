@@ -53,15 +53,48 @@ class ListTeamViewTest(TestCase):
         self.assertEqual(new_team.name, "test team")
         self.assertEqual(response.context['team_joined'].count(), 1)
 
+    def test_successful_team_joined(self):
+        self.login(self.user)
+        group = Team.objects.create(name="team join")
+        self.form_input_join['invitation_code'] = group.invitation_code
+        before_count = self.user.team_set.count()
+        response = self.client.post(self.url, self.form_input_join, follow=True)
+        after_count = self.user.team_set.count()
+        self.assertEqual(after_count, before_count+1)
+        self.assertTrue(group in self.user.team_set.all())
+        self.assertRedirects(response, self.url, status_code=302, target_status_code=200)
+
+    def test_unsuccessful_team_joined_with_empty_form_input(self):
+        self.login(self.user)
+        group = Team.objects.create(name="team join")
+        before_count = self.user.team_set.count()
+        response = self.client.post(self.url, self.form_input_join, follow=True)
+        after_count = self.user.team_set.count()
+        self.assertEqual(after_count, before_count)
+        self.assertFalse(group in self.user.team_set.all())
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'list_team.html')
+
     def test_unsuccessful_team_create_with_empty_form_input(self):
         self.login(self.user)
-        self.form_input_create = {}
+        self.form_input_create = {'create_group': 'True',}
         before_count = Team.objects.count()
         response = self.client.post(self.url, self.form_input_create, follow=True)
         after_count = Team.objects.count()
         self.assertEqual(after_count, before_count)
         self.assertTemplateUsed(response, 'list_team.html')
-        form = response.context['form']
+        form = response.context['create_form']
+        self.assertTrue(isinstance(form, CreateTeamForm))
+        self.assertEqual(response.context['team_joined'].count(), 0)
+
+    def test_unsuccessful_post_team_list(self):
+        self.login(self.user)
+        before_count = Team.objects.count()
+        response = self.client.post(self.url, {}, follow=True)
+        after_count = Team.objects.count()
+        self.assertEqual(after_count, before_count)
+        self.assertTemplateUsed(response, 'list_team.html')
+        form = response.context['create_form']
         self.assertTrue(isinstance(form, CreateTeamForm))
         self.assertEqual(response.context['team_joined'].count(), 0)
 

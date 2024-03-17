@@ -17,10 +17,6 @@ def rename_upload_view(request, upload_id):
             if existing_upload:
                 messages.error(request, "File with this name already exists.")
             else:
-                try:
-                    upload.rename_file(new_name)
-                    messages.success(request, "File renamed successfully.")
-                except Exception as e:
-                    messages.error(request, f"Error renaming file: {str(e)}")
-
+                upload.rename_file(new_name)
+                messages.success(request, "File renamed successfully.")
     return redirect('filelist')

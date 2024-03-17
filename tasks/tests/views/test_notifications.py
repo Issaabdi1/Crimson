@@ -25,7 +25,8 @@ class NotificationsTestCase(TestCase):
         self.notification2 = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user)
 
     def tearDown(self):
-        self.upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def test_notifications_passed_in(self):
         """Test that the correct notifications list is passed into the template"""
@@ -83,8 +84,18 @@ class NotificationsTestCase(TestCase):
         after_read_count = Notification.objects.filter(read=True).count()
         self.assertEqual(after_read_count, 2)
     
+    def test_test_mode(self):
+        url = reverse('process_notification_delete')
+        response = self.client.get(url, {'for_tests': True})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Notification.objects.filter(user=self.user).count(), 2)
+        self.assertEqual(response.json()['notifications'], [])
 
-    
-    def tearDown(self):
-        self.upload.delete()
+    def test_delete_specific_notification(self):
+        self.client.force_login(self.user)
+        url = reverse('process_notification_delete')
+        before_count = Notification.objects.count()
+        response = self.client.get(url, {'for_tests': False})
+        after_count = Notification.objects.count()
+        self.assertEqual(before_count, after_count)
     

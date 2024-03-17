@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 from . import User
@@ -30,5 +31,5 @@ class ProfileImage(models.Model):
             if self.user.profileimage_set.count() > 0:
                 self.user.avatar_url = self.user.profileimage_set.order_by('id').first().image.url
             else:
-                self.user.avatar_url = "default_avatar_url.jpg"
+                self.user.avatar_url = settings.DEFAULT_IMAGE_URL
             self.user.save()

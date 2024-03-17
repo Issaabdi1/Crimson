@@ -1,5 +1,6 @@
 import os
 
+from django.contrib import messages
 from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -58,14 +59,11 @@ class OuterCommentViewsTestCase(TestCase):
     def test_unsuccessful_outer_comment_views_post(self):
         self.client.login(username='@johndoe', password='Password123')
         comments_data = {'comments': 'Test comment'}
-        id = self.upload.id
-        self.upload.delete()  # Delete the upload to test unsuccessful post request
-        with self.assertRaisesMessage(Upload.DoesNotExist, 'Upload matching query does not exist.'):
-            response = self.client.post(reverse('outer_comment_views', args=[id]), comments_data)
-            messages = list(get_messages(response.wsgi_request))
-            self.assertEqual(len(messages), 1)  # Check if a message is sent
-            self.assertEqual(str(messages[0]), 'Upload not found.')  # Check if success message sent
-            self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse('outer_comment_views', args=[999]), comments_data, follow=True)
+        messages_list = list(response.context['messages'])
+        self.assertEqual(len(messages_list), 1)
+        self.assertEqual(messages_list[0].level, messages.ERROR)
+        self.assertEqual(str(messages_list[0]), f'Upload not found.')
 
     def test_outer_comment_views_post_no_comments(self):
         self.client.login(username='@johndoe', password='Password123')

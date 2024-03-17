@@ -9,15 +9,15 @@ from django.contrib import messages
 
 @login_required
 def outer_comment_views(request, upload_id):
-    if request.method == 'POST':
+    upload = None
+    try:
         upload = Upload.objects.get(id=upload_id)
+    except Upload.DoesNotExist:
+        messages.error(request, 'Upload not found.')
+    if request.method == 'POST':
         comments = request.POST.get('comments')  # Get comments field
-        if comments is not None:
-            try:
-                upload.comments = comments
-                upload.save()
-                messages.success(request, 'Comments saved successfully.')
-                return redirect('filelist')
-            except Upload.DoesNotExist:
-                messages.error(request, 'Upload not found.')
+        if comments is not None and upload is not None:
+            upload.comments = comments
+            upload.save()
+            messages.success(request, 'Comments saved successfully.')
     return redirect('filelist')

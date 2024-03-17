@@ -51,6 +51,14 @@ class TeamDetailViewTest(TestCase):
         self.assertEqual(response.context['members'].count(), 2)
         self.assertEqual(response.context['shared_uploads'].count(), 1)
 
+    def test_unsuccessful_get_team_detail(self):
+        self.login(self.user)
+        response = self.client.get(reverse('team_detail', kwargs={'team_id': 999}), follow=True)
+        self.assertRedirects(response, reverse('team_list'), status_code=302, target_status_code=200)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f'You are not allowed to access this team')
+
     def test_successful_user_invitation(self):
         self.login(self.user)
         response = self.client.post(self.url, self.form_input, follow=True)
