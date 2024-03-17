@@ -45,6 +45,18 @@ class TeamModelTestCase(TestCase):
         after_count = self.team.shared_uploads.count()
         self.assertEqual(before_count + 1, after_count)
 
+    def test_team_without_members_must_be_deleted(self):
+        """Test that the team without members must be deleted."""
+        team = Team.objects.create(name='Test Team')
+        team.members.add(self.user1)
+        self.user1.delete()
+        self.assertQuerysetEqual(Team.objects.filter(pk=team.pk), Team.objects.none())
+
+    def test_team_with_members_must_not_be_deleted(self):
+        """Test that the team with members must not be deleted."""
+        self.user1.delete()
+        self.assertIsNotNone(Team.objects.filter(pk=self.team.pk).first())
+
     def _assert_team_is_valid(self):
         try:
             self.team.full_clean()
