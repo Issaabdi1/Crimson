@@ -2,8 +2,10 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from tasks.models import Upload
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def rename_upload_view(request, upload_id):
     if request.method == 'POST':
         new_name = request.POST.get('new_name')

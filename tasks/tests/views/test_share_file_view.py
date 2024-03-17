@@ -106,3 +106,17 @@ class ShareFileViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'share_file.html')
         upload.delete()
+
+    def test_unsuccessful_file_share_if_file_and_user_both_not_selected(self):
+        upload = Upload.objects.create(
+            file=self.test_file,
+            owner=self.user,
+        )
+        self.client.login(username=self.user.username, password='Password123')
+        before_count = SharedFiles.objects.count()
+        response = self.client.post(self.url, {}, follow=True)
+        after_count = SharedFiles.objects.count()
+        self.assertEqual(after_count, before_count)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'share_file.html')
+        upload.delete()

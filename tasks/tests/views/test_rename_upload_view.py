@@ -18,7 +18,7 @@ class RenameUploadViewTest(TestCase):
     def setUp(self):
         os.environ['USE_S3'] = 'TRUE'
         self.user = User.objects.get(username='@johndoe')
-        self.url = reverse('delete_upload', args=[1])
+        self.url = reverse('rename_upload', args=[1])
         self.uploaded_file = SimpleUploadedFile("file.pdf", b"content", content_type="application/pdf")
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
 
@@ -28,16 +28,6 @@ class RenameUploadViewTest(TestCase):
 
     def log_in(self):
         self.client.login(username='@johndoe', password='Password123')
-
-    def test_get_rename_upload_view(self):
-        self.client.login(username='@johndoe', password='Password123')
-        response = self.client.get(self.url)
-        self.assertRedirects(response, reverse('filelist'), status_code=302, target_status_code=200)
-
-    def test_get_rename_upload_view_redirects_when_not_logged_in(self):
-        redirect_url = reverse_with_next('log_in', self.url)
-        response = self.client.get(self.url)
-        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
 
     def test_rename_upload_view(self):
         self.client.login(username='@johndoe', password='Password123')
@@ -82,3 +72,18 @@ class RenameUploadViewTest(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertIn("File with this name already exists.", str(messages[0]))
+
+    def test_get_rename_upload_view(self):
+        self.client.login(username='@johndoe', password='Password123')
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('filelist'), status_code=302, target_status_code=200)
+
+    def test_get_rename_upload_view_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_post_rename_upload_view_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.post(self.url, {'new_name': 'new_name'})
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

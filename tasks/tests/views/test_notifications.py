@@ -91,11 +91,11 @@ class NotificationsTestCase(TestCase):
         self.assertEqual(Notification.objects.filter(user=self.user).count(), 2)
         self.assertEqual(response.json()['notifications'], [])
 
-    def test_delete_specific_notification(self):
-        self.client.force_login(self.user)
-        url = reverse('process_notification_delete')
+    def test_delete_not_existed_notification(self):
+        delete_url = reverse('process_notification_delete')
+        context = {'notification_id': ''}
         before_count = Notification.objects.count()
-        response = self.client.get(url, {'for_tests': False})
+        response = self.client.get(delete_url, context)
         after_count = Notification.objects.count()
         self.assertEqual(before_count, after_count)
-    
+        self.assertEqual(len(response.json()['notifications']), 2)
