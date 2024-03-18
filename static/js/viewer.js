@@ -54,6 +54,8 @@ var listOfVoiceComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
+var originalState;
+
 function setup(){
 		
 	//Load all the info and marks into the pdf
@@ -102,6 +104,9 @@ function setup(){
 		
 	}
 	document.dispatchEvent(setupEvent);
+	//preserve the originalState to revert back after searching
+	const textLayer = document.getElementById("textLayerContainer");
+    originalState = textLayer.cloneNode(true); // Deep clone
 }
 
 function renderAfterZoom(){
@@ -532,6 +537,7 @@ function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     });
 }
 
+
 function searchForTerm(term) {
     console.log("listOfMarkedSpans:", listOfMarkedSpans);
 
@@ -570,21 +576,10 @@ let currentPosition = -1; // Start before the first position
 
 function clearSearchHighlights() {
     const textLayer = document.getElementById("textLayerContainer");
-    const highlightedSpans = textLayer.querySelectorAll('.highlight.text');
-	console.log("highiglted spans before: ");
-	console.log(highlightedSpans);
-    // Only iterate over spans that have been highlighted
-    highlightedSpans.forEach(highlightSpan => {
-        // Restore the parent span's innerHTML to its original state
-        const parentSpan = highlightSpan.closest('span[role="presentation"]');
-        if (parentSpan && parentSpan.dataset.originalHtml) {
-            parentSpan.innerHTML = parentSpan.dataset.originalHtml;
-            delete parentSpan.dataset.originalHtml;
-        }
-    });
-	console.log("highiglted spans after: ");
-	console.log(highlightedSpans);
-    // Call setup to restore any initial state if necessary
+    // Replace the current textLayer with the original clone
+    textLayer.parentNode.replaceChild(originalState, textLayer);
+    
+    // Re-initialize any required state after restoring the original DOM
     setup();
 }
 
