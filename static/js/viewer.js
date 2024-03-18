@@ -55,6 +55,7 @@ var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
 function setup(){
+		
 	//Load all the info and marks into the pdf
 	if(savedMarks!=""){
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
@@ -62,9 +63,22 @@ function setup(){
 		var dict = JSON.parse(jsonString);
 		listOfComments = JSON.parse(decodeEntities(marksListOfComments));//"{{marks.listOfComments}}"))
 		//go through list now
+
+
 		dict.forEach((entry)=>{
+			console.log(typeof entry);
+			console.log("ENTRY");
+			console.log(entry);
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
+			//add dataWidth attribute
+			var dataWidth = entry["dataWidth"];
+
+            // // Now you can safely set attributes based on the measured dimensions
+            // highlightSpan.setAttribute('data-width', rect.width);
+
+
+
 			console.log("original htkl is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
 			console.log(span);
@@ -231,60 +245,73 @@ function mouseUpHandler(event) {
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 }
 
-function highlightSelectedText(event){
-	//clear selection
-	window.getSelection().empty();
-	markButton.hidden = true;
-	const textLayerContainer =  document.getElementById('textLayerContainer');
-	var textLayerSpans =  Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
-	var totalLength = selectionList.toString().length;
-	var offset = selectionList.startOffset;
-	var selectedParts = [];
-	var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
-	var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
-	var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
-	console.log(elementsList);
-	// Assume you have an array of objects containing information about the selected parts within each span
-	elementsList.forEach((element)=>{
-		console.log(element);
-		var part = {span: element, start: offset, end: Math.min(offset + totalLength, element.textContent.length)};//{span: element.span, start: offset, end: Math.min(offset + totalLength, element.span.textContent.length)};
-		selectedParts.push(part);
-		totalLength-= (part.end - part.start);
-		console.log("part end is ", part.end);
-		offset= 0;
-	})
+function highlightSelectedText(event) {
+    // Clear selection
+    window.getSelection().empty();
+    markButton.hidden = true;
 
-	//create a new mark
-	var newMark = new Mark();
-	var count = 0;
-	// Iterate over each selected part
-	selectedParts.forEach(part => {
-		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
-		highlightedSpan.dataset.value = newMark.getId();
-		//add event listener
-		highlightedSpan.addEventListener('click', () => {
-			// Handle click event (e.g., open a modal, execute a function, etc.)
-			currentMarkId = highlightedSpan.dataset.value;
-			document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
-		});
-		count+=1;
-	});
+    const textLayerContainer = document.getElementById('textLayerContainer');
+    var textLayerSpans = Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
+    var totalLength = selectionList.toString().length;
+    var offset = selectionList.startOffset;
+    var selectedParts = [];
+    var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
+    var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
+    var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
 
-	//add the span to the list of marked spans if it isn't already there
-	elementsList.forEach((element)=>{
-		if(!listOfMarkedSpans.includes(element)){
-			//Add escape characters so that it can be parsed by JSON
-			var str = element.innerHTML;
-			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:textLayerSpans.indexOf(element), html: str});
-		}
-	});
+    // Process each element in the selection
+    elementsList.forEach((element) => {
+        var partEnd = Math.min(offset + totalLength, element.textContent.length);
+        var part = { span: element, start: offset, end: partEnd };
+        selectedParts.push(part);
+        totalLength -= (part.end - part.start);
+        offset = 0; // Reset offset for the next span
+    });
 
+    // Create a new mark
+    var newMark = new Mark();
+    var count = 0;
 
-	//Add a new entry in the dictionary, associating the mark with a comment. 
-	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
-	//save changes
-	savePdfChanges(false); // THIS LINE COULD BE THE BUG
+    // Iterate over each selected part
+    selectedParts.forEach(part => {
+        var highlightedSpan = highlightSpan(part.start, part.end, part.span, count === 0);
+        highlightedSpan.dataset.value = newMark.getId();
+
+        // Add event listener
+        highlightedSpan.addEventListener('click', () => {
+            currentMarkId = highlightedSpan.dataset.value;
+            document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
+        });
+
+        count += 1;
+
+        // Measure and record the width of the highlighted span
+        const rect = highlightedSpan.getBoundingClientRect();
+        console.log("Measured width:", rect.width);
+
+        // Store the highlighted span information, including the measured width
+        var str = part.span.innerHTML;
+        str = str.replace(/"/g, '\\"');
+
+		console.log("rect.width");
+		console.log(rect.width);
+        listOfMarkedSpans.push({
+            index: textLayerSpans.indexOf(part.span),
+            html: str,
+            dataWidth: rect.width.toString() // Store the width
+        });
+		console.log("hi");
+		listOfMarkedSpans.forEach((entry)=> {
+			console.log("marks list of spans");
+			console.log(entry);
+		})
+    });
+
+    // Associate the mark with a comment
+    listOfComments[newMark.getId()] = "This comment is by mark " + newMark.getId();
+
+    // Save changes
+    savePdfChanges();
 }
 
 // Example function to highlight selected text within a span
@@ -331,18 +358,6 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
 	
-	// Assuming highlightSpan is a DOM element
-    if (highlightSpan instanceof HTMLElement) {
-        requestAnimationFrame(() => {
-            const rect = highlightSpan.getBoundingClientRect();
-            console.log("Measured width:", rect.width);
-            // Now you can safely set attributes based on the measured dimensions
-            highlightSpan.setAttribute('data-width', rect.width);
-        });
-    } else {
-        console.error("highlightSpan is not a DOM element");
-    }
-
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
 	return highlightSpan;
@@ -475,43 +490,92 @@ function savePdfChanges(){
 
 /* Search for Term Javascript */
 function escapeHtml(text) {
-	var map = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#039;'
-	};
-	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
+
+function adjustMarkedSections() {
+    // Assume we already found the search term and have highlighted it
+    // Now we want to ensure the dimensions of the marked sections are preserved
+
+    document.querySelectorAll('.markedSection').forEach(markedSection => {
+        const originalWidth = markedSection.dataset.originalWidth;
+        const originalHeight = markedSection.dataset.originalHeight;
+
+        // Apply the original dimensions back to the marked section
+        markedSection.style.width = originalWidth + 'px';
+        markedSection.style.height = originalHeight + 'px';
+    });
+}
+
+
 function searchForTerm(term) {
-	const textLayer = document.getElementById("textLayerContainer");
-	const spans = textLayer.querySelectorAll('span[role="presentation"]');
-	const foundPositions = [];
+    console.log("marked spans:");
+    console.log(listOfMarkedSpans);
 
-	spans.forEach((span, index) => {
-		let innerHTML = span.dataset.originalHtml || span.innerHTML;
-		const safeTerm = escapeHtml(term.trim()); // Ensure we're not dealing with leading/trailing spaces
+    const textLayer = document.getElementById("textLayerContainer");
+    const spans = textLayer.querySelectorAll('span[role="presentation"]');
+    const foundPositions = [];
 
-		// Create a regex that matches the term only if it's followed by a non-word character or at the end of the string,
-		// and only if it's preceded by a non-word character or at the start of the string.
-		// This approach accounts for punctuation, spaces, and ensures that partial matches are not highlighted.
-		const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
+    spans.forEach((span, index) => {
+        if (span.parentNode && span.parentNode.getAttribute('role') === 'presentation') {
+            return; // Skip nested spans
+        }
 
-		if (!span.dataset.originalHtml) {
-			span.dataset.originalHtml = innerHTML;
-		}
+        // Use the original HTML if available, otherwise use the current innerHTML
+        let contentToSearch = span.dataset.originalHtml !== undefined ? span.dataset.originalHtml : span.innerHTML;
+        const safeTerm = escapeHtml(term.trim());
+        const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
 
-		const searchResult = innerHTML.search(regex);
+        const matches = [...contentToSearch.matchAll(regex)];
+        if (matches.length > 0) {
+            if (span.dataset.originalHtml === undefined) {
+                span.dataset.originalHtml = span.innerHTML; // Store the original HTML
+            }
 
-		if (searchResult !== -1) {
-			span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
-			foundPositions.push({ span: span, index: index });
-		}
-	});
+            let highlightedContent = contentToSearch;
+            // Highlight all occurrences of the search term
+            matches.forEach(match => {
+                highlightedContent = highlightedContent.replace(match[0], `<span class="highlight text">${match[0]}</span>`);
+            });
 
-	return foundPositions;
+            span.innerHTML = highlightedContent;
+            foundPositions.push({ span: span, index: index });
+        }
+    });
+
+    // After all spans are processed, adjust the dimensions of marked sections if needed
+    foundPositions.forEach(position => {
+        const markedSections = position.span.querySelectorAll('.markedSection');
+        markedSections.forEach(markedSection => {
+            // If the original width and height were stored, apply them back
+            console.log("original width:")
+            console.log(markedSection.dataset.originalWidth);
+			console.log("marked section: ");
+			console.log(markedSection);
+            if (markedSection.dataset.originalWidth && markedSection.dataset.originalHeight) {
+                console.log("original width:")
+                console.log(markedSection.dataset.originalWidth);
+                markedSection.style.width = '100px';
+                markedSection.style.height = markedSection.dataset.originalHeight + 'px';
+            }
+        });
+    });
+
+    console.log("found positions:");
+	console.log(foundPositions);
+    foundPositions.forEach(pos => {
+        console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
+    });
+
+    return foundPositions;
 }
 
 
@@ -557,36 +621,37 @@ document.getElementById('searchTermInput').addEventListener('input', updateSearc
 
 
 function moveToPosition(index) {
-	// Ensure index is within bounds
-	if (index >= 0 && index < foundPositions.length) {
-		const position = foundPositions[index];
-		
-		// Logic to scroll to the position.span or highlight it
+    // Ensure index is within bounds
+    if (index >= 0 && index < foundPositions.length) {
+        const position = foundPositions[index];
+        
+        // Logic to scroll to the position.span or highlight it
 
-		// I put it false for now so it doesn't scroll past the main container, just the viewer
-		position.span.scrollIntoView(false);
+        // I put it false for now so it doesn't scroll past the main container, just the viewer
+        position.span.scrollIntoView(false);
 
-		//position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
-		
-		// Optionally highlight or otherwise indicate the current span
-	}
+        //position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
+        
+        // Optionally highlight or otherwise indicate the current span
+    }
 }
 
 document.getElementById('nextSearchResult').addEventListener('click', () => {
-	if (foundPositions.length > 0) {
-		currentPosition = (currentPosition + 1) % foundPositions.length;
-		moveToPosition(currentPosition);
-	}
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition + 1) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
 });
 
 document.getElementById('prevSearchResult').addEventListener('click', () => {
-	if (foundPositions.length > 0) {
-		currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
-		moveToPosition(currentPosition);
-	}
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
 });
 
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
