@@ -147,18 +147,19 @@
 						</select>	
 						
 						<!-- Search section -->
-						<button id="prevSearchResult" class="toolbarButton" title="Previous Search Result">
-							<i class="fa-solid fa-arrow-left"></i>
-						</button>
-						<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">
-						<button id="nextSearchResult" class="toolbarButton" title="Next Search Result">
-							<i class="fa-solid fa-arrow-right"></i>
-						</button>
-						<!-- end of search -->
-
-						<button id="viewFindbar" class="toolbarButton toggled" title="Find in Document">
+						<div id="searchSection" style="display: none;"> <!-- Initially hidden -->
+							<button id="prevSearchResult" class="toolbarButton" title="Previous Search Result">
+								<i class="fa-solid fa-arrow-left"></i>
+							</button>
+							<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">
+							<button id="nextSearchResult" class="toolbarButton" title="Next Search Result">
+								<i class="fa-solid fa-arrow-right"></i>
+							</button>
+						</div>
+						<button id="viewFindbar" class="toolbarButton" title="Find in Document">
 							<i class="fa-solid fa-magnifying-glass"></i>
 						</button>
+						
 						<button id="viewSettingsMenu" class="toolbarButton toggled" title="Options">
 							<i class="fa-solid fa-ellipsis"></i>
 						</button>
