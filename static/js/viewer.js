@@ -66,9 +66,7 @@ function setup(){
 
 
 		dict.forEach((entry)=>{
-			console.log(typeof entry);
-			console.log("ENTRY");
-			console.log(entry);
+
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
 			//add dataWidth attribute
@@ -91,7 +89,7 @@ function setup(){
 			//add to marked spans
 			var str = html;
 			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:indexOfSpan, html: str});
+			listOfMarkedSpans.push({index:indexOfSpan, html: str,dataWidth: dataWidth});
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
@@ -517,13 +515,13 @@ function adjustMarkedSections() {
 
 
 function searchForTerm(term) {
-    console.log("marked spans:");
+    console.log("listOfMarkedSpans:");
     console.log(listOfMarkedSpans);
 
     const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
     const foundPositions = [];
-
+	
     spans.forEach((span, index) => {
         if (span.parentNode && span.parentNode.getAttribute('role') === 'presentation') {
             return; // Skip nested spans
@@ -547,27 +545,52 @@ function searchForTerm(term) {
             });
 
             span.innerHTML = highlightedContent;
-            foundPositions.push({ span: span, index: index });
+			
+            foundPositions.push({ span: span, index: index});
         }
     });
 
     // After all spans are processed, adjust the dimensions of marked sections if needed
-    foundPositions.forEach(position => {
-        const markedSections = position.span.querySelectorAll('.markedSection');
-        markedSections.forEach(markedSection => {
-            // If the original width and height were stored, apply them back
-            console.log("original width:")
-            console.log(markedSection.dataset.originalWidth);
-			console.log("marked section: ");
-			console.log(markedSection);
-            if (markedSection.dataset.originalWidth && markedSection.dataset.originalHeight) {
-                console.log("original width:")
-                console.log(markedSection.dataset.originalWidth);
-                markedSection.style.width = '100px';
-                markedSection.style.height = markedSection.dataset.originalHeight + 'px';
-            }
-        });
+// After all spans are processed and highlighted...
+foundPositions.forEach(position => {
+    const markedSections = position.span.querySelectorAll('.markedSection');
+    markedSections.forEach(markedSection => {
+		markedSection.style.width = '200px';
+		
+        const dataValue = markedSection.getAttribute('data-value');
+		console.log("data value: ");
+		console.log(dataValue);
+		listOfMarkedSpans.forEach((markedSpans)=> {
+			console.log("markedSpans:");
+			console.log(markedSpans.html);
+			//find and console log the data-value in markedSpans.html 
+		// Adjusted regex to account for escaped double quotes
+		const dataValueRegex = /data-value=\\"(\d+)\\"/;
+		const match = markedSpans.html.match(dataValueRegex);
+
+		if (match && match[1]) {
+			const dataValue = match[1];
+			console.log(`Found data-value: ${dataValue}`);
+		} else {
+			console.log('No data-value found.');
+		}
+			
+		})
+        // // Find the matching entry in listOfMarkedSpans based on data-value
+        // const matchingSpanData = listOfMarkedSpans.find(spanData => {
+        //     // Extract the data-value directly from the stored HTML
+        //     const regex = new RegExp(`data-value="(${dataValue})"`);
+        //     return regex.test(spanData.html);
+        // });
+        // if (matchingSpanData && matchingSpanData.dataWidth) {
+        //     console.log("Original dataWidth for data-value", dataValue, ":", matchingSpanData.dataWidth);
+        //     // Update the width of the markedSection span
+        //     markedSection.style.width = '200px';
+        // }
     });
+});
+
+
 
     console.log("found positions:");
 	console.log(foundPositions);
