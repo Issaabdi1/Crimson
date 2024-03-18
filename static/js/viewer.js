@@ -73,15 +73,9 @@ function setup(){
 			var html = entry["html"];
 			//add dataWidth attribute
 			var dataWidth = entry["dataWidth"];
-
-            // // Now you can safely set attributes based on the measured dimensions
-            // highlightSpan.setAttribute('data-width', rect.width);
-
-
-
-			console.log("original htkl is", html);
+			//console.log("original htkl is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
-			console.log(span);
+			//console.log(span);
 			const textLayerContainer = document.getElementById("textLayerContainer");
 			
 			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
@@ -524,6 +518,9 @@ function highlightTerms(content, term) {
     return content.replace(regex, `<span class="highlight text">$1</span>`);
 }
 
+/*
+Restore the width of the markedSection after search to fix visual inconsistencies
+*/
 function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     foundPositions.forEach(foundPosition => {
         const markedSections = foundPosition.span.querySelectorAll('.markedSection');
@@ -537,9 +534,11 @@ function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     });
 }
 
-
+/*
+Find matching words
+*/
 function searchForTerm(term) {
-    console.log("listOfMarkedSpans:", listOfMarkedSpans);
+    //console.log("listOfMarkedSpans:", listOfMarkedSpans);
 
     const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
@@ -550,8 +549,12 @@ function searchForTerm(term) {
             return; // Skip nested spans
         }
 
-        let contentToSearch = span.dataset.originalHtml || span.innerHTML;
+        let contentToSearch =  span.innerHTML;
+		// console.log("span dataset original html");
+		// console.log(span.innerHTML);
+		//console.log(span.dataset.originalHtml);
         const highlightedContent = highlightTerms(contentToSearch, term);
+		
         
         if (highlightedContent !== contentToSearch) {
             span.dataset.originalHtml = span.innerHTML; // Store the original HTML
@@ -562,17 +565,17 @@ function searchForTerm(term) {
 
     restoreOriginalWidths(foundPositions, listOfMarkedSpans);
 
-    console.log("found positions:", foundPositions);
-    foundPositions.forEach(pos => {
-        console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
-    });
+    // console.log("found positions:", foundPositions);
+    // foundPositions.forEach(pos => {
+    //     console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
+    // });
 
     return foundPositions;
 }
 
 
-let foundPositions = [];
-let currentPosition = -1; // Start before the first position
+// let foundPositions = [];
+// let currentPosition = -1; // Start before the first position
 
 function clearSearchHighlights() {
     const textLayer = document.getElementById("textLayerContainer");
@@ -1004,5 +1007,22 @@ document.addEventListener('click', e => {
         commentView.style.display = "block";
         bookmarksView.style.display = "none";
 	}
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const viewFindbarButton = document.getElementById('viewFindbar');
+    const searchSection = document.getElementById('searchSection');
+
+    viewFindbarButton.addEventListener('click', () => {
+        // Check the current display state and toggle it
+        if (searchSection.style.display === 'none') {
+            searchSection.style.display = 'block'; // Show the search section
+            viewFindbarButton.classList.add('toggled'); // Optional: Add a class to indicate the toggle state
+        } else {
+            searchSection.style.display = 'none'; // Hide the search section
+            viewFindbarButton.classList.remove('toggled'); // Optional: Remove the toggle state class
+        }
+    });
 });
 
