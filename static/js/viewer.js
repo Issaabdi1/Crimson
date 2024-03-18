@@ -513,10 +513,27 @@ function adjustMarkedSections() {
     });
 }
 
+function highlightTerms(content, term) {
+    const safeTerm = escapeHtml(term.trim());
+    const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
+    return content.replace(regex, `<span class="highlight text">$1</span>`);
+}
+
+function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
+    foundPositions.forEach(foundPosition => {
+        const markedSections = foundPosition.span.querySelectorAll('.markedSection');
+        markedSections.forEach(markedSection => {
+            const dataValue = markedSection.getAttribute('data-value');
+            const markedSpan = listOfMarkedSpans.find(span => span.index === foundPosition.index);
+            if (markedSpan) {
+                markedSection.style.width = markedSpan.dataWidth + 'px'; // Assuming dataWidth is a string with pixel units
+            }
+        });
+    });
+}
 
 function searchForTerm(term) {
-    console.log("listOfMarkedSpans:");
-    console.log(listOfMarkedSpans);
+    console.log("listOfMarkedSpans:", listOfMarkedSpans);
 
     const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
@@ -527,73 +544,19 @@ function searchForTerm(term) {
             return; // Skip nested spans
         }
 
-        // Use the original HTML if available, otherwise use the current innerHTML
-        let contentToSearch = span.dataset.originalHtml !== undefined ? span.dataset.originalHtml : span.innerHTML;
-        const safeTerm = escapeHtml(term.trim());
-        const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
-
-        const matches = [...contentToSearch.matchAll(regex)];
-        if (matches.length > 0) {
-            if (span.dataset.originalHtml === undefined) {
-                span.dataset.originalHtml = span.innerHTML; // Store the original HTML
-            }
-
-            let highlightedContent = contentToSearch;
-            // Highlight all occurrences of the search term
-            matches.forEach(match => {
-                highlightedContent = highlightedContent.replace(match[0], `<span class="highlight text">${match[0]}</span>`);
-            });
-
+        let contentToSearch = span.dataset.originalHtml || span.innerHTML;
+        const highlightedContent = highlightTerms(contentToSearch, term);
+        
+        if (highlightedContent !== contentToSearch) {
+            span.dataset.originalHtml = span.innerHTML; // Store the original HTML
             span.innerHTML = highlightedContent;
-			
-            foundPositions.push({ span: span, index: index});
+            foundPositions.push({ span: span, index: index });
         }
     });
 
-    // After all spans are processed, adjust the dimensions of marked sections if needed
-// After all spans are processed and highlighted...
-foundPositions.forEach(position => {
-    const markedSections = position.span.querySelectorAll('.markedSection');
-    markedSections.forEach(markedSection => {
-		markedSection.style.width = '200px';
-		
-        const dataValue = markedSection.getAttribute('data-value');
-		console.log("data value: ");
-		console.log(dataValue);
-		listOfMarkedSpans.forEach((markedSpans)=> {
-			console.log("markedSpans:");
-			console.log(markedSpans.html);
-			//find and console log the data-value in markedSpans.html 
-		// Adjusted regex to account for escaped double quotes
-		const dataValueRegex = /data-value=\\"(\d+)\\"/;
-		const match = markedSpans.html.match(dataValueRegex);
+    restoreOriginalWidths(foundPositions, listOfMarkedSpans);
 
-		if (match && match[1]) {
-			const dataValue = match[1];
-			console.log(`Found data-value: ${dataValue}`);
-		} else {
-			console.log('No data-value found.');
-		}
-			
-		})
-        // // Find the matching entry in listOfMarkedSpans based on data-value
-        // const matchingSpanData = listOfMarkedSpans.find(spanData => {
-        //     // Extract the data-value directly from the stored HTML
-        //     const regex = new RegExp(`data-value="(${dataValue})"`);
-        //     return regex.test(spanData.html);
-        // });
-        // if (matchingSpanData && matchingSpanData.dataWidth) {
-        //     console.log("Original dataWidth for data-value", dataValue, ":", matchingSpanData.dataWidth);
-        //     // Update the width of the markedSection span
-        //     markedSection.style.width = '200px';
-        // }
-    });
-});
-
-
-
-    console.log("found positions:");
-	console.log(foundPositions);
+    console.log("found positions:", foundPositions);
     foundPositions.forEach(pos => {
         console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
     });
@@ -607,18 +570,24 @@ let currentPosition = -1; // Start before the first position
 
 function clearSearchHighlights() {
     const textLayer = document.getElementById("textLayerContainer");
-    const spans = textLayer.querySelectorAll('span[role="presentation"]');
-
-    spans.forEach(span => {
-        // Check if the span has the dataset property 'originalHtml'
-        if (span.dataset.originalHtml) {
-            // Restore the original HTML content
-            span.innerHTML = span.dataset.originalHtml;
-            // Remove the dataset property to prevent future conflicts
-            delete span.dataset.originalHtml;
+    const highlightedSpans = textLayer.querySelectorAll('.highlight.text');
+	console.log("highiglted spans before: ");
+	console.log(highlightedSpans);
+    // Only iterate over spans that have been highlighted
+    highlightedSpans.forEach(highlightSpan => {
+        // Restore the parent span's innerHTML to its original state
+        const parentSpan = highlightSpan.closest('span[role="presentation"]');
+        if (parentSpan && parentSpan.dataset.originalHtml) {
+            parentSpan.innerHTML = parentSpan.dataset.originalHtml;
+            delete parentSpan.dataset.originalHtml;
         }
     });
+	console.log("highiglted spans after: ");
+	console.log(highlightedSpans);
+    // Call setup to restore any initial state if necessary
+    setup();
 }
+
 
 function updateSearchResults() {
     const searchTerm = document.getElementById('searchTermInput').value.trim();
