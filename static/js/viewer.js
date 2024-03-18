@@ -330,6 +330,18 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 
 	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
+	
+	// Assuming highlightSpan is a DOM element
+    if (highlightSpan instanceof HTMLElement) {
+        requestAnimationFrame(() => {
+            const rect = highlightSpan.getBoundingClientRect();
+            console.log("Measured width:", rect.width);
+            // Now you can safely set attributes based on the measured dimensions
+            highlightSpan.setAttribute('data-width', rect.width);
+        });
+    } else {
+        console.error("highlightSpan is not a DOM element");
+    }
 
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
