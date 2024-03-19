@@ -388,8 +388,8 @@
 			// Work out adjacent areas around viewer
 			let averagePageHeight = totalHeight / numPages; 
 			const viewerHeight = viewer.clientHeight;
-			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * renderQuality;
-			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * renderQuality;
+			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * dynamicRenderQuality;
+			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * dynamicRenderQuality;
 
 			let topPage = Math.floor(scrollTop / averagePageHeight) + 1;
 			let bottomPage = Math.floor(scrollBottom / averagePageHeight) + 1;
@@ -473,7 +473,6 @@
 		  // Update container dimensions based on canvases
 		  async function updateContainerDimensions(pdf) 
 		  {
-			let dynamicRenderQuality = renderQuality * renderScales[currentZoomOption];
 			const bottomPage = await pdf.getPage(numPages);
 			const viewport = bottomPage.getViewport({scale: baseRenderQuality * resolution});
 			const pageWidth = viewport.width;
