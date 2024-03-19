@@ -29,10 +29,10 @@ function fromHTML(html, trim = true) {
 
 	// Set up a new template element
 	const template = document.createElement('template');
-	
+
 	// Set the HTML content of the template element
 	template.innerHTML = html;
-	
+
 	// Clone the content of the template
 	const content = template.content.cloneNode(true);
 
@@ -48,12 +48,15 @@ function decodeEntities(encodedString) {
 }
 //Other stuff
 
-var listOfMarkedSpans = []; //list of all the spans that are marked. 
+var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
+let isMark = false;
+var comments = JSON.parse('{{ comments_json|escapejs }}');
+
 function setup(){
 	//Load all the info and marks into the pdf
 	if(savedMarks!=""){
@@ -65,11 +68,11 @@ function setup(){
 		dict.forEach((entry)=>{
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
-			console.log("original htkl is", html);
+			console.log("original html is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
 			console.log(span);
 			const textLayerContainer = document.getElementById("textLayerContainer");
-			
+
 			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
 
 			spanToInsertInto.innerHTML = "";
@@ -81,13 +84,60 @@ function setup(){
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
-		document.querySelectorAll('#markedSection').forEach(element =>{
+		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
+				isMark = true;
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				console.log('current mark id is:' + currentMarkId);
+				$.ajax({
+					url: '/get_comments/',
+					type: 'GET',
+					data: {
+						'mark_id': currentMarkId,
+						'upload_id': upload_id,
+					},
+					success: function(response) {
+						console.log("Received JSON:", response);
+						try {
+							var comments = JSON.parse(response.comments);
+							console.log("Parsed comments:", comments);
+							var commentsHTML = '';
+							for (var i = 0; i < comments.length; i++) {
+								commentsHTML += `
+									<div id="textComment">
+										<div class="card" style="width: 18rem;">
+											<div>
+												<img src="${comments[i].avatar_url}" class="card-img-top" alt="avatar">
+												${comments[i].commenter}
+											</div>
+											<div class="card-body">
+												<p class="card-text"><textarea id="commentInputBox" placeholder="${comments[i].text}"></textarea></p>
+											</div>
+											<div class="card-footer text-body-secondary">
+												<button class="btn-primary">save</button>
+											</div>
+										</div>
+									</div>
+								`;
+							}
+							document.getElementById("commentsContainer").innerHTML = commentsHTML;
+							savePdfChanges(true);
+						} catch (error) {
+							console.error("Error parsing JSON:", error);
+						}
+					},
+					error: function(xhr, status, error) {
+						console.error("Error saving current mark ID: " + xhr.status);
+						// Handle error if needed
+					},
+					beforeSend: function(xhr, settings) {
+						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+					}
+				});
 			});
-		})
-		
+		});
+
 	}
 	document.dispatchEvent(setupEvent);
 }
@@ -101,19 +151,66 @@ function renderAfterZoom(){
 			var html = entry["html"];
 			var span = fromHTML(html.replace(/\\"/g, '"')); //remove the escape characters from the html (as it is not JSON)
 			const textLayerContainer = document.getElementById("textLayerContainer");
-			
+
 			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];
 			spanToInsertInto.innerHTML = "";
 			spanToInsertInto.appendChild(span);
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
-		document.querySelectorAll('#markedSection').forEach(element =>{
+		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
+				isMark = true;
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				console.log('current mark id is:' + currentMarkId);
+				$.ajax({
+					url: '/get_comments/',
+					type: 'GET',
+					data: {
+						'mark_id': currentMarkId,
+						'upload_id': upload_id,
+					},
+					success: function(response) {
+						console.log("Received JSON:", response);
+						try {
+							var comments = JSON.parse(response.comments);
+							console.log("Parsed comments:", comments);
+							var commentsHTML = '';
+							for (var i = 0; i < comments.length; i++) {
+								commentsHTML += `
+									<div id="textComment">
+										<div class="card" style="width: 18rem;">
+											<div>
+												<img src="${comments[i].avatar_url}" class="card-img-top" alt="avatar">
+												${comments[i].commenter}
+											</div>
+											<div class="card-body">
+												<p class="card-text"><textarea id="commentInputBox" placeholder="${comments[i].text}"></textarea></p>
+											</div>
+											<div class="card-footer text-body-secondary">
+												<button class="btn-primary">save</button>
+											</div>
+										</div>
+									</div>
+								`;
+							}
+							document.getElementById("commentsContainer").innerHTML = commentsHTML;
+							savePdfChanges(true);
+						} catch (error) {
+							console.error("Error parsing JSON:", error);
+						}
+					},
+					error: function(xhr, status, error) {
+						console.error("Error saving current mark ID: " + xhr.status);
+						// Handle error if needed
+					},
+					beforeSend: function(xhr, settings) {
+						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+					}
+				});
 			});
-		})
+		});
 	}
 }
 
@@ -180,7 +277,7 @@ document.addEventListener('mousedown', function(event) {
 	document.addEventListener('mouseup', mouseUpHandler);
 });
 var seenSpan = false;
-var selectionList; 
+var selectionList;
 function mouseMoveHandler(event) {
 	const textLayerContainer = document.getElementById('textLayerContainer');
 	if(event.target.nodeName==='SPAN' && event.target.nodeName==='SPAN' && textLayerContainer.contains(event.target)){
@@ -206,7 +303,7 @@ function mouseMoveHandler(event) {
 		//keep selection as before
 		textLayerContainer.style.cssText +=';'+ "-webkit-touch-callout :none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none";
 	}
-	
+
 
 	//Turn off selection when over a highlighted seciton (because can't select it again)
 	if(event.target.id == "markedSection"){
@@ -281,7 +378,7 @@ function highlightSelectedText(event){
 	});
 
 
-	//Add a new entry in the dictionary, associating the mark with a comment. 
+	//Add a new entry in the dictionary, associating the mark with a comment.
 	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
 	//save changes
 	savePdfChanges(false); // THIS LINE COULD BE THE BUG
@@ -314,7 +411,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 
 	// Create a text node with the text of the highlight span after the highlight span (to mimic it being in the text)
 	const highlightText = document.createTextNode(highlightSpan.textContent);
-	
+
 	//create an empty span to separate the highlight text and the next text
 	const spacesSpan = document.createElement('span');
 	spacesSpan.style.userSelect='none';
@@ -325,14 +422,14 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	}
 	else{
 		//insert the span, and then the text before it
-		setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling); 
+		setSpan.insertBefore(spacesSpan, highlightSpan.nextSibling);
 	}
 
 	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
 
 	//This means the order is text node | highlight | text | span | text
-	//This allows them to be selected separately. 
+	//This allows them to be selected separately.
 	return highlightSpan;
 }
 
@@ -366,7 +463,6 @@ async function savePdfChanges(saveCommentsFlag){
 
 	let formData = new FormData();
 	formData.append('upload_id', upload_id);
-
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
 
@@ -374,12 +470,13 @@ async function savePdfChanges(saveCommentsFlag){
 		var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 		var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 
-		//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
+		//pass parameters through url + "&listOfMarks=" + listOfMarksJson
 		var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
 		formData.append('mark_id', Mark.instanceCount);
 		formData.append('listOfComments', listOfCommentsJson);
 		formData.append('listOfSpans', listOfMarkedSpansJson);
-		xhttp.open("POST", "/save_pdf_marks/", true); 
+		xhttp.open("POST", "/save_pdf_marks/", true);
+
 	} else {
 		var listOfVoiceCommentsJson = {};
 		// Convert audio into base64 to be compatible with JSON
@@ -424,21 +521,21 @@ async function savePdfChanges(saveCommentsFlag){
 }
 
 
-/* Old Save PDF Function 
+/* Old Save PDF Function
 
 //Send the data to the database
 function savePdfChanges(){
 	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 	var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 
-	//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
+	//pass parameters through url + "&listOfMarks=" + listOfMarksJson
 	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
 	const xhttp = new XMLHttpRequest();
 	//When the request has been dealt with, get the response
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == XMLHttpRequest.DONE) {
 			var response = JSON.parse(xhttp.response);
-			
+
 		}
 	};
 
@@ -449,7 +546,7 @@ function savePdfChanges(){
 	formData.append('listOfSpans', listOfMarkedSpansJson);
 
 
-	xhttp.open("POST", "/save_pdf_marks/", true); 
+	xhttp.open("POST", "/save_pdf_marks/", true);
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
 
@@ -548,14 +645,14 @@ function moveToPosition(index) {
 	// Ensure index is within bounds
 	if (index >= 0 && index < foundPositions.length) {
 		const position = foundPositions[index];
-		
+
 		// Logic to scroll to the position.span or highlight it
 
 		// I put it false for now so it doesn't scroll past the main container, just the viewer
 		position.span.scrollIntoView(false);
 
 		//position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
-		
+
 		// Optionally highlight or otherwise indicate the current span
 	}
 }
@@ -589,7 +686,7 @@ const allRecordings = document.getElementById('recordings');
 const savedRecordings = document.getElementById('savedRecordings');
 const animationBlocks = document.querySelectorAll('.animation-block');
 const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
-const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match => 
+const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match =>
   String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
 );
 var listOfSavedComments = {};
@@ -639,7 +736,7 @@ function createAudioElement(audio_object, isBlob) {
     const audio = document.createElement('audio');
     audio.controls = true;
 	audio.controlsList.add('nodownload');
-	audio.controlsList.add('noplaybackrate'); 
+	audio.controlsList.add('noplaybackrate');
 	if (isBlob) {
 		audio.src = URL.createObjectURL(audio_object);
 	} else {
@@ -683,7 +780,7 @@ async function startRecording() {
 		// Initialise file for recording
 		const blob = new Blob(chunks, { type: 'audio/wav' });
 
-		// Call functions for audio + delete button 
+		// Call functions for audio + delete button
 		const audio = createAudioElement(blob, true)
 		const deleteBtn = createDeleteButton(() => {
 			audio.remove();
@@ -780,7 +877,7 @@ function updateVoiceComments() {
 	if (currentMarkId && listOfVoiceComments[currentMarkId]) {
 		listOfVoiceComments[currentMarkId].forEach(blob => {
 
-			// Call functions for audio + delete button 
+			// Call functions for audio + delete button
 			var audio = createAudioElement(blob, true);
 			var deleteBtn = createDeleteButton(() => {
 				audio.remove();
@@ -815,7 +912,7 @@ function updateVoiceComments() {
 			// Loop over each user's voice comments
 			listOfSavedComments[currentMarkId][user].forEach(audio_url => {
 
-				// Call functions for audio + reply button 
+				// Call functions for audio + reply button
 				var audio = createAudioElement(audio_url, false);
 				var replyBtn = createReplyButton();
 				var deleteBtn;
@@ -942,3 +1039,71 @@ document.addEventListener('click', e => {
 	}
 });
 
+
+/* -------------------------------------------------------------------------------- */
+/* -------------------------- TEXT COMMENT JAVASCRIPT ----------------------------- */
+/* -------------------------------------------------------------------------------- */
+function addComment(){
+    const inputText = document.getElementById("inputText");
+	if (inputText.style.display === "none") {
+        inputText.style.display = "block";
+
+    } else {
+        inputText.style.display = "none";
+
+    }
+}
+
+// function saveComment() {
+//     var commentInput = document.getElementById("textArea").value;
+// 	var text = commentInput;
+// 	console.log(text)
+// 	console.log('current mark id is:' + currentMarkId)
+//     $.ajax({
+//         url: '/save_comment/',
+//         type: 'POST',
+//         data: {
+//             'upload_id': upload_id,
+//             'mark_id': currentMarkId,
+// 			'text': text,
+//         },
+//         success: function(response) {
+//             console.log("Comment saved successfully!");
+//             $('#comment').text(commentInput);
+//
+//         },
+//         error: function(xhr, status, error) {
+//             console.error("Error saving comment: " + xhr.status);
+//         },
+//         beforeSend: function(xhr, settings) {
+//             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+//         }
+//     });
+//
+// 	savePdfChanges(true)
+// }
+function saveComment() {
+	var commentInput = document.getElementById("textArea").value;
+	console.log("text is:", commentInput)
+	console.log("mark_id is:",  currentMarkId)
+    $.ajax({
+        url: '/save_comment/',
+        type: 'POST',
+        data: {
+            'upload_id': upload_id,
+            'mark_id': currentMarkId,
+            'text': commentInput,
+        },
+        success: function(response) {
+			console.log("text is:", commentInput)
+			console.log("mark_id is:",  currentMarkId)
+        },
+        error: function(xhr, status, error) {
+            console.error("Error saving comment: " + xhr.status);
+        },
+        beforeSend: function(xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+    });
+	savePdfChanges(true)
+}
