@@ -52,6 +52,7 @@ var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
 var currentMarkId;
+var previousSelectedSpan;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
 function setup(){
@@ -81,8 +82,13 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
+				if(previousSelectedSpan && previousSelectedSpan !== element){
+					previousSelectedSpan.style.backgroundColor = 'yellow';
+				}
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId]
+				element.style.backgroundColor = 'orange'; 
+				previousSelectedSpan = element;
 			});
 		})
 	}
