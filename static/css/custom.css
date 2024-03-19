@@ -460,6 +460,10 @@ Dark mode
     border: 2px solid #fff;
 }
 
+.dark-mode .modal-body{
+    color: #000000;
+}
+
 /*
 Orange mode
 */
