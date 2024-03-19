@@ -55,7 +55,6 @@ var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
 let isMark = false;
-var comments = JSON.parse('{{ comments_json|escapejs }}');
 
 function setup(){
 	//Load all the info and marks into the pdf
