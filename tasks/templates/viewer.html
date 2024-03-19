@@ -135,15 +135,15 @@
 						</button>		
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
 							<option id="pageFit" value="fit">Fit Page</option>
-        	                        		<option id="pageWidth" value="width">Fit Width</option>
-                	                		<option value="0.5">50%</option>
-                        	        		<option value="0.75">75%</option>
-                                			<option value="1">100%</option>
-                                			<option value="1.25">125%</option>
-                                			<option value="1.5">150%</option>
-	                                		<option value="2">200%</option>
-        	                        		<option value="3">300%</option>
-                	                		<option value="4">400%</option>
+							<option id="pageWidth" value="width">Fit Width</option>
+							<option value="0.5">50%</option>
+							<option value="0.75">75%</option>
+							<option value="1" selected>100%</option>
+							<option value="1.25">125%</option>
+							<option value="1.5">150%</option>
+							<option value="2">200%</option>
+							<option value="3">300%</option>
+							<option value="4">400%</option>
 						</select>	
 						
 						<!-- Search section -->
@@ -186,6 +186,8 @@
 		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
         const baseRenderQuality = 1.5;
 		const pageSpacing = 0; // Adjust spacing between pages here
+		const renderScales = [1, 1, 2, 1.75, 1.5, 1.25, 1, 1, 1, 1] // For Fit Width, Fit Height, 50%, 75%, 100%, 125%, 150%, 200%, 300%, 400%
+
 		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
 		const devicePixelRatio = window.devicePixelRatio || 1;
         const transform = devicePixelRatio !== 1
@@ -202,10 +204,12 @@
         /* Variables */
 		// Scales output accordingly
 		var zoomScale = 1;
-		var resolution = renderQuality * zoomScale;
 		var totalHeight = 0;
 		var maxWidth = 0;
 		var currentPage = 1; // Page the user is currently on
+		var dynamicRenderQuality = renderQuality * renderScales[4]; // 4 is the index for 100%
+		var resolution = dynamicRenderQuality * zoomScale;
+		
 		// Global variables
 		var pdf;
 		var numPages;
@@ -222,6 +226,11 @@
 			var selectScale = document.getElementById("selectScale");
 				selectScale.addEventListener("change", function() {
 					var selectedValue = parseFloat(selectScale.value); // Get the selected option value
+					
+					// Update render scales
+					let currentZoomOption = selectScale.selectedIndex;
+					dynamicRenderQuality = renderQuality * renderScales[currentZoomOption];
+					resolution = dynamicRenderQuality * zoomScale;
 					
 					// Get the original percentage
 					const yOriginalPercentage = viewer.scrollTop / viewer.scrollHeight; 
@@ -316,8 +325,8 @@
 			applyScrollingEffect(pdf);
 
 			// Set container to required sizes
-			container.style.width = maxWidth / renderQuality + "px";
-			container.style.height = totalHeight / renderQuality + "px";
+			container.style.width = maxWidth / dynamicRenderQuality + "px";
+			container.style.height = totalHeight / dynamicRenderQuality + "px";
 			/*
 			canvasContainer.style.width = maxWidth / renderQuality + "px";
 			canvasContainer.style.height = totalHeight / renderQuality + "px";
@@ -416,13 +425,13 @@
 			// Set dimensions
 			canvas.width = viewport.width * devicePixelRatio;
 			canvas.height = viewport.height * devicePixelRatio;
-			canvas.style.width = viewport.width / renderQuality + "px";
-			canvas.style.height = viewport.height / renderQuality + "px";
+			canvas.style.width = viewport.width / dynamicRenderQuality + "px";
+			canvas.style.height = viewport.height / dynamicRenderQuality + "px";
 
 			// Position the canvas in the right place
 			canvas.style.position = 'absolute'
 			canvas.style.margin = "auto";
-			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';			
+			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / dynamicRenderQuality + 'px';			
 			
 			canvasContainer.appendChild(canvas);
 			let context = canvas.getContext("2d");
@@ -438,10 +447,10 @@
 			const textLayer = document.createElement("div");
 			textLayer.id = `textlayer-${pageNumber}`;
 			textLayer.classList.add("textLayer")
-			textLayer.style.setProperty('--scale-factor', viewport.scale / renderQuality);
+			textLayer.style.setProperty('--scale-factor', viewport.scale / dynamicRenderQuality);
 
 			textLayer.style.position = 'absolute'
-			textLayer.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / renderQuality + 'px';
+			textLayer.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / dynamicRenderQuality + 'px';
 			//textLayer.style.top = yPos
 
 			textLayerContainer.appendChild(textLayer);
@@ -462,12 +471,13 @@
 		}
 
 		  // Update container dimensions based on canvases
-		  async function updateContainerDimensions(pdf) {
-
+		  async function updateContainerDimensions(pdf) 
+		  {
+			let dynamicRenderQuality = renderQuality * renderScales[currentZoomOption];
 			const bottomPage = await pdf.getPage(numPages);
 			const viewport = bottomPage.getViewport({scale: baseRenderQuality * resolution});
 			const pageWidth = viewport.width;
-			const pageHeight = viewport.height * (numPages - 1) / renderQuality + 'px';
+			const pageHeight = viewport.height * (numPages - 1) / dynamicRenderQuality + 'px';
 
 			/*
 			canvasContainer.style.width = pageWidth + 'px';
@@ -504,7 +514,7 @@
 			pagesRendered.clear(); // Empty set of rendered pages
 				
 			// Update scaling 
-			let newResolution = renderQuality * zoomScale;
+			let newResolution = dynamicRenderQuality * zoomScale;
 			maxWidth =  (maxWidth / resolution) * newResolution;
 			totalHeight = (totalHeight / resolution) * newResolution;
 			resolution = newResolution;
@@ -516,8 +526,8 @@
 			textLayerContainer.style.height = totalHeight / renderQuality + "px";
 			*/
 
-			container.style.width = maxWidth / renderQuality + "px";
-			container.style.height = totalHeight / renderQuality + "px";
+			container.style.width = maxWidth / dynamicRenderQuality + "px";
+			container.style.height = totalHeight / dynamicRenderQuality + "px";
 
 			// Remove all canvas elements from container
 			while (canvasContainer.firstChild) {
