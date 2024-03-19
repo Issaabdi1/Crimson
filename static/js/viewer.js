@@ -82,6 +82,7 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
+				// This changes the colour of the selected span to orange and changes back the old one
 				if(previousSelectedSpan && previousSelectedSpan !== element){
 					previousSelectedSpan.style.backgroundColor = 'yellow';
 				}
@@ -89,6 +90,7 @@ function setup(){
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId]
 				element.style.backgroundColor = 'orange'; 
 				previousSelectedSpan = element;
+				
 			});
 		})
 	}
@@ -375,7 +377,38 @@ async function savePdfChanges(saveCommentsFlag){
 
 	return true; //Show the request has been sent successfully
 }
+const deleteMarkButton = document.getElementById('deleteMarkButton');
+deleteMarkButton.addEventListener('click', deleteMark);
 
+function deleteMark() {
+    // Ensure that a mark is selected
+    if (currentMarkId !== undefined && currentMarkId !== null) {
+        // Remove the span from the DOM
+        const markedSpan = document.querySelector(`span[data-value="${currentMarkId}"]`);
+        if (markedSpan) {
+            markedSpan.remove();
+        }
+
+        // Remove the mark's data from listOfMarkedSpans
+        listOfMarkedSpans = listOfMarkedSpans.filter(mark => mark.index !== currentMarkId);
+		delete listOfMarkedSpans[currentMarkId];
+
+
+        // Remove the mark's comment from listOfComments
+        delete listOfComments[currentMarkId];
+
+        // Optionally, remove the mark's voice comments from listOfVoiceComments
+        delete listOfVoiceComments[currentMarkId];
+
+		console.log(listOfMarkedSpans);
+		console.log(listOfComments);
+		console.log(listOfVoiceComments);
+        // Clear the current mark ID
+        currentMarkId = null;
+		previousSelectedSpan = null;
+		savePdfChanges();
+    }
+}
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
