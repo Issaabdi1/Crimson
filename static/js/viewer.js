@@ -52,7 +52,6 @@ var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
 var currentMarkId;
-var previousSelectedSpan;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
 function setup(){
@@ -60,7 +59,7 @@ function setup(){
 	if(savedMarks!=""){
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
 		var jsonString = decodeEntities(marksListOfSpans);//"{{marks.listOfSpans}}");
-		var dict = JSON.parse(jsonString);
+		var dict = JSON.parse(jsonString).filter(entry => entry !== null);
 		listOfComments = JSON.parse(decodeEntities(marksListOfComments));//"{{marks.listOfComments}}"))
 		//go through list now
 		dict.forEach((entry)=>{
@@ -83,14 +82,19 @@ function setup(){
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
 				// This changes the colour of the selected span to orange and changes back the old one
-				if(previousSelectedSpan && previousSelectedSpan !== element){
-					previousSelectedSpan.style.backgroundColor = 'yellow';
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
 				}
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId]
-				element.style.backgroundColor = 'orange'; 
-				previousSelectedSpan = element;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
 				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 	}
@@ -221,9 +225,19 @@ function highlightSelectedText(event){
 		highlightedSpan.dataset.value = newMark.getId();
 		//add event listener
 		highlightedSpan.addEventListener('click', () => {
+			// //  Handle click event (e.g., open a modal, execute a function, etc.)
+			if(currentMarkId && currentMarkId !== highlightedSpan.dataset.value){
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'yellow';
+				})
+			}
 			currentMarkId = highlightedSpan.dataset.value;
-			// Handle click event (e.g., open a modal, execute a function, etc.)
 			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
+			
+			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+				e.style.backgroundColor = 'orange';
+			})
+			savePdfChanges(false);
 		});
 		count+=1;
 	});
@@ -384,14 +398,12 @@ function deleteMark() {
     // Ensure that a mark is selected
     if (currentMarkId !== undefined && currentMarkId !== null) {
         // Remove the span from the DOM
-        const markedSpan = document.querySelector(`span[data-value="${currentMarkId}"]`);
-        if (markedSpan) {
-            markedSpan.remove();
-        }
+        document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+			e.remove();
+		})
 
         // Remove the mark's data from listOfMarkedSpans
-        listOfMarkedSpans = listOfMarkedSpans.filter(mark => mark.index !== currentMarkId);
-		delete listOfMarkedSpans[currentMarkId];
+		listOfMarkedSpans = listOfMarkedSpans.filter(mark => !mark.html.includes(`data-value=\\"${currentMarkId}\\"`));//1
 
 
         // Remove the mark's comment from listOfComments
@@ -400,13 +412,12 @@ function deleteMark() {
         // Optionally, remove the mark's voice comments from listOfVoiceComments
         delete listOfVoiceComments[currentMarkId];
 
-		console.log(listOfMarkedSpans);
-		console.log(listOfComments);
-		console.log(listOfVoiceComments);
+		console.log('listOfMarkedSpans',listOfMarkedSpans);
+		console.log('listOfComments',listOfComments);
+		console.log('listOfVoiceComments',listOfVoiceComments);
         // Clear the current mark ID
         currentMarkId = null;
-		previousSelectedSpan = null;
-		savePdfChanges();
+		savePdfChanges(false);
     }
 }
 
