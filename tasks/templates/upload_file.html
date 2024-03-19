@@ -4,9 +4,9 @@
 <link rel="stylesheet" type="text/css" href="{% static '/css/upload_file.css' %}">
 <script src="{% static '/js/upload_file.js' %}"></script>
 
-<div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative items-center" style="background-color: white">
+<div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative items-center" style="background-color: transparent">
 	<div class="absolute bg-dark-subtle inset-0 z-0"></div>
-	<div class="sm:max-w-lg w-full p-10 rounded-xl z-10">
+	<div class="sm:max-w-lg w-full p-10 rounded-xl z-10 form-container">
 		<div class="text-center">
 			<h2 class="mt-5 text-3xl font-bold text-gray-900">
 				Upload
@@ -19,12 +19,12 @@
         {% csrf_token %}
             <div class="grid grid-cols-1 space-y-2">
                 <label class="text-sm font-bold text-gray-500 tracking-wide">Share To (optional)</label>
-                <input name="share" class="text-base p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" type="" placeholder="Email or Username">
+                <input name="share" class="text-base p-2 rounded-lg focus:outline-none focus:border-indigo-500 share-input" type="" placeholder="Email or Username">
             </div>
 
             <div class="grid grid-cols-1 space-y-2">
                 <label class="text-sm font-bold text-gray-500 tracking-wide">Attach Document</label>
-                <div class="flex items-center justify-center w-full">
+                <div class="flex items-center justify-center w-full drag-zone">
                     <label class="flex flex-col rounded-lg border-4 border-dashed w-full h-60 p-10 group text-center">
                         <div class="h-full w-full text-center flex flex-col items-center justify-center items-center">
                             <div class="flex flex-auto max-h-48 w-2/5 mx-auto -mt-2 p-4">

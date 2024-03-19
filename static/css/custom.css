@@ -464,6 +464,10 @@ Dark mode
     color: #000000;
 }
 
+.dark-mode .share-input{
+    border-color: rgb(230,230,230);
+}
+
 /*
 Orange mode
 */
