@@ -51,5 +51,6 @@ urlpatterns = [
     path('get_comments/', views.get_comments, name='get_comments'),
     path("transcribe_audio/", views.transcribe_audio, name="transcribe_audio"),
     path("save_current_mark_id/", views.save_current_mark_id, name="save_current_mark_id"),
+    path("update_comment/", views.update_comment, name="update_comment"),
 
 ]

@@ -122,6 +122,39 @@ function setup(){
 							}
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
 							savePdfChanges(true);
+														document.getElementById("commentsContainer").innerHTML = commentsHTML;
+							savePdfChanges(true);
+							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
+							button.addEventListener('click', function() {
+								// Find the textarea associated with this button
+								var cardBody = button.closest('.card').querySelector('.card-body');
+								var textarea = cardBody.querySelector('textarea');
+								var commentText = textarea.value; // Get the current text from the textarea
+								currentMarkId = element.dataset.value;
+								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+								// AJAX request to update the comment
+								$.ajax({
+									url: '/update_comment/', // Your endpoint to update the comment
+									type: 'POST',
+									data: {
+										'mark_id': currentMarkId,
+										'upload_id': upload_id,
+										'text': commentText
+									},
+									beforeSend: function(xhr, settings) {
+										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Handles CSRF token
+									},
+									success: function(response) {
+										console.log("Comment updated successfully:", response);
+									},
+									error: function(xhr, status, error) {
+										console.error("Error updating comment:", xhr.status);
+										// Optional: Provide error feedback to the user
+									},
+								});
+							});
+						});
 						} catch (error) {
 							console.error("Error parsing JSON:", error);
 						}
@@ -141,76 +174,104 @@ function setup(){
 	document.dispatchEvent(setupEvent);
 }
 
-function renderAfterZoom(){
-	//Render the marks after zooming. This does not require loading the saved marks, but just using the local lists
-	//Go through every mark saved, and add it
-	if(listOfMarkedSpans.length>0){
-		listOfMarkedSpans.forEach((entry)=>{
-			var indexOfSpan = entry["index"];
-			var html = entry["html"];
-			var span = fromHTML(html.replace(/\\"/g, '"')); //remove the escape characters from the html (as it is not JSON)
-			const textLayerContainer = document.getElementById("textLayerContainer");
+function renderAfterZoom() {
+    // Render the marks after zooming without needing to load saved marks again
+    if (listOfMarkedSpans.length > 0) {
+        listOfMarkedSpans.forEach((entry) => {
+            var indexOfSpan = entry["index"];
+            var html = entry["html"];
+            // Convert the string to HTML elements, ensuring to decode any HTML entities
+            var span = fromHTML(html.replace(/\\"/g, '"'));
+            const textLayerContainer = document.getElementById("textLayerContainer");
+            var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];
 
-			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];
-			spanToInsertInto.innerHTML = "";
-			spanToInsertInto.appendChild(span);
-		})
-		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
-		//the code currently changes the text of a test element
-		document.querySelectorAll('#markedSection').forEach(element => {
-			element.addEventListener('click', () => {
-				isMark = true;
-				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
-				console.log('current mark id is:' + currentMarkId);
-				$.ajax({
-					url: '/get_comments/',
-					type: 'GET',
-					data: {
-						'mark_id': currentMarkId,
-						'upload_id': upload_id,
-					},
-					success: function(response) {
-						console.log("Received JSON:", response);
-						try {
-							var comments = JSON.parse(response.comments);
-							console.log("Parsed comments:", comments);
-							var commentsHTML = '';
-							for (var i = 0; i < comments.length; i++) {
-								commentsHTML += `
-									<div id="textComment">
-										<div class="card" style="width: 18rem;">
-											<div>
-												<img src="${comments[i].avatar_url}" class="card-img-top" alt="avatar">
-												${comments[i].commenter}
-											</div>
-											<div class="card-body">
-												<p class="card-text"><textarea id="commentInputBox" placeholder="${comments[i].text}"></textarea></p>
-											</div>
-											<div class="card-footer text-body-secondary">
-												<button class="btn-primary">save</button>
-											</div>
-										</div>
-									</div>
-								`;
-							}
-							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
-						} catch (error) {
-							console.error("Error parsing JSON:", error);
-						}
-					},
-					error: function(xhr, status, error) {
-						console.error("Error saving current mark ID: " + xhr.status);
-						// Handle error if needed
-					},
-					beforeSend: function(xhr, settings) {
-						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-					}
-				});
-			});
-		});
-	}
+            spanToInsertInto.innerHTML = ""; // Clear existing content
+            spanToInsertInto.appendChild(span); // Insert new content
+        });
+
+        // Add click event listener for all highlighted spans to handle comment updates
+        document.querySelectorAll('#markedSection').forEach(element => {
+            element.addEventListener('click', () => {
+                isMark = true; // Assuming this is part of your state management
+                currentMarkId = element.dataset.value; // Set current mark ID based on clicked element
+                document.getElementById('testComment').textContent = listOfComments[currentMarkId]; // Update text content based on the current mark
+                console.log('current mark id is:', currentMarkId); // Debugging
+
+                // Fetch comments for the current mark from the server
+                $.ajax({
+                    url: '/get_comments/',
+                    type: 'GET',
+                    data: {
+                        'mark_id': currentMarkId,
+                        'upload_id': upload_id,
+                    },
+                    success: function(response) {
+                        try {
+                            var comments = JSON.parse(response.comments); // Parse comments from response
+                            var commentsHTML = ''; // Initialize HTML string for comments
+                            comments.forEach((comment, i) => {
+                                commentsHTML += `
+                                    <div id="textComment">
+                                        <div class="card" style="width: 18rem;">
+                                            <div>
+                                                <img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+                                                ${comment.commenter}
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text"><textarea id="commentInputBox" placeholder="${comment.text}"></textarea></p>
+                                            </div>
+                                            <div class="card-footer text-body-secondary">
+                                                <button class="btn-primary" data-comment-id="${comment.id}">save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            document.getElementById("commentsContainer").innerHTML = commentsHTML; // Update HTML with new comments
+
+                            // Add event listeners for each save button within the comments
+                            document.querySelectorAll('.card-footer .btn-primary').forEach((button) => {
+                                button.addEventListener('click', function() {
+                                    var cardBody = button.closest('.card').querySelector('.card-body');
+                                    var textarea = cardBody.querySelector('textarea');
+                                    var commentText = textarea.value; // Get text from textarea
+                                    var commentId = button.dataset.commentId; // Get comment ID from data attribute
+
+                                    // AJAX request to update the comment
+                                    $.ajax({
+                                        url: '/update_comment/',
+                                        type: 'POST',
+                                        data: {
+                                            'comment_id': commentId,
+                                            'text': commentText
+                                        },
+                                        beforeSend: function(xhr, settings) {
+                                            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Ensure CSRF token is set
+                                        },
+                                        success: function(response) {
+                                            console.log("Comment updated successfully:", response); // Debugging
+                                            // Additional logic to handle successful update can go here
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error("Error updating comment:", xhr.status); // Error handling
+                                        }
+                                    });
+                                });
+                            });
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error); // Error handling
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching comments:", xhr.status); // Error handling
+                    },
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Ensure CSRF token is set
+                    }
+                });
+            });
+        });
+    }
 }
 
 

@@ -17,6 +17,7 @@ from django.core.files.storage import default_storage
 import base64, json, uuid
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -200,3 +201,24 @@ def save_current_mark_id(request):
         return render(request, 'viewer.html', context)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@csrf_exempt
+def update_comment(request):
+    if request.method == 'POST':
+        mark_id = request.POST.get('mark_id')
+        upload_id = request.POST.get('upload_id')
+        new_text = request.POST.get('text')
+        print('the new text is', new_text)
+        print('mark_id is', mark_id)
+        print('upload_id is', upload_id)
+
+        try:
+            comment = Comment.objects.get(mark_id=mark_id, upload_id=upload_id)
+            comment.text = new_text
+            comment.save()
+            return JsonResponse({'success': True, 'message': 'Comment updated successfully'})
+        except Comment.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Comment not found'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
