@@ -483,6 +483,10 @@ Dark mode
     background-color: rgb(211,211,211);
 }
 
+.dark-mode .form-check-label{
+    color: #111111;
+}
+
 /*
 Orange mode
 */
@@ -549,4 +553,8 @@ Pink mode
 .file-link {
     font: inherit;
     color: #0d6efd;
+}
+
+#themePreferencesForm{
+
 }
