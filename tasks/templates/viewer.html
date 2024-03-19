@@ -388,8 +388,8 @@
 			// Work out adjacent areas around viewer
 			let averagePageHeight = totalHeight / numPages; 
 			const viewerHeight = viewer.clientHeight;
-			const scrollTop = (viewer.scrollTop - viewerHeight * 5) * dynamicRenderQuality;
-			const scrollBottom = (viewer.scrollTop + viewerHeight * 5) * dynamicRenderQuality;
+			let scrollTop = viewer.scrollTop * dynamicRenderQuality;
+			let scrollBottom = (viewer.scrollTop + viewerHeight) * dynamicRenderQuality;
 
 			let topPage = Math.floor(scrollTop / averagePageHeight) + 1;
 			let bottomPage = Math.floor(scrollBottom / averagePageHeight) + 1;
@@ -399,7 +399,26 @@
 			bottomPage = bottomPage < numPages ? bottomPage : numPages; 
 			currentPage = Math.floor((topPage + bottomPage) / 2);
 
-			// Render visible pages 
+			// Render visible pages
+			for (let pageNumber = topPage; pageNumber <= bottomPage; pageNumber++) {
+				if (!pagesRendered.has(pageNumber)) {
+					pagesRendered.add(pageNumber);
+					await renderPage(pdf, pageNumber);
+					console.log("finished rendering page" + pageNumber);
+				}
+			}
+			
+			// Render adjacent pages around the visible ones
+			scrollTop = (viewer.scrollTop - viewerHeight * 5) * dynamicRenderQuality;
+			scrollBottom = (viewer.scrollTop + viewerHeight * 5) * dynamicRenderQuality;
+
+			topPage = Math.floor(scrollTop / averagePageHeight) + 1;
+			bottomPage = Math.floor(scrollBottom / averagePageHeight) + 1;
+			
+			// Makes sure indexes aren't outside range of (1, pdf pages) 
+			topPage = topPage > 1 ? topPage : 1; 
+			bottomPage = bottomPage < numPages ? bottomPage : numPages; 
+
 			for (let pageNumber = topPage; pageNumber <= bottomPage; pageNumber++) {
 				if (!pagesRendered.has(pageNumber)) {
 					pagesRendered.add(pageNumber);
