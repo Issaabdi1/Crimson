@@ -468,6 +468,13 @@ Dark mode
     border-color: rgb(230,230,230);
 }
 
+.dark-mode .share-form input{
+    background-color: transparent;
+    border-color: rgb(230,230,230);
+    border-width: 2px;
+    color: #fff;
+}
+
 /*
 Orange mode
 */
