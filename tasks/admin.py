@@ -15,7 +15,7 @@ class UserAdmin(admin.ModelAdmin):
 class UploadAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for uploads"""
     list_display = [
-        'uploaded_at', 'owner'
+        'uploaded_at', 'owner', 'file'
     ]
 
 

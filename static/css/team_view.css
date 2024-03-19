@@ -81,3 +81,26 @@
   color: inherit; /* Use the color inherited from the parent element on hover */
   text-decoration: none; /* Remove underline on hover */
 }
+
+.shareFileContent .list-group .text-list-item{
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.shareFileContent .list-group {
+    flex-direction:row;
+    height: 700px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        background-color: transparent;
+    }
+}
+
+.shared-by-detail{
+    display: flex;
+}
+
+.shared-by-name{
+    margin-left: 10px;
+    margin-top: 5px;
+}

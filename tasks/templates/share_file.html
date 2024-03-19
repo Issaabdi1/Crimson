@@ -3,11 +3,11 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/share_file.css' %}">
 {% include 'partials/messages.html' %}
-<div class="text-center px-5 py-3 bg-light bg-opacity-0 align-items-center">
-  <form method="post" action="{% url 'share_file' %}">
+<div class="text-center px-5 py-3 bg-opacity-0 align-items-center" style="background-color:transparent">
+  <form method="post" action="{% url 'share_file' %}" class="share-form">
     {% csrf_token %}
     <div class="row row-width">
-      <div class="col-12">
+      <div class="col-12 mt-4">
         <select id="file-select" class="form-select d-none" name="file-id">
           <option selected disabled></option>
           {% for upload in uploads %}
@@ -15,7 +15,7 @@
           {% endfor %}
         </select>
         <h2 class=""> Select file: </h2>
-        <div class="thumbnail-container p-2 mt-3 border bg-white">
+        <div class="thumbnail-container p-2 mt-3">
         {% if uploads%}
           {% for upload in uploads %}
           <div class="thumbnail-wrapper col-12 mb-2">
@@ -39,7 +39,7 @@
         <h2> Share to: </h2>
       </div>
     </div>
-    <div class="row row-width justify-content-center flex-nowrap mb-2">
+    <div class="row row-width justify-content-center flex-nowrap mb-4">
       <div class="col-sm-8 col-md-10 px-1">
         <input type="text" id="search" class="form-control search-bar" placeholder="Search for username">
       </div>

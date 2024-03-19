@@ -5,6 +5,8 @@
     max-height: 280px; 
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: transparent;
+    border: 2px solid rgb(230,230,230);
 }
 .thumbnail-wrapper {
     opacity: 0;
@@ -72,6 +74,13 @@
     display: flex;
     align-items: center;
 }
+
+.share-btn-team{
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+}
+
 .bi-box-arrow-up {
     margin-right: 3px;
 }
@@ -96,4 +105,22 @@
 }
 .pfp {
     font-size: 30px;
+}
+
+.share-form{
+    border: 2px solid rgb(230,230,230);
+    border-radius: 20px;
+    width: 65%;
+    margin: auto;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.share-form-team{
+    background-color: transparent;
+    width: 100%;
+    margin: auto;
+}
+
+.share-items-container{
+    width: 100%;
 }
