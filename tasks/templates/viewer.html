@@ -186,7 +186,7 @@
 		const pdfUrl = "{{ upload.file.url }}"; // Adjust the URL here
         const baseRenderQuality = 1.5;
 		const pageSpacing = 0; // Adjust spacing between pages here
-		const renderScales = [1, 1, 2, 1.75, 1.5, 1.25, 1, 1, 1, 1] // For Fit Width, Fit Height, 50%, 75%, 100%, 125%, 150%, 200%, 300%, 400%
+		const renderScales = [2, 1.5, 2, 1.75, 1.5, 1.5, 1.5, 1.25, 1, 1] // For Fit Width, Fit Height, 50%, 75%, 100%, 125%, 150%, 200%, 300%, 400%
 
 		const renderQuality = 1.5; // Adjust the quality of PDF, tradeoff with performance
 		const devicePixelRatio = window.devicePixelRatio || 1;
@@ -209,10 +209,13 @@
 		var currentPage = 1; // Page the user is currently on
 		var dynamicRenderQuality = renderQuality * renderScales[4]; // 4 is the index for 100%
 		var resolution = dynamicRenderQuality * zoomScale;
+		var readjustedScroll = true;
 		
 		// Global variables
 		var pdf;
 		var numPages;
+		var yOriginalPercentage;
+		var xOriginalPercentage;
 		var printButton = document.getElementById('viewPrint');
 
 		// Print button link
@@ -236,17 +239,18 @@
 					dynamicRenderQuality = renderQuality * renderScales[currentZoomOption];
 										
 					// Get the original percentage
-					const yOriginalPercentage = viewer.scrollTop / viewer.scrollHeight; 
-                    const xOriginalPercentage = viewer.scrollLeft / viewer.scrollWidth
+					yOriginalPercentage = viewer.scrollTop / viewer.scrollHeight; 
+					xOriginalPercentage = viewer.scrollLeft / viewer.scrollWidth;
+					readjustedScroll = false
 
                     // If the value is "width" or "page"
 					if (isNaN(selectedValue))
 					{
-						zoomDocument(selectScale.value, pdf, yOriginalPercentage, xOriginalPercentage);
+						zoomDocument(selectScale.value, pdf);
 					}
 					else
 					{
-						zoomDocument(selectedValue, pdf, yOriginalPercentage, xOriginalPercentage);
+						zoomDocument(selectedValue, pdf);
 					}
 				});
 
@@ -330,13 +334,6 @@
 			// Set container to required sizes
 			container.style.width = maxWidth / dynamicRenderQuality + "px";
 			container.style.height = totalHeight / dynamicRenderQuality + "px";
-			/*
-			canvasContainer.style.width = maxWidth / renderQuality + "px";
-			canvasContainer.style.height = totalHeight / renderQuality + "px";
-			
-			textLayerContainer.style.width = maxWidth / renderQuality + "px";
-        	textLayerContainer.style.height = totalHeight / renderQuality + "px";
-			*/
 
 			// Render pages
 			isRendering = true;
@@ -437,6 +434,13 @@
 			canvas.style.top = (viewport.offsetY + viewport.height * (pageNumber - 1)) / dynamicRenderQuality + 'px';			
 			
 			canvasContainer.appendChild(canvas);
+
+			if (!readjustedScroll)
+			{
+				viewer.scrollLeft = xOriginalPercentage * viewer.scrollWidth;
+				readjustedScroll = true;
+			}
+
 			let context = canvas.getContext("2d");
 
 			// Render the page
@@ -494,7 +498,7 @@
 
         /* Zooming related Function */
 
-		async function zoomDocument(scale, pdf, yPercentage, xPercentage)
+		async function zoomDocument(scale, pdf)
 		{
 			const page = await pdf.getPage(currentPage);
 			if (scale === "fit")
@@ -521,13 +525,6 @@
 			totalHeight = (totalHeight / resolution) * newResolution;
 			resolution = newResolution;
 
-			/*
-			canvasContainer.style.width = maxWidth / renderQuality + "px";
-			canvasContainer.style.height = totalHeight / renderQuality + "px";
-			textLayerContainer.style.width = maxWidth / renderQuality + "px";
-			textLayerContainer.style.height = totalHeight / renderQuality + "px";
-			*/
-
 			container.style.width = maxWidth / dynamicRenderQuality + "px";
 			container.style.height = totalHeight / dynamicRenderQuality + "px";
 
@@ -541,15 +538,13 @@
 				textLayerContainer.removeChild(textLayerContainer.firstChild);
 			}
 
+			// Readjust vertical scroll
+			viewer.scrollTop = yOriginalPercentage * viewer.scrollHeight;
+
 			// Rerender pages and text layers
 			isRendering = true;
 			await renderVisiblePages();
 			isRendering = false;
-
-			//setup();
-			renderAfterZoom();
-            viewer.scrollTop = yPercentage * viewer.scrollHeight;
-            viewer.scrollLeft = xPercentage * viewer.scrollWidth;
 		}
 
 		function zoomToFitPage(page) {

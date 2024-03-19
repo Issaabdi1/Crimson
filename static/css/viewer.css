@@ -85,16 +85,15 @@ body {
 #viewer {
 	position: absolute;
 	inset: 32px 0 0 250px;
-	overflow: auto;
     display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
+	justify-content: center;
+	align-items: center;
+	overflow: auto;
 	background: #6c757d;
 }
 #container
 {
 	position: relative;
-	display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
 	margin: auto;
 }
 #canvasContainer {
