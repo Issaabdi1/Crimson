@@ -407,7 +407,7 @@ Dark mode
 }
 
 .dark-mode .sidebar {
-  background-color: rgb(211,211,211) ;
+  background-color: rgb(255,255,251) ;
 }
 
 .dark-mode .a {
@@ -441,6 +441,23 @@ Dark mode
     height: auto;
     width: 80%;
     max-width: 300px;
+}
+
+.dark-mode .team-link {
+  color: #fff;
+}
+
+.dark-mode .team-name {
+  color: #fff;
+}
+
+.dark-mode .team-details {
+  color: #fff;
+}
+
+.dark-mode .team-box {
+  background-color: rgb(211,211,211);
+    border: 2px solid #fff;
 }
 
 /*

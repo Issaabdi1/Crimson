@@ -2,9 +2,13 @@
 {% block content %}
     {% load static %}
     <link href="{% static 'css/team_view.css' %}" rel="stylesheet">
-    <div class="rectangle"></div>
-    <div class="rectangle"></div>
-    <div class="rectangle"></div>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static '/js/filelist.js' %}"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+    {#    <div class="rectangle"></div>#}
+    {#    <div class="rectangle"></div>#}
+    {#    <div class="rectangle"></div>#}
     <div class="container-fluid pt-2">
         <div class="headContent">
             <div class="p-3 pt-2 border rounded shading">
@@ -61,7 +65,7 @@
             <div class="border rounded shading">
                 <div class="container p-2 d-flex flex-column align-items-center">
                     <h1 class="text-center team-text">Actions</h1>
-                    <div class="text-center team-text action-button">
+                    <div class="text-center team-text mt-2 action-button">
                         <a class="action-link" data-bs-toggle="offcanvas"
                            data-bs-target="#uploadTeamPdf" aria-controls="uploadTeamPdf">Upload to Team Folder</a>
                     </div>
@@ -83,107 +87,70 @@
                     </div>
                     <div class="row justify-content-around">
                         {% if shared_uploads.count > 0 %}
-                            {% for upload in shared_uploads %}
-                                <div class="col-5 card mt-2">
-                                    <div class="card-body mb-2">
-                                        <h5 class="card-title">{{ upload.file.name }}</h5>
-                                        <p class="card-text">Uploaded on: {{ upload.uploaded_at }}</p>
-                                        <p class="card-text">Comment: {{ upload.comments }}</p>
-                                        <a href="{{ upload.file.url }}" class="btn btn-primary me-1 " target="_blank">View
-                                            PDF</a>
-                                        <form method="post" class="d-inline" id="commentForm"
-                                              action="{% url 'outer_comment_views' upload.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="upload_id" id="uploadIdField">
-                                            <!-- Button trigger modal -->
-                                            <button type="button" class="btn btn-primary comment-button"
-                                                    data-upload-id="{{ upload.id }}" data-bs-toggle="modal"
-                                                    data-bs-target="#exampleModal{{ upload.id }}">
-                                                Comment
-                                            </button>
-
-                                            <!-- Modal -->
-                                            <div class="modal fade" id="exampleModal{{ upload.id }}" tabindex="-1"
-                                                 aria-labelledby="exampleModalLabel{{ upload.id }}" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title fs-7"
-                                                                id="exampleModalLabel{{ upload.id }}">Comment</h5>
-                                                            <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="form-floating">
-                                                                <label for="inputComments"></label>
-                                                                <textarea class="form-control" id="inputComments"
-                                                                          name="comments"
-                                                                          style="border-radius: 20px;"></textarea>
-                                                                <label>Descriptions</label>
+                            <div class="list-group" id="fileList">
+                                {% for upload in shared_uploads %}
+                                    <div class="flex-md-row list-item" aria-current="true">
+                                        <div class="text-list-item p-3 gap-2 w-100">
+                                            <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline"
+                                                  target="_blank" id="viewerForm{{ upload.id }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="upload_id" value="{{ upload.id }}">
+                                                <a href="#" class="a"
+                                                   onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;"
+                                                   style="text-decoration: none">
+                                                    <div class="item-content">
+                                                        <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
+                                                            <div class="mb-1 shared-by-detail">
+                                                                <img src="{{ upload.owner.avatar_url }}" alt="pdf"
+                                                                     width="32" height="32"
+                                                                     class="rounded-circle flex-shrink-0">
+                                                                <p class="profile-title profile-username shared-by-name">{{ upload.owner.username }}</p>
                                                             </div>
+                                                            <small class="opacity-50 justify-content-md-end"
+                                                                   id="uploadTime">Uploaded {{ upload.upload_time_difference }}</small>
+
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-primary">Save changes
-                                                            </button>
-                                                        </div>
+                                                        <h6 class="mb-0">
+                                                            <strong>{{ upload.get_simple_file_name }}</strong></h6>
+                                                        <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
+                                                                class="upload-time">{{ upload.uploaded_at }}</span></p>
+                                                        <p class="mb-0 opacity-75">
+                                                            <strong>Comment:</strong>{{ upload.comments }}</p>
+
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </form>
-                                        <!--Delete PDF-->
-                                        <form action="{% url 'delete_upload' upload.id %}" method="post"
-                                              class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger"><i
-                                                    class="bi bi-trash-fill"></i>Delete
-                                            </button>
-                                        </form>
-                                        <button type="button" id="renameButton_{{ upload.id }}"
-                                                class="btn btn-primary me-1" onclick="showRenameField(this);">Rename
-                                        </button>
-                                        <form action="{% url 'rename_upload' upload.id %}" method="post"
-                                              class="rename-form" style="display: none;"
-                                              data-upload-id="{{ upload.id }}">
-                                            {% csrf_token %}
-                                            <label>
-                                                <input type="text" name="new_name" placeholder="New file name" required>
-                                            </label>
-                                            <button type="button" class="btn btn-primary"
-                                                    onclick="confirmRename(this.parentElement);">Confirm
-                                            </button>
-                                            <button type="button" class="btn btn-secondary"
-                                                    onclick="hideRenameField(this);">Cancel
-                                            </button>
-                                        </form>
+                                                </a>
+                                            </form>
+                                        </div>
                                     </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
                             </div>
                         {% else %}
                             <p style="margin-left: 10px">There is no shared files so far</p>
                         {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="uploadTeamPdf" aria-labelledby="uploadTeamPdf">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Upload PDF to Team {{ team.name }}</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="uploadTeamPdf" aria-labelledby="uploadTeamPdf">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Upload PDF to Team {{ team.name }}</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                {% include 'partials/upload_file_popup.html' with form=upload_form team_id=team.id %}
+            </div>
         </div>
-        <div class="offcanvas-body">
-            {% include 'partials/upload_file_popup.html' with form=upload_form team_id=team.id %}
-        </div>
-    </div>
 
-    <script src="{% static 'js/popup_window.js' %}"></script>
-    <script>
-        function copyInvitationCode(invitationCode) {
-            navigator.clipboard.writeText(invitationCode).then(function () {
-                alert('Invitation code copied to clipboard: ' + invitationCode);
-            }, function (err) {
-                console.error('Failed to copy invitation code: ', err);
-            });
-        }
-    </script>
+        <script src="{% static 'js/popup_window.js' %}"></script>
+        <script>
+            function copyInvitationCode(invitationCode) {
+                navigator.clipboard.writeText(invitationCode).then(function () {
+                    alert('Invitation code copied to clipboard: ' + invitationCode);
+                }, function (err) {
+                    console.error('Failed to copy invitation code: ', err);
+                });
+            }
+        </script>
 {% endblock %}

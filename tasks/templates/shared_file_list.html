@@ -1,24 +1,52 @@
 {% extends 'base_content_with_sidebar.html' %}
 {% block content %}
-<div class="col-12 p-2">
-    <h1>Shared files:</h1>
-    {% for file in shared_files %}
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-body mb-2">
-                <h5 class="card-title">{{ file.shared_file.file.name }}</h5>
-                <p class="card-text">Shared By: {{ file.shared_by}} </p>
-                <p class="card-text">Share Date: {{ file.shared_date }} </p>
-                <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank">
-                    {% csrf_token %}
-                    <input type="hidden" name="upload_id" value="{{ file.shared_file.id }}">
-                    <button type="submit" class="btn btn-primary me-1">View PDF</button>
-                </form>
-                <!--Placeholder functionality for now, doesn't Remove PDF from Share List-->
-                <a href="{{ upload.file.url }}" class="btn btn-primary">Remove PDF</a>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/share_file_list.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static '/js/filelist.js' %}"></script>
+    <div class="col-12 p-2" id="share-to-me">
+        <h1>Shared files:</h1>
+        {% if shared_files.count > 0 %}
+            <div class="list-group" id="fileList">
+                {% for file in shared_files %}
+                    <div class="flex-md-row list-item" aria-current="true">
+                        <div class="text-list-item p-3 gap-2 w-100">
+                            <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline"
+                                  target="_blank" id="viewerForm{{ file.shared_file.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="upload_id" value="{{ file.shared_file.id }}">
+                                <a href="#" class="a"
+                                   onclick="document.getElementById('viewerForm{{ file.shared_file.id }}').submit();return false;"
+                                   style="text-decoration: none">
+                                    <div class="item-content">
+                                        <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
+                                            <div class="mb-1 shared-by-detail">
+                                                <img src="{{ file.shared_file.owner.avatar_url }}" alt="pdf"
+                                                     width="32" height="32"
+                                                     class="rounded-circle flex-shrink-0">
+                                                <p class="profile-title profile-username shared-by-name">{{ file.shared_file.owner.username }}</p>
+                                            </div>
+                                            <small class="opacity-50 justify-content-md-end"
+                                                   id="uploadTime">Uploaded {{ file.shared_file.upload_time_difference }}</small>
+
+                                        </div>
+                                        <h6 class="mb-0">
+                                            <strong>{{ file.shared_file.get_simple_file_name }}</strong></h6>
+                                        <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
+                                                class="upload-time">{{ file.shared_file.uploaded_at }}</span></p>
+                                        <p class="mb-0 opacity-75">
+                                            <strong>Comment:</strong>{{ file.shared_file.comments }}</p>
+
+                                    </div>
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <p style="margin-left: 10px">There is no shared files so far</p>
+        {% endif %}
     </div>
-    {% endfor %}
-</div>
 {% endblock %}
