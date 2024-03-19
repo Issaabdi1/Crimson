@@ -98,9 +98,7 @@ function setup(){
 		
 	}
 	document.dispatchEvent(setupEvent);
-	//preserve the originalState to revert back after searching
-	const textLayer = document.getElementById("textLayerContainer");
-    originalState = textLayer.cloneNode(true); // Deep clone
+
 }
 
 function renderAfterZoom(){
@@ -286,12 +284,17 @@ function highlightSelectedText(event) {
         const rect = highlightedSpan.getBoundingClientRect();
         console.log("Measured width:", rect.width);
 
+
+		var highlightSpanRegex = /<span class=\\\"highlight text\\\">(.*?)<\/span>/g;
+
         // Store the highlighted span information, including the measured width
         var str = part.span.innerHTML;
         str = str.replace(/"/g, '\\"');
+		// Replace highlight spans with just their inner text content
+		str = str.replace(highlightSpanRegex, '$1');
 
-		console.log("rect.width");
-		console.log(rect.width);
+		console.log("the span html after marking:");
+		console.log(str);
         listOfMarkedSpans.push({
             index: textLayerSpans.indexOf(part.span),
             html: str,
@@ -306,7 +309,6 @@ function highlightSelectedText(event) {
 
     // Associate the mark with a comment
     listOfComments[newMark.getId()] = "This comment is by mark " + newMark.getId();
-
     // Save changes
     savePdfChanges();
 }
@@ -534,11 +536,24 @@ function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     });
 }
 
+let originalStateCloned = false;
+
 /*
 Find matching words
 */
 function searchForTerm(term) {
     //console.log("listOfMarkedSpans:", listOfMarkedSpans);
+
+    // Clone the original state only if it hasn't been done before
+    if (!originalStateCloned) {
+		const textLayer2 = document.getElementById("textLayerContainer");
+		originalState = textLayer2.cloneNode(true); // Deep clone
+		originalStateCloned=true;
+        console.log("Original state cloned for the first time.");
+    }
+	//this original state should have no span <span class="highlight text">a</span>
+	console.log("originalState before search:");
+	console.log(originalState);
 
     const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
@@ -565,6 +580,8 @@ function searchForTerm(term) {
 
     restoreOriginalWidths(foundPositions, listOfMarkedSpans);
 
+
+
     // console.log("found positions:", foundPositions);
     // foundPositions.forEach(pos => {
     //     console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
@@ -578,12 +595,15 @@ function searchForTerm(term) {
 // let currentPosition = -1; // Start before the first position
 
 function clearSearchHighlights() {
+	console.log("originalState after search:");
+	console.log(originalState);
     const textLayer = document.getElementById("textLayerContainer");
     // Replace the current textLayer with the original clone
     textLayer.parentNode.replaceChild(originalState, textLayer);
     
     // Re-initialize any required state after restoring the original DOM
-    setup();
+   
+	originalStateCloned = false;
 }
 
 
@@ -994,7 +1014,7 @@ document.addEventListener('saveChanges', () => {
 refreshButton.addEventListener('click', () => {
     location.reload();
 });
-11
+
 // Clicking a marked section directs user to viewComments tab
 document.addEventListener('click', e => {
 	if (e.target.classList.contains('markedSection')) {
