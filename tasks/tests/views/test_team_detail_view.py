@@ -35,7 +35,8 @@ class TeamDetailViewTest(TestCase):
         }
 
     def tearDown(self):
-        self.upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
 
     def test_team_detail_url(self):
         self.assertEqual(self.url, '/team_detail/1/')
@@ -92,6 +93,42 @@ class TeamDetailViewTest(TestCase):
         self.assertEqual(response.context['team'], self.team)
         self.assertEqual(response.context['members'].count(), 2)
         self.assertEqual(response.context['shared_uploads'].count(), 1)
+
+    def test_successful_share_file_in_team(self):
+        self.login(self.user)
+        file_content = b'test share file team content'
+        mock_file = SimpleUploadedFile(f'test_team_detail_view_share_file_in_team.pdf', file_content)
+        other_upload = Upload.objects.create(owner=self.user, file=mock_file)
+        self.form_input = {'share-file': 'True', 'file-id': other_upload.id}
+        before_count = self.team.shared_uploads.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        self.assertTemplateUsed(response, 'team_detail.html')
+        after_count = self.team.shared_uploads.count()
+        self.assertEqual(after_count, before_count + 1)
+
+    def test_unsuccessful_share_file_in_team_due_to_duplicate_share(self):
+        self.login(self.user)
+        self.form_input = {'share-file': 'True', 'file-id': self.upload.id}
+        before_count = self.team.shared_uploads.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        self.assertTemplateUsed(response, 'team_detail.html')
+        after_count = self.team.shared_uploads.count()
+        self.assertEqual(after_count, before_count)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f'This file has already been shared.')
+
+    def test_unsuccessful_share_file_in_team_due_to_no_file_selected(self):
+        self.login(self.user)
+        self.form_input = {'share-file': 'True'}
+        before_count = self.team.shared_uploads.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        self.assertTemplateUsed(response, 'team_detail.html')
+        after_count = self.team.shared_uploads.count()
+        self.assertEqual(after_count, before_count)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f'Please select a file to share.')
 
     def test_get_team_detail_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)

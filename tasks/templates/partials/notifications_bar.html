@@ -55,7 +55,7 @@
                                     <input type="hidden" name="upload_id"
                                            value="{{ notification.shared_file_instance.shared_file.id }}">
                                     <button type="submit"
-                                            class="btn btn-link">{{ notification.shared_file_instance.shared_file.file.name }}</button>
+                                            class="btn file-link">{{ notification.shared_file_instance.shared_file.file.name }}</button>
                                 </form>
                             {% else %}
                                 {{ notification.shared_file_instance.shared_file.file.name }}

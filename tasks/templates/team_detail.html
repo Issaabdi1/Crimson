@@ -1,14 +1,17 @@
-{% extends 'base_content_with_sidebar.html' %}
+{% extends 'base_content_without_message.html' %}
 {% block content %}
     {% load static %}
     <link href="{% static 'css/team_view.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/share_file.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static '/js/filelist.js' %}"></script>
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+    <!--the animation of rectangle clash with the file card static files-->
     {#    <div class="rectangle"></div>#}
     {#    <div class="rectangle"></div>#}
     {#    <div class="rectangle"></div>#}
+    {% include 'partials/messages.html' %}
     <div class="container-fluid pt-2">
         <div class="headContent">
             <div class="p-3 pt-2 border rounded shading">
@@ -111,7 +114,7 @@
 
                                                         </div>
                                                         <h6 class="mb-0">
-                                                            <strong>{{ upload.get_simple_file_name }}</strong></h6>
+                                                            <strong>{{ upload.get_file_name_without_path }}</strong></h6>
                                                         <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
                                                                 class="upload-time">{{ upload.uploaded_at }}</span></p>
                                                         <p class="mb-0 opacity-75">
@@ -132,25 +135,64 @@
             </div>
         </div>
     </div>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="uploadTeamPdf" aria-labelledby="uploadTeamPdf">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title">Upload PDF to Team {{ team.name }}</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
-                        aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                {% include 'partials/upload_file_popup.html' with form=upload_form team_id=team.id %}
-            </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="uploadTeamPdf" aria-labelledby="uploadTeamPdf">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Upload PDF to Team {{ team.name }}</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
         </div>
+        <div class="offcanvas-body">
+            <form method="post" action="{% url 'team_detail' team_id=team.id %}" class="share-form-team">
+                {% csrf_token %}
+                <div class="row row-width share-items-container">
+                    <div class="col-12 mt-4">
+                        <select id="file-select" class="form-select d-none" name="file-id">
+                            <option selected disabled></option>
+                            {% for upload in uploads %}
+                                <option value="{{ upload.id }}">{{ upload.file.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <h2 class=""> Select file: </h2>
+                        <div class="thumbnail-container p-2 mt-3">
+                            {% if uploads %}
+                                {% for upload in uploads %}
+                                    <div class="thumbnail-wrapper col-12 mb-2">
+                                        <div class="thumbnail p-1 d-flex align-items-center" file-id="{{ upload.id }}">
+                                            <i class="bi bi-file-earmark-pdf fs-2 me-2"></i>
+                                            <div class="file-name fs-6 me-2">{{ upload.file.name }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="thumbnail-wrapper col-12">
+                                    <span> You must upload a file before sharing. </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if uploads %}
+                    <div class="row row-width justify-content-center flex-nowrap mt-4">
+                        <div class="col-auto px-1">
+                            <button type="submit" name="share-file" class="share-btn-team btn btn-primary">
+                                <i class="bi bi-box-arrow-up"></i>  Upload
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
 
-        <script src="{% static 'js/popup_window.js' %}"></script>
-        <script>
-            function copyInvitationCode(invitationCode) {
-                navigator.clipboard.writeText(invitationCode).then(function () {
-                    alert('Invitation code copied to clipboard: ' + invitationCode);
-                }, function (err) {
-                    console.error('Failed to copy invitation code: ', err);
-                });
-            }
-        </script>
+    <script src="{% static 'js/popup_window.js' %}"></script>
+    <script src="{% static 'js/share_file.js' %}"></script>
+    <script>
+        function copyInvitationCode(invitationCode) {
+            navigator.clipboard.writeText(invitationCode).then(function () {
+                alert('Invitation code copied to clipboard: ' + invitationCode);
+            }, function (err) {
+                console.error('Failed to copy invitation code: ', err);
+            });
+        }
+    </script>
 {% endblock %}

@@ -475,6 +475,14 @@ Dark mode
     color: #fff;
 }
 
+.dark-mode .offcanvas{
+    background-color: rgb(211,211,211);
+}
+
+.dark-mode .card{
+    background-color: rgb(211,211,211);
+}
+
 /*
 Orange mode
 */
@@ -536,4 +544,9 @@ Pink mode
 
 .pink-mode a {
   color: #9E5062;
+}
+
+.file-link {
+    font: inherit;
+    color: #0d6efd;
 }

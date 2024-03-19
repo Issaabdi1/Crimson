@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
-from tasks.models import User, Team
+from tasks.models import User, Team, Upload
 
 
 @login_required
@@ -37,6 +37,7 @@ def list_team_view(request):
 @login_required
 def team_detail_view(request, team_id):
     current_user = request.user
+    my_uploads = Upload.objects.filter(owner=current_user)
     try:
         team = current_user.team_set.get(id=team_id)
     except Team.DoesNotExist:
@@ -53,6 +54,17 @@ def team_detail_view(request, team_id):
                 team.members.add(user_to_add)
             except User.DoesNotExist:
                 messages.add_message(request, messages.ERROR, f'The user invited is not exist, please try another one.')
+        if 'share-file' in request.POST:
+            file_id = request.POST.get('file-id')
+            if file_id is not None:
+                shared_file = Upload.objects.get(id=file_id)
+                if team.shared_uploads.contains(shared_file):
+                    messages.add_message(request, messages.ERROR, f'This file has already been shared.')
+                else:
+                    team.shared_uploads.add(shared_file)
+                    team.save()
+            else:
+                messages.add_message(request, messages.ERROR, f'Please select a file to share.')
     else:
         form = AddUserToTeamForm()
 
@@ -62,7 +74,8 @@ def team_detail_view(request, team_id):
                'members': members,
                'shared_uploads': shared_uploads,
                'form': form,
-               'upload_form': upload_form}
+               'upload_form': upload_form,
+               'uploads': my_uploads}
     return render(request, 'team_detail.html', context=context)
 
 
