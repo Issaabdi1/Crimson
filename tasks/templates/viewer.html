@@ -159,9 +159,9 @@
 						<button id="viewFindbar" class="toolbarButton toggled" title="Find in Document">
 							<i class="fa-solid fa-magnifying-glass"></i>
 						</button>
-						<button id="viewSettingsMenu" class="toolbarButton toggled" title="Options">
+						<a id="viewPrint" class="toolbarButton" title="Print" href="">
 							<i class="fa-solid fa-ellipsis"></i>
-						</button>
+						</a>
 					</div>
 				</div>
 			</div>
@@ -209,6 +209,10 @@
 		// Global variables
 		var pdf;
 		var numPages;
+		var printButton = document.getElementById('viewPrint');
+
+		// Print button link
+		printButton.setAttribute('href', pdfUrl);
 		
 		document.addEventListener("DOMContentLoaded", async function() {
 			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
