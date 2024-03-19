@@ -526,14 +526,16 @@ Restore the width of the markedSection after search to fix visual inconsistencie
 */
 function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     foundPositions.forEach(foundPosition => {
-		console.log(foundPosition);
-		//get the width of the span of class="highlight text"
-		    // Query all the spans with class="highlight text"
-
+		//console.log(foundPosition);
 
 		const container = foundPosition.span;
 		const highlights = container.querySelectorAll('.highlight');
 	
+		/*
+		push the markedSection to the right as wrapping found element with highlight span
+		causes loss of dimension
+		*/
+		
 		highlights.forEach(highlight => {
 			const width = highlight.getBoundingClientRect().width;
 			let nextElement = highlight.nextElementSibling; // Start with the next sibling of highlight
@@ -551,13 +553,21 @@ function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
 
         const markedSections = foundPosition.span.querySelectorAll('.markedSection');
        
+		/*
+		need to update span.index , use data-value instead because index is 
+		not unique for each markedSpan
+		*/
 		markedSections.forEach(markedSection => {
-            const dataValue = markedSection.getAttribute('data-value');
-            const markedSpan = listOfMarkedSpans.find(span => span.index === foundPosition.index);
-            if (markedSpan) {
-                markedSection.style.width = markedSpan.dataWidth + 'px'; // Assuming dataWidth is a string with pixel units
-            }
-        });
+			const dataValue = markedSection.getAttribute('data-value');
+			const markedSpan = listOfMarkedSpans.find(span => span.index === foundPosition.index);
+		
+			// Check if this markedSection contains a .highlight element
+			const highlightInside = markedSection.querySelector('.highlight');
+		
+			if (markedSpan && highlightInside) { // Only proceed if markedSpan is found and no highlight is inside this markedSection
+				markedSection.style.width = markedSpan.dataWidth + 'px'; // Assuming dataWidth is a string with pixel units
+			}
+		});
     });
 }
 
@@ -600,8 +610,6 @@ function searchForTerm(term) {
     });
 
     restoreOriginalWidths(foundPositions, listOfMarkedSpans);
-
-
 
     // console.log("found positions:", foundPositions);
     // foundPositions.forEach(pos => {
