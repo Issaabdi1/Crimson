@@ -520,13 +520,38 @@ function highlightTerms(content, term) {
     return content.replace(regex, `<span class="highlight text">$1</span>`);
 }
 
+
 /*
 Restore the width of the markedSection after search to fix visual inconsistencies
 */
 function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
     foundPositions.forEach(foundPosition => {
+		console.log(foundPosition);
+		//get the width of the span of class="highlight text"
+		    // Query all the spans with class="highlight text"
+
+
+		const container = foundPosition.span;
+		const highlights = container.querySelectorAll('.highlight');
+	
+		highlights.forEach(highlight => {
+			const width = highlight.getBoundingClientRect().width;
+			let nextElement = highlight.nextElementSibling; // Start with the next sibling of highlight
+			
+			// Loop over all next siblings
+			while (nextElement) {
+				if (nextElement.classList.contains('markedSection')) {
+					// Apply marginLeft to every .markedSection found
+					nextElement.style.marginLeft = width + 'px';
+				}
+				// Move to the next sibling
+				nextElement = nextElement.nextElementSibling;
+			}
+		});
+
         const markedSections = foundPosition.span.querySelectorAll('.markedSection');
-        markedSections.forEach(markedSection => {
+       
+		markedSections.forEach(markedSection => {
             const dataValue = markedSection.getAttribute('data-value');
             const markedSpan = listOfMarkedSpans.find(span => span.index === foundPosition.index);
             if (markedSpan) {
@@ -543,7 +568,6 @@ Find matching words
 */
 function searchForTerm(term) {
     //console.log("listOfMarkedSpans:", listOfMarkedSpans);
-
     // Clone the original state only if it hasn't been done before
     if (!originalStateCloned) {
 		const textLayer2 = document.getElementById("textLayerContainer");
@@ -551,9 +575,6 @@ function searchForTerm(term) {
 		originalStateCloned=true;
         console.log("Original state cloned for the first time.");
     }
-	//this original state should have no span <span class="highlight text">a</span>
-	console.log("originalState before search:");
-	console.log(originalState);
 
     const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
@@ -586,7 +607,6 @@ function searchForTerm(term) {
     // foundPositions.forEach(pos => {
     //     console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
     // });
-
     return foundPositions;
 }
 
