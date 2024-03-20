@@ -83,7 +83,7 @@ def save_pdf_info(request):
     return JsonResponse({})
 
 
-def save_pdf_comments(request):
+def save_voice_comments(request):
     """Saves the voice comments added to each mark on the PDF"""
     if request.method == "POST":
         voice_comment_str = request.POST.get('voice-comment-list')
@@ -98,7 +98,10 @@ def save_pdf_comments(request):
         user = request.user
         if upload and voice_comment_list:
             for mark_id in voice_comment_list:
-                for voice_comment in voice_comment_list[mark_id]:
+                for voice_comment_data in voice_comment_list[mark_id]:
+                    print(voice_comment_data)
+                    voice_comment = voice_comment_data.get("blob")
+                    transcript = voice_comment_data.get("transcript", "")
                     filename = f"{uuid.uuid4()}.wav"
                     voice_comment_decode = base64.b64decode(voice_comment)
                     audio_file = ContentFile(voice_comment_decode, name=filename)
@@ -108,7 +111,14 @@ def save_pdf_comments(request):
                         mark_id=mark_id,
                         audio=audio_file,
                     )
-            vc = VoiceComment.objects.all()
+                    if transcript:
+                        Comment.objects.create(
+                            upload_id=upload_id,
+                            mark_id=mark_id,
+                            commenter=request.user,
+                            date=timezone.now(),
+                            text=transcript
+                        )
         else:
             return JsonResponse({}, status=404)
     return JsonResponse({})

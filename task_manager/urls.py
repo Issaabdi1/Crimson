@@ -44,12 +44,11 @@ urlpatterns = [
     path('pdf_viewer/', views.viewer, name='pdf_viewer'),
     path('upload_file/', views.upload_file_view, name='upload_file'),
     path('save_pdf_marks/', views.save_pdf_info, name='save_pdf_marks'),
-    path('save_pdf_comments/', views.save_pdf_comments, name='save_pdf_comments'),
+    path('save_voice_comments/', views.save_voice_comments, name='save_voice_comments'),
     path('delete_voice_comment/', views.delete_voice_comment, name='delete_voice_comment'),
     path('save_comment/', views.save_comment, name='save_comment'),
     path('clear_comment/', views.clear_comment, name='clear_comment'),
     path('get_comments/', views.get_comments, name='get_comments'),
-    path("transcribe_audio/", views.transcribe_audio, name="transcribe_audio"),
     path("save_current_mark_id/", views.save_current_mark_id, name="save_current_mark_id"),
     path("update_comment/", views.update_comment, name="update_comment"),
 
