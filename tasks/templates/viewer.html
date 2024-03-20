@@ -77,7 +77,7 @@
 								<!-- Current Voice Comments Section -->
 								<div id="recordings"></div>
 								<div id="saveContainer">
-									<button id="save" style="display: none;">Save Comments</button>
+									<button class="btn-primary" id="save" style="display: none;">Save Comments</button>
 								</div>
 								<br>
 
@@ -109,7 +109,7 @@
 						<div class="tab-pane fade" id="text-pill" role="tabpanel" aria-labelledby="text-pill-tab">
                             <button class="btn-primary" id="addCommentBtn" onclick="addComment()">+Add Note</button>
                             <div class="input-group mb-3" id="inputText" style="display: none">
-                                <textarea id="textArea" type="text" class="form-control" style="width: auto" placeholder="Add your text comment here..."></textarea>
+                                <textarea id="textArea" rows="4" type="text" class="form-control" style="width: auto" placeholder="Add your text comment here..."></textarea>
                                 <button class="btn-primary" onclick="saveComment()">save</button>
                             </div>
                             <div id="commentsContainer"></div>

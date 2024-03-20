@@ -272,10 +272,12 @@ body {
 	height: auto;
 }
 
-.commentContainer{
+.commentsContainer{
 	width: auto;
 	height: auto;
 	padding : 3px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .text-comment {
@@ -285,6 +287,7 @@ body {
 
 .card {
     width: 100%;
+    margin: auto;
 }
 
 .card-img-top {
@@ -307,5 +310,91 @@ textarea {
 
 .card-footer {
     display: flex;
-    justify-content: flex-end; /* Align items to the right */
+    justify-content: flex-end;
 }
+
+textarea {
+  margin-top: 10px;
+  width: calc(100% - 10px);
+  height: 100px;
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
+  border-color: -moz-use-text-color #FFFFFF #FFFFFF -moz-use-text-color;
+  border-image: none;
+  border-radius: 6px 6px 6px 6px;
+  border-style: none solid solid none;
+  border-width: medium 1px 1px medium;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) inset;
+  color: #555555;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 1em;
+  line-height: 1.4em;
+  padding: 5px 8px;
+  transition: background-color 0.2s ease 0s;
+}
+
+
+textarea:focus {
+    background: none repeat scroll 0 0 #FFFFFF;
+    outline-width: 0;
+}
+
+.btn-primary{
+    display: inline-block;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    background-color: white;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgb(43, 108, 176);
+    border: 1px solid rgb(66, 153, 225);
+    line-height: 26px;
+}
+
+.nav-pills{
+  width: 400px;
+}
+
+.nav-item{
+  width: 50%;
+}
+
+.nav-pills .nav-link{
+  font-weight: bold;
+  padding-top: 13px;
+  text-align: center;
+  background: #343436;
+  color: #fff;
+  border-radius: 30px;
+  height: 100px;
+
+}
+.nav-pills .nav-link.active{
+  background: #fff;
+  color: #000;
+}
+.tab-content{
+  position: absolute;
+  width: auto;
+  height: auto;
+  margin-top: -50px;
+  background: #fff;
+  color: #000;
+  border-radius: 30px;
+  z-index: 1000;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
+  padding:30px;
+  margin-bottom: 50px;
+}
+/*.tab-content button{*/
+/*  border-radius: 15px;*/
+/*  width: 100px;*/
+/*  margin: 0 auto;*/
+/*  float: right;*/
+/*}
