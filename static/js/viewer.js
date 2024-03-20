@@ -488,153 +488,85 @@ function savePdfChanges(){
 */
 
 /* Search for Term Javascript */
-function escapeHtml(text) {
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-}
 
+// Function to escape special characters in a string
+function escapeRegExp(string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
-function adjustMarkedSections() {
-    // Assume we already found the search term and have highlighted it
-    // Now we want to ensure the dimensions of the marked sections are preserved
-
-    document.querySelectorAll('.markedSection').forEach(markedSection => {
-        const originalWidth = markedSection.dataset.originalWidth;
-        const originalHeight = markedSection.dataset.originalHeight;
-
-        // Apply the original dimensions back to the marked section
-        markedSection.style.width = originalWidth + 'px';
-        markedSection.style.height = originalHeight + 'px';
-    });
-}
-
+//Highlights the selected term in the content (string) provided
 function highlightTerms(content, term) {
-    const safeTerm = escapeHtml(term.trim());
-    const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
-    return content.replace(regex, `<span class="highlight text">$1</span>`);
+    const safeTerm = escapeRegExp(term.trim());
+    const regex =  new RegExp(`(${safeTerm})`, 'gi');
+	//Replace with a span with the content as well as the text and another span to preserve width
+	return content.replace(regex, `<span class="highlight text">$1</span>$1<span class="highlight text"></span>`);
 }
 
 
-/*
-Restore the width of the markedSection after search to fix visual inconsistencies
-*/
-function restoreOriginalWidths(foundPositions, listOfMarkedSpans) {
-    foundPositions.forEach(foundPosition => {
-		//console.log(foundPosition);
-
-		const container = foundPosition.span;
-		const highlights = container.querySelectorAll('.highlight');
-	
-		/*
-		push the markedSection to the right as wrapping found element with highlight span
-		causes loss of dimension
-		*/
-		
-		highlights.forEach(highlight => {
-			const width = highlight.getBoundingClientRect().width;
-			let nextElement = highlight.nextElementSibling; // Start with the next sibling of highlight
-			
-			// Loop over all next siblings
-			while (nextElement) {
-				if (nextElement.classList.contains('markedSection')) {
-					// Apply marginLeft to every .markedSection found
-					nextElement.style.marginLeft = width + 'px';
-				}
-				// Move to the next sibling
-				nextElement = nextElement.nextElementSibling;
-			}
-		});
-
-        const markedSections = foundPosition.span.querySelectorAll('.markedSection');
-       
-		/*
-		need to update span.index , use data-value instead because index is 
-		not unique for each markedSpan
-		*/
-		markedSections.forEach(markedSection => {
-			const dataValue = markedSection.getAttribute('data-value');
-			const markedSpan = listOfMarkedSpans.find(span => span.index === foundPosition.index);
-		
-			// Check if this markedSection contains a .highlight element
-			const highlightInside = markedSection.querySelector('.highlight');
-		
-			if (markedSpan && highlightInside) { // Only proceed if markedSpan is found and no highlight is inside this markedSection
-				markedSection.style.width = markedSpan.dataWidth + 'px'; // Assuming dataWidth is a string with pixel units
-			}
-		});
-    });
-}
-
-let originalStateCloned = false;
 
 /*
 Find matching words
 */
 function searchForTerm(term) {
-    //console.log("listOfMarkedSpans:", listOfMarkedSpans);
-    // Clone the original state only if it hasn't been done before
-    if (!originalStateCloned) {
-		const textLayer2 = document.getElementById("textLayerContainer");
-		originalState = textLayer2.cloneNode(true); // Deep clone
-		originalStateCloned=true;
-        console.log("Original state cloned for the first time.");
-    }
-
-    const textLayer = document.getElementById("textLayerContainer");
+	clearSearchHighlights(); //clear old highlights
+	const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
     const foundPositions = [];
-	
     spans.forEach((span, index) => {
         if (span.parentNode && span.parentNode.getAttribute('role') === 'presentation') {
             return; // Skip nested spans
         }
 
         let contentToSearch =  span.innerHTML;
-		// console.log("span dataset original html");
-		// console.log(span.innerHTML);
-		//console.log(span.dataset.originalHtml);
-        const highlightedContent = highlightTerms(contentToSearch, term);
+        const highlightedContent = highlightTerms(contentToSearch, term); 
 		
-        
+        //if there was replacement (so a change in the string)
         if (highlightedContent !== contentToSearch) {
-            span.dataset.originalHtml = span.innerHTML; // Store the original HTML
-            span.innerHTML = highlightedContent;
+			//create a copy and put it here, without any marked sections
+			var clonedNode = span.cloneNode(true);
+			//remove marked stuff from cloned node
+			clonedNode.querySelectorAll(`span[class="markedSection"]`).forEach(e =>{
+				e.remove();
+				joinUpAdjacentTextNodes(clonedNode);
+			})
+			clonedNode.innerHTML = highlightedContent;
+			clonedNode.classList.add("clonedFindSpans")
+			clonedNode.style.pointerEvents = "none";
+			span.parentElement.insertBefore(clonedNode, span.nextSibling); //put the cloned span right before the real span
             foundPositions.push({ span: span, index: index });
         }
     });
-
-    restoreOriginalWidths(foundPositions, listOfMarkedSpans);
-
-    // console.log("found positions:", foundPositions);
-    // foundPositions.forEach(pos => {
-    //     console.log(`Index: ${pos.index}, Text: ${pos.span.textContent}`);
-    // });
     return foundPositions;
 }
 
 
-// let foundPositions = [];
-// let currentPosition = -1; // Start before the first position
 
+//Clears all the highlights by deleting all the clonedFindSpans in the document
 function clearSearchHighlights() {
-	console.log("originalState after search:");
-	console.log(originalState);
-    const textLayer = document.getElementById("textLayerContainer");
-    // Replace the current textLayer with the original clone
-    textLayer.parentNode.replaceChild(originalState, textLayer);
-    
-    // Re-initialize any required state after restoring the original DOM
-   
-	originalStateCloned = false;
+	document.querySelectorAll(`span[class="clonedFindSpans"]`).forEach(e =>{
+		e.remove();
+	})
 }
 
+//This is a duplicate function of the code in delete mark. Delete this one when it is merged
+function joinUpAdjacentTextNodes(parentElement){
+	//join up adjacent text nodes together (so they aren't separate)
+	var childNodes = parentElement.childNodes;
+	for (var i = 0; i < childNodes.length - 1; i++) {
+		if (childNodes[i].nodeType === Node.TEXT_NODE && childNodes[i + 1].nodeType === Node.TEXT_NODE) {
+			// Combine the text of adjacent text nodes
+			var combinedText = childNodes[i].nodeValue + childNodes[i + 1].nodeValue;
+			// Replace the first text node with the combined text
+			childNodes[i].nodeValue = combinedText;
+			// Remove the next text node
+			parentElement.removeChild(childNodes[i + 1]);
+			// Decrement the index since we removed a node
+			i--;
+		}
+	}
+}
 
+//Update the search results (highlights) based on what is typed in the bar
 function updateSearchResults() {
     const searchTerm = document.getElementById('searchTermInput').value.trim();
     if (searchTerm === "") {
@@ -658,6 +590,7 @@ function updateSearchResults() {
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
 
 
+//Below is all moving to position code, Needs to be changed to make it clearer
 function moveToPosition(index) {
     // Ensure index is within bounds
     if (index >= 0 && index < foundPositions.length) {
@@ -688,7 +621,6 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
     }
 });
 
-document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
 
 
 /* -------------------------------------------------------------------------------- */
