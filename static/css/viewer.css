@@ -392,6 +392,18 @@ textarea:focus {
   padding:30px;
   margin-bottom: 50px;
 }
+
+.button-container {
+    text-align: right;
+}
+.card > div {
+    position: relative;
+}
+.btn-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
 /*.tab-content button{*/
 /*  border-radius: 15px;*/
 /*  width: 100px;*/

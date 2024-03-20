@@ -46,6 +46,7 @@ urlpatterns = [
     path('save_pdf_marks/', views.save_pdf_info, name='save_pdf_marks'),
     path('save_voice_comments/', views.save_voice_comments, name='save_voice_comments'),
     path('delete_voice_comment/', views.delete_voice_comment, name='delete_voice_comment'),
+    path('delete_text_comment/', views.delete_text_comment, name='delete_text_comment'),
     path('save_comment/', views.save_comment, name='save_comment'),
     path('clear_comment/', views.clear_comment, name='clear_comment'),
     path('get_comments/', views.get_comments, name='get_comments'),

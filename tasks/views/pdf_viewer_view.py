@@ -1,4 +1,6 @@
 """PDF Viewer view"""
+from venv import logger
+
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
@@ -18,6 +20,8 @@ import base64, json, uuid
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
 
 
 @login_required
@@ -181,17 +185,14 @@ def get_comments(request):
             'commenter': comment.commenter.username,
             'avatar_url': comment.commenter.avatar_url,
             'text': comment.text,
+            'comment_id': comment.id
         } for comment in comments])
         print(comments_json)
-
-        print('the upload id you get is:', upload_id)
-        print('the mark id you get is:', mark_id)
 
         if upload_id is not None and mark_id is not None:
             try:
                 upload = get_object_or_404(Upload, pk=upload_id)
                 comments = Comment.objects.filter(upload=upload, mark_id=mark_id)
-                print(comments)
                 return JsonResponse({"comments": comments_json})
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=500)
@@ -204,10 +205,7 @@ def get_comments(request):
 def save_current_mark_id(request):
     if request.method == 'POST':
         mark_id = request.POST.get('mark_id')
-        # print('This is mark id in save current mark id:'+mark_id)
-        # print("This is the request post of save current mark id:", request.POST)
         context = {'current_mark_id': mark_id}
-
         return render(request, 'viewer.html', context)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
@@ -219,9 +217,6 @@ def update_comment(request):
         mark_id = request.POST.get('mark_id')
         upload_id = request.POST.get('upload_id')
         new_text = request.POST.get('text')
-        print('the new text is', new_text)
-        print('mark_id is', mark_id)
-        print('upload_id is', upload_id)
 
         try:
             comment = Comment.objects.get(mark_id=mark_id, upload_id=upload_id)
@@ -232,3 +227,17 @@ def update_comment(request):
             return JsonResponse({'success': False, 'message': 'Comment not found'})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+@require_POST
+@csrf_exempt  # Consider using CSRF token for security
+def delete_text_comment(request):
+    # Assuming you're sending the comment's ID in the request's body
+    data = json.loads(request.body)
+    comment_id = data.get('id')
+
+    # Authenticate the user and verify permissions if necessary
+
+    comment = get_object_or_404(Comment, id=comment_id)
+    comment.delete()
+    return JsonResponse({'status': 'success', 'message': 'Comment deleted successfully'})

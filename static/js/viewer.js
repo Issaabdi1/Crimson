@@ -102,24 +102,26 @@ function setup(){
 							var comments = JSON.parse(response.comments);
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
-							for (var i = 0; i < comments.length; i++) {
-								commentsHTML += `
-									<div id="textComment">
-										<div class="card" style="width: 18rem;">
-											<div>
-												<img src="${comments[i].avatar_url}" class="card-img-top" alt="avatar">
-												${comments[i].commenter}
+							    comments.forEach(comment => {
+									commentsHTML += `
+										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
+											<div class="card" style="width: 18rem;">
+												<div>
+													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+													${comment.commenter}
+													<div class="button-container">
+														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+													</div>
+												</div>
+												<div class="card-body">
+													<p class="card-text"><textarea id="commentInputBox-${comment.id}" placeholder="${comment.text}"></textarea></p>
+												</div>
+												<div class="card-footer text-body-secondary">
+													<button class="btn-primary">save</button>
+												</div>
 											</div>
-											<div class="card-body">
-												<p class="card-text"><textarea id="commentInputBox" placeholder="${comments[i].text}"></textarea></p>
-											</div>
-											<div class="card-footer text-body-secondary">
-												<button class="btn-primary">save</button>
-											</div>
-										</div>
-									</div>
-								`;
-							}
+										</div>`;
+								});
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
 														document.getElementById("commentsContainer").innerHTML = commentsHTML;
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
@@ -207,24 +209,26 @@ function renderAfterZoom() {
 							var comments = JSON.parse(response.comments);
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
-							for (var i = 0; i < comments.length; i++) {
-								commentsHTML += `
-									<div id="textComment">
-										<div class="card" style="width: 18rem;">
-											<div>
-												<img src="${comments[i].avatar_url}" class="card-img-top" alt="avatar">
-												${comments[i].commenter}
+							    comments.forEach(comment => {
+									commentsHTML += `
+										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
+											<div class="card" style="width: 18rem;">
+												<div>
+													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+													${comment.commenter}
+													<div class="button-container">
+														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+													</div>
+												</div>
+												<div class="card-body">
+													<p class="card-text"><textarea id="commentInputBox-${comment.id}" placeholder="${comment.text}"></textarea></p>
+												</div>
+												<div class="card-footer text-body-secondary">
+													<button class="btn-primary">save</button>
+												</div>
 											</div>
-											<div class="card-body">
-												<p class="card-text"><textarea id="commentInputBox" placeholder="${comments[i].text}"></textarea></p>
-											</div>
-											<div class="card-footer text-body-secondary">
-												<button class="btn-primary">save</button>
-											</div>
-										</div>
-									</div>
-								`;
-							}
+										</div>`;
+								});
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
 														document.getElementById("commentsContainer").innerHTML = commentsHTML;
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
@@ -586,42 +590,6 @@ async function savePdfChanges(saveCommentsFlag){
 }
 
 
-/* Old Save PDF Function
-
-//Send the data to the database
-function savePdfChanges(){
-	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
-	var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
-
-	//pass parameters through url + "&listOfMarks=" + listOfMarksJson
-	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
-	const xhttp = new XMLHttpRequest();
-	//When the request has been dealt with, get the response
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == XMLHttpRequest.DONE) {
-			var response = JSON.parse(xhttp.response);
-
-		}
-	};
-
-	let formData = new FormData();
-	formData.append('upload_id', upload_id);
-	formData.append('mark_id', Mark.instanceCount);
-	formData.append('listOfComments', listOfCommentsJson);
-	formData.append('listOfSpans', listOfMarkedSpansJson);
-
-
-	xhttp.open("POST", "/save_pdf_marks/", true);
-	// Get CSRF token from cookie
-	let csrftoken = getCookie('csrftoken');
-
-	// Set CSRF token in request header
-	xhttp.setRequestHeader("X-CSRFToken", csrftoken);
-	xhttp.send(formData);
-
-	return true; //Show the request has been sent successfully
-}
-*/
 
 /* Search for Term Javascript */
 function escapeHtml(text) {
@@ -1173,34 +1141,6 @@ function addComment(){
     }
 }
 
-// function saveComment() {
-//     var commentInput = document.getElementById("textArea").value;
-// 	var text = commentInput;
-// 	console.log(text)
-// 	console.log('current mark id is:' + currentMarkId)
-//     $.ajax({
-//         url: '/save_comment/',
-//         type: 'POST',
-//         data: {
-//             'upload_id': upload_id,
-//             'mark_id': currentMarkId,
-// 			'text': text,
-//         },
-//         success: function(response) {
-//             console.log("Comment saved successfully!");
-//             $('#comment').text(commentInput);
-//
-//         },
-//         error: function(xhr, status, error) {
-//             console.error("Error saving comment: " + xhr.status);
-//         },
-//         beforeSend: function(xhr, settings) {
-//             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-//         }
-//     });
-//
-// 	savePdfChanges(true)
-// }
 function saveComment() {
 	var commentInput = document.getElementById("textArea").value;
 	console.log("text is:", commentInput)
@@ -1225,4 +1165,26 @@ function saveComment() {
         }
     });
 	savePdfChanges(true)
+}
+
+
+function deleteComment(commentId) {
+    $.ajax({
+        url: '/delete_text_comment/', // Endpoint to handle comment deletion
+        type: 'POST',
+        data: JSON.stringify({ id: commentId }),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken')); // Handling CSRF token
+        },
+        success: function(response) {
+            console.log('Comment deleted successfully', response);
+            // Optionally, refresh comments to reflect deletion
+            $('#commentsContainer').empty();
+        },
+        error: function(xhr, status, error) {
+            console.error("Error deleting comment:", error);
+        }
+    });
 }
