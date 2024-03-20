@@ -121,7 +121,7 @@ function setup(){
 								`;
 							}
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
+							// savePdfChanges(true);
 						} catch (error) {
 							console.error("Error parsing JSON:", error);
 						}
@@ -195,7 +195,7 @@ function renderAfterZoom(){
 								`;
 							}
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
+							// savePdfChanges(true);
 						} catch (error) {
 							console.error("Error parsing JSON:", error);
 						}
@@ -481,13 +481,17 @@ async function savePdfChanges(saveCommentsFlag){
 		// Convert audio into base64 to be compatible with JSON
 		for (const markId in listOfVoiceComments) {
 			if (listOfVoiceComments.hasOwnProperty(markId)) {
-				const blobs = listOfVoiceComments[markId];
-				const base64array = blobs.map(blob => {
+				const blobTuple = listOfVoiceComments[markId];
+				const base64array = blobTuple.map(tuple => {
+					const [blob, transcript] = tuple;
 					return new Promise ((resolve) => {
 						const reader = new FileReader();
 						reader.onload = () => {
 							const b64string = reader.result.split(',')[1];
-							resolve(addPadding(b64string));
+							resolve({
+								blob: addPadding(b64string),
+								transcript: transcript
+							});
 						};
 						reader.readAsDataURL(blob);
 					});
@@ -497,7 +501,7 @@ async function savePdfChanges(saveCommentsFlag){
 		}
 		var listOfVoiceCommentsJsonString = JSON.stringify(listOfVoiceCommentsJson);
 		formData.append('voice-comment-list', listOfVoiceCommentsJsonString);
-		xhttp.open("POST", "/save_pdf_comments/", true);
+		xhttp.open("POST", "/save_voice_comments/", true);
 	}
 
 	// Set CSRF token in request header
@@ -508,8 +512,8 @@ async function savePdfChanges(saveCommentsFlag){
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == XMLHttpRequest.DONE) {
 			if (this.status === 200) {
-				listOfVoiceComments = {};
 				if (saveCommentsFlag) {
+					listOfVoiceComments = {};
 					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
 				}
 			}
@@ -769,48 +773,88 @@ function createDeleteButton(deleteFunction) {
 
 // function to record user's voice
 async function startRecording() {
+
+	// Create MediaRecorder object to record audio
 	const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 	mediaRecorder = new MediaRecorder(stream);
 	mediaRecorder.addEventListener('dataavailable', (e) => {
 		chunks.push(e.data);
 	});
 
+	// Create speechRecognition object to transcribe audio
+	const recognizer = new webkitSpeechRecognition();
+	var finalTranscript;
+	recognizer.lang = 'en-US';
+	recognizer.interimResults = true;
+	recognizer.onresult = (e) => {
+		finalTranscript = '';
+		for (let i = e.resultIndex; i < e.results.length; ++i) {
+			finalTranscript += e.results[i][0].transcript + ' ';
+		}
+	};
+
+	/* CHANGE UPDATEVOICECOMMENTS FUNCTION TO INCLUDE TRANSCRIPT WHEN LOADING */
+	/* SAVE TRANSCRIPT IN COMMENTS MODEL (can use seperate button to save with transcript and without) */
+
 	mediaRecorder.addEventListener('stop', () => {
+
 		// Initialise file for recording
 		const blob = new Blob(chunks, { type: 'audio/wav' });
+		
+		setTimeout(() => { // Timeout used so recognizer catches up to audio
+			// Stop transcription
+			recognizer.stop();
 
-		// Call functions for audio + delete button
-		const audio = createAudioElement(blob, true)
-		const deleteBtn = createDeleteButton(() => {
-			audio.remove();
-			deleteBtn.remove();
-			const index = listOfVoiceComments[currentMarkId].indexOf(blob);
-			if (index !== -1) {
-				listOfVoiceComments[currentMarkId].splice(index, 1)
-			}
-			chunks = [];
+			// Create transcript div
+			const transcriptDiv = document.createElement('div');
+			transcriptDiv.textContent = "Transcript: " + finalTranscript;
+
+			// Call functions for audio + delete button
+			const audio = createAudioElement(blob, true)
+			const deleteBtn = createDeleteButton(() => {
+				audio.remove();
+				deleteBtn.remove();
+				transcriptDiv.remove();
+				var index = -1;
+				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+					console.log("Blob: " + blob + " blobItem: " + blobItem);
+					console.log("Transcript: " + finalTranscript + " transcriptItem: " + transcriptItem);
+					if (blobItem == blob) {
+						index = i;
+						break;
+					}
+				}
+				console.log("Index: " + index);
+				if (index !== -1) {
+					listOfVoiceComments[currentMarkId].splice(index, 1)
+				}
+				chunks = [];
+				updateSaveButton();
+			});
+
+			// Add audio + delete button + transcript to div
+			allRecordings.appendChild(audio);
+			allRecordings.appendChild(deleteBtn);
+			allRecordings.appendChild(transcriptDiv);
+
+			// Check if save button needs to be visible
 			updateSaveButton();
-		});
 
-		// Add audio + delete button to div
-		allRecordings.appendChild(audio);
-		allRecordings.appendChild(deleteBtn);
+			// Reset audio for the next recording
+			chunks = [];
 
-		// Check if save button needs to be visible
-		updateSaveButton();
-
-		// Reset audio for the next recording
-		chunks = [];
-
-		// Update voice comment dictionary with new recording
-		if (currentMarkId) {
-			if (!listOfVoiceComments[currentMarkId]) {
-				listOfVoiceComments[currentMarkId] = [];
+			// Update voice comment dictionary with new recording
+			if (currentMarkId) {
+				if (!listOfVoiceComments[currentMarkId]) {
+					listOfVoiceComments[currentMarkId] = [];
+				}
+				listOfVoiceComments[currentMarkId].push([blob, finalTranscript]);
 			}
-			listOfVoiceComments[currentMarkId].push(blob);
-		}
+		}, 200);
 	});
 
+	recognizer.start();
 	mediaRecorder.start();
 }
 
@@ -874,14 +918,28 @@ function updateVoiceComments() {
 	savedRecordings.innerHTML = '';
 	// Displays audio recently recorded by the user
 	if (currentMarkId && listOfVoiceComments[currentMarkId]) {
-		listOfVoiceComments[currentMarkId].forEach(blob => {
+		listOfVoiceComments[currentMarkId].forEach(blobTuple => {
+
+			const [blob, transcript] = blobTuple;
+					
+			// Create transcript div
+			var transcriptDiv = document.createElement('div');
+			transcriptDiv.textContent = "Transcript: " + transcript;
 
 			// Call functions for audio + delete button
 			var audio = createAudioElement(blob, true);
 			var deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				const index = listOfVoiceComments[currentMarkId].indexOf(blob);
+				transcriptDiv.remove();
+				var index = -1;
+				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+					if (blobItem == blob) {
+						index = i;
+						break;
+					}
+				}
 				if (index !== -1) {
 					listOfVoiceComments[currentMarkId].splice(index, 1)
 				}
@@ -892,6 +950,7 @@ function updateVoiceComments() {
 			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
+			allRecordings.appendChild(transcriptDiv);
 
 		});
 	}
