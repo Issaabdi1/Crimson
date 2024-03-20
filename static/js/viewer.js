@@ -121,9 +121,7 @@ function setup(){
 								`;
 							}
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
 														document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 							button.addEventListener('click', function() {
 								// Find the textarea associated with this button
@@ -228,9 +226,7 @@ function renderAfterZoom() {
 								`;
 							}
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
 														document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							savePdfChanges(true);
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 							button.addEventListener('click', function() {
 								// Find the textarea associated with this button
@@ -872,7 +868,8 @@ async function startRecording() {
 			recognizer.stop();
 
 			// Create transcript div
-			const transcriptDiv = document.createElement('div');
+			const transcriptDiv = document.createElement('p');
+			transcriptDiv.classList.add("transcript-div");
 			transcriptDiv.textContent = "Transcript: " + finalTranscript;
 
 			// Call functions for audio + delete button
@@ -884,14 +881,11 @@ async function startRecording() {
 				var index = -1;
 				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
 					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
-					console.log("Blob: " + blob + " blobItem: " + blobItem);
-					console.log("Transcript: " + finalTranscript + " transcriptItem: " + transcriptItem);
 					if (blobItem == blob) {
 						index = i;
 						break;
 					}
 				}
-				console.log("Index: " + index);
 				if (index !== -1) {
 					listOfVoiceComments[currentMarkId].splice(index, 1)
 				}
@@ -989,7 +983,8 @@ function updateVoiceComments() {
 			const [blob, transcript] = blobTuple;
 					
 			// Create transcript div
-			var transcriptDiv = document.createElement('div');
+			var transcriptDiv = document.createElement('p');
+			transcriptDiv.classList.add("transcript-div");
 			transcriptDiv.textContent = "Transcript: " + transcript;
 
 			// Call functions for audio + delete button

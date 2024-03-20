@@ -81,15 +81,22 @@ div[id^="userMenu_"] {
 	text-align: center;
 }
 .button-large {
-	font-size: 14px;
-	padding: 3px;
-	margin-right: 4px;
+	font-size: 16px;
+	padding: 5px;
+	margin-left: 8px;
+}
+.transcript-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    text-align: center;
 }
 
 /* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
 audio {
 	max-width: 85%;
-	height: 5%;
+	max-height: 35%;
 	padding: 2px;
 }
 #savedRecordings audio {
