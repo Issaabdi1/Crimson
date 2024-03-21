@@ -222,17 +222,18 @@ function highlightSelectedText(event){
 	// Iterate over each selected part
 	selectedParts.forEach(part => {
 		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
-		highlightedSpan.dataset.value = newMark.getId();
+		highlightedSpan["highlightSpan"].dataset.value = newMark.getId();
+		highlightedSpan["spacesSpan"].dataset.value = newMark.getId();
 		//add event listener
-		highlightedSpan.addEventListener('click', () => {
+		highlightedSpan["highlightSpan"].addEventListener('click', () => {
 			// //  Handle click event (e.g., open a modal, execute a function, etc.)
-			if(currentMarkId && currentMarkId !== highlightedSpan.dataset.value){
+			if(currentMarkId && currentMarkId !== highlightedSpan["highlightSpan"].dataset.value){
 				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
 					e.style.backgroundColor = 'yellow';
 				})
 			}
-			currentMarkId = highlightedSpan.dataset.value;
-			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
+			currentMarkId = highlightedSpan["highlightSpan"].dataset.value;
+			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan["highlightSpan"].dataset.value;
 			
 			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
 				e.style.backgroundColor = 'orange';
@@ -302,7 +303,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
-	return highlightSpan;
+	return {"highlightSpan": highlightSpan, "spacesSpan":spacesSpan};
 }
 
 
@@ -399,7 +400,9 @@ function deleteMark() {
     if (currentMarkId !== undefined && currentMarkId !== null) {
         // Remove the span from the DOM
         document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+			var parentElement = e.parentElement;
 			e.remove();
+			joinUpAdjacentTextNodes(parentElement);
 		})
 
         // Remove the mark's data from listOfMarkedSpans
@@ -419,6 +422,23 @@ function deleteMark() {
         currentMarkId = null;
 		savePdfChanges(false);
     }
+}
+
+function joinUpAdjacentTextNodes(parentElement){
+	//join up adjacent text nodes together (so they aren't separate)
+	var childNodes = parentElement.childNodes;
+	for (var i = 0; i < childNodes.length - 1; i++) {
+		if (childNodes[i].nodeType === Node.TEXT_NODE && childNodes[i + 1].nodeType === Node.TEXT_NODE) {
+			// Combine the text of adjacent text nodes
+			var combinedText = childNodes[i].nodeValue + childNodes[i + 1].nodeValue;
+			// Replace the first text node with the combined text
+			childNodes[i].nodeValue = combinedText;
+			// Remove the next text node
+			parentElement.removeChild(childNodes[i + 1]);
+			// Decrement the index since we removed a node
+			i--;
+		}
+	}
 }
 
 /* -------------------------------------------------------------------------------- */
