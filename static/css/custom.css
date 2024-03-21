@@ -487,6 +487,10 @@ Dark mode
     color: #111111;
 }
 
+.dark-mode .modal-title{
+    color: #111111;
+}
+
 /*
 Orange mode
 */
