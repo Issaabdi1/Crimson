@@ -82,7 +82,7 @@ function setup(){
 			//add to marked spans
 			var str = html;
 			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:indexOfSpan, html: str,dataWidth: dataWidth});
+			listOfMarkedSpans.push({index:indexOfSpan, html: str});
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
