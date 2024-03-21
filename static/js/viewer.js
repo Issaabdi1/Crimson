@@ -716,12 +716,11 @@ document.getElementById('searchTermInput').addEventListener('input', updateSearc
 
 const voiceCommentLabel = document.getElementById('voiceCommentLabel');
 const collapseMenu = document.getElementById('collapseMenu');
-const playButton = document.getElementById('playCircle');
+const playButton = document.getElementById('recordButton');
 const playIcon = document.getElementById('play');
 const saveButton = document.getElementById('save');
 const allRecordings = document.getElementById('recordings');
 const savedRecordings = document.getElementById('savedRecordings');
-const animationBlocks = document.querySelectorAll('.animation-block');
 const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
 const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match =>
   String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
@@ -751,20 +750,10 @@ updateSaveButton();
 playButton.addEventListener('click', () => {
 	if (mediaRecorder && mediaRecorder.state === 'recording') {
 		stopRecording();
-		playIcon.classList.remove('fa-stop');
-		playIcon.classList.add('fa-play');
-		playIcon.setAttribute('title', 'Start Recording');
-		animationBlocks.forEach(block => {
-			block.style.display = 'none';
-		});
+		playButton.innerHTML = '<i id="play" class="fas fa-microphone" title="Start Recording"></i>&nbspRecord'
 	} else {
 		startRecording();
-		playIcon.classList.remove('fa-play');
-		playIcon.classList.add('fa-stop');
-		playIcon.setAttribute('title', 'Stop Recording');
-		animationBlocks.forEach(block => {
-			block.style.display = 'inline-block';
-		});
+		playButton.innerHTML = '<i id="play" class="fas fa-stop" title="Stop Recording"></i>&nbspStop Recording'
 	}
 });
 
@@ -796,11 +785,8 @@ function createReplyButton() {
 // Function to create and configure delete buttons
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
-    const trashIcon = document.createElement('i');
-    trashIcon.className = 'fa solid fa-trash';
-    deleteBtn.appendChild(trashIcon);
-	deleteBtn.classList.add('button-large');
-    deleteBtn.title = 'Delete voice comment';
+	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'
+	deleteBtn.className = 'btn btn-danger btn-custom';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -826,10 +812,7 @@ async function startRecording() {
 			finalTranscript += e.results[i][0].transcript + ' ';
 		}
 	};
-
-	/* CHANGE UPDATEVOICECOMMENTS FUNCTION TO INCLUDE TRANSCRIPT WHEN LOADING */
-	/* SAVE TRANSCRIPT IN COMMENTS MODEL (can use seperate button to save with transcript and without) */
-
+	
 	mediaRecorder.addEventListener('stop', () => {
 
 		// Initialise file for recording
@@ -839,17 +822,11 @@ async function startRecording() {
 			// Stop transcription
 			recognizer.stop();
 
-			// Create transcript div
-			const transcriptDiv = document.createElement('p');
-			transcriptDiv.classList.add("transcript-div");
-			transcriptDiv.textContent = "Transcript: " + finalTranscript;
-
 			// Call functions for audio + delete button
 			const audio = createAudioElement(blob, true)
 			const deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				transcriptDiv.remove();
 				var index = -1;
 				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
 					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
@@ -868,7 +845,6 @@ async function startRecording() {
 			// Add audio + delete button + transcript to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-			allRecordings.appendChild(transcriptDiv);
 
 			// Check if save button needs to be visible
 			updateSaveButton();
@@ -953,18 +929,12 @@ function updateVoiceComments() {
 		listOfVoiceComments[currentMarkId].forEach(blobTuple => {
 
 			const [blob, transcript] = blobTuple;
-					
-			// Create transcript div
-			var transcriptDiv = document.createElement('p');
-			transcriptDiv.classList.add("transcript-div");
-			transcriptDiv.textContent = "Transcript: " + transcript;
 
 			// Call functions for audio + delete button
 			var audio = createAudioElement(blob, true);
 			var deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				transcriptDiv.remove();
 				var index = -1;
 				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
 					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
@@ -983,7 +953,6 @@ function updateVoiceComments() {
 			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-			allRecordings.appendChild(transcriptDiv);
 
 		});
 	}
@@ -1097,25 +1066,17 @@ document.addEventListener('afterSetup', () => {
 
 // function to call save PDF changes with correct flag
 saveButton.addEventListener('click' , () => {
-	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>'
-	savePdfChanges(true)
+	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
+	savePdfChanges(true);
+	location.reload();
 });
-
-const refreshContainer = document.getElementById('refreshContainer');
-const refreshButton = document.getElementById('refresh');
 
 // Once save is complete, an event is dispatched, calling this function
 document.addEventListener('saveChanges', () => {
 	saveButton.innerHTML = 'Save Comments';
 	updateVoiceComments();
-	refreshContainer.style.display = 'block';
 });
 
-// Reload the page when the button is clicked
-refreshButton.addEventListener('click', () => {
-    location.reload();
-});
-11
 // Clicking a marked section directs user to viewComments tab
 document.addEventListener('click', e => {
 	if (e.target.classList.contains('markedSection')) {

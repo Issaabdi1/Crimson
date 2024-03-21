@@ -5,58 +5,11 @@
 	align-items: flex-end;
 	margin-bottom: 4px;
 }
-#playCircle {
-	width: 33px;
-	height: 33px;
-	border-radius: 50%;
+#recordButton {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	cursor: pointer;
-	transition: background-color 0.5s ease;
-}
-#playCircle:hover {
-	background-color: #D8DEE4;
-}
-#playCircle:hover #play {
-	font-size: 1.2em;
-}
-#play {
-	font-size: 1.4em;
-	transition: font-size 0.3s ease;
-}
-
-.animation-block {
-	width: 3px;
-	height: 15px;
-	margin-bottom: 8px;
-	background-color: black;
-	display: none;
-	transform: scaleY(0.2);
-	transform-origin: bottom;
-}
-.block-1 {
-	animation: play 1.4s infinite ease;
-}
-.block-2 {
-	animation: play 1.4s infinite ease 0.2s;
-}
-.block-3 {
-	animation: play 1.4s infinite ease 0.4s;
-}
-@keyframes play {
-	0% {
-		transform: scaleY(0.2);
-		transform-origin: bottom;
-	}
-	50% {
-		transform: scaleY(0.5);
-		transform-origin: bottom;
-	}
-	100% {
-		transform: scaleY(0.2);
-		transform-origin: bottom;
-	}
+	margin: 5px 5px;
 }
 #recordings > *, #savedRecordings > div[id^="userMenu_"] > * {
 	display: inline-block;
@@ -73,17 +26,8 @@ div[id^="userMenu_"] {
 #save {
 	padding: 2px;
 }
-#refresh {
-	padding: 4px;
-	margin-left: 4px;
-}
 .centered-text {
 	text-align: center;
-}
-.button-large {
-	font-size: 16px;
-	padding: 5px;
-	margin-left: 8px;
 }
 .transcript-div {
     display: flex;
@@ -96,11 +40,8 @@ div[id^="userMenu_"] {
 /* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
 audio {
 	max-width: 85%;
-	max-height: 35%;
+	height: 35px;
 	padding: 2px;
-}
-#savedRecordings audio {
-	max-width: 75%;
 }
 audio::-webkit-media-controls-current-time-display {
 	font-size: 1em;
