@@ -26,9 +26,9 @@
                     </form>
                 </div>
                 {#            <div class="list-container custom-list-size">#}
-                <div class="list-group" id="fileList">
+                <div class="list-group-file" id="fileList">
                     {% for upload in uploads %}
-                        <div class="flex-md-row list-item" aria-current="true">
+                        <div class="flex-column flex-md-row list-item" aria-current="true">
                             <div class="text-list-item p-3 gap-2 w-100">
                                 <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank"
                                       id="viewerForm{{ upload.id }}">

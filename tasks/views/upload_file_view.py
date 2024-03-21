@@ -18,6 +18,7 @@ def upload_file_view(request):
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             media_file = request.FILES['file']
+            print(media_file)
             if settings.USE_S3:
                 upload = Upload(file=media_file, owner=current_user)
                 try:
