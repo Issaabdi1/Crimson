@@ -54,20 +54,25 @@ var listOfVoiceComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
+var originalState;
+
 function setup(){
+		
 	//Load all the info and marks into the pdf
 	if(savedMarks!=""){
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
 		var jsonString = decodeEntities(marksListOfSpans);//"{{marks.listOfSpans}}");
-		var dict = JSON.parse(jsonString);
+		var dict = JSON.parse(jsonString).filter(entry => entry !== null);
 		listOfComments = JSON.parse(decodeEntities(marksListOfComments));//"{{marks.listOfComments}}"))
 		//go through list now
+
 		dict.forEach((entry)=>{
+
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
-			console.log("original htkl is", html);
+			//console.log("original htkl is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
-			console.log(span);
+			//console.log(span);
 			const textLayerContainer = document.getElementById("textLayerContainer");
 			
 			var spanToInsertInto = textLayerContainer.querySelectorAll('span[role="presentation"]')[indexOfSpan];//textLayerContainer.querySelectorAll('*')[indexOfSpan];
@@ -83,13 +88,26 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
+				// This changes the colour of the selected span to orange and changes back the old one
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
+				}
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 		
 	}
 	document.dispatchEvent(setupEvent);
+
 }
 
 function renderAfterZoom(){
@@ -112,9 +130,25 @@ function renderAfterZoom(){
 			element.addEventListener('click', () => {
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+
+				// This changes the colour of the selected span to orange and changes back the old one
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
+				}
+				currentMarkId = element.dataset.value;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 	}
+	document.dispatchEvent(setupEvent);
 }
 
 
@@ -231,60 +265,85 @@ function mouseUpHandler(event) {
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 }
 
-function highlightSelectedText(event){
-	//clear selection
-	window.getSelection().empty();
-	markButton.hidden = true;
-	const textLayerContainer =  document.getElementById('textLayerContainer');
-	var textLayerSpans =  Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
-	var totalLength = selectionList.toString().length;
-	var offset = selectionList.startOffset;
-	var selectedParts = [];
-	var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
-	var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
-	var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
-	console.log(elementsList);
-	// Assume you have an array of objects containing information about the selected parts within each span
-	elementsList.forEach((element)=>{
-		console.log(element);
-		var part = {span: element, start: offset, end: Math.min(offset + totalLength, element.textContent.length)};//{span: element.span, start: offset, end: Math.min(offset + totalLength, element.span.textContent.length)};
-		selectedParts.push(part);
-		totalLength-= (part.end - part.start);
-		console.log("part end is ", part.end);
-		offset= 0;
-	})
+function highlightSelectedText(event) {
+    // Clear selection
+    window.getSelection().empty();
+    markButton.hidden = true;
+
+    const textLayerContainer = document.getElementById('textLayerContainer');
+    var textLayerSpans = Array.from(textLayerContainer.querySelectorAll('span[role="presentation"]'));
+    var totalLength = selectionList.toString().length;
+    var offset = selectionList.startOffset;
+    var selectedParts = [];
+    var startIndex = textLayerSpans.indexOf(currentStartingElement.parentNode);
+    var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
+    var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
 
 	//create a new mark
 	var newMark = new Mark();
 	var count = 0;
+
+    // Process each element in the selection
+    elementsList.forEach((element) => {
+        var partEnd = Math.min(offset + totalLength, element.textContent.length);
+        var part = { span: element, start: offset, end: partEnd };
+        selectedParts.push(part);
+        totalLength -= (part.end - part.start);
+        offset = 0; // Reset offset for the next span
+    });
+
 	// Iterate over each selected part
 	selectedParts.forEach(part => {
 		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
-		highlightedSpan.dataset.value = newMark.getId();
+		highlightedSpan["highlightSpan"].dataset.value = newMark.getId();
+		highlightedSpan["spacesSpan"].dataset.value = newMark.getId();
 		//add event listener
-		highlightedSpan.addEventListener('click', () => {
-			// Handle click event (e.g., open a modal, execute a function, etc.)
-			currentMarkId = highlightedSpan.dataset.value;
-			document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
+		highlightedSpan["highlightSpan"].addEventListener('click', () => {
+			// //  Handle click event (e.g., open a modal, execute a function, etc.)
+			if(currentMarkId && currentMarkId !== highlightedSpan["highlightSpan"].dataset.value){
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'yellow';
+				})
+			}
+			currentMarkId = highlightedSpan["highlightSpan"].dataset.value;
+			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan["highlightSpan"].dataset.value;
+			
+			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+				e.style.backgroundColor = 'orange';
+			})
+			savePdfChanges(false);
 		});
 		count+=1;
-	});
 
-	//add the span to the list of marked spans if it isn't already there
-	elementsList.forEach((element)=>{
-		if(!listOfMarkedSpans.includes(element)){
-			//Add escape characters so that it can be parsed by JSON
-			var str = element.innerHTML;
-			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:textLayerSpans.indexOf(element), html: str});
-		}
-	});
+        // Measure and record the width of the highlighted span
+        const rect = highlightedSpan["highlightSpan"].getBoundingClientRect();
+        console.log("Measured width:", rect.width);
 
+		var highlightSpanRegex = /<span class=\\\"highlight text\\\">(.*?)<\/span>/g;
 
-	//Add a new entry in the dictionary, associating the mark with a comment. 
-	listOfComments[newMark.getId()] =  "This comment is by mark " + newMark.getId()
-	//save changes
-	savePdfChanges(false); // THIS LINE COULD BE THE BUG
+        // Store the highlighted span information, including the measured width
+        var str = part.span.innerHTML;
+        str = str.replace(/"/g, '\\"');
+		// Replace highlight spans with just their inner text content
+		str = str.replace(highlightSpanRegex, '$1');
+
+		console.log("the span html after marking:");
+		console.log(str);
+        listOfMarkedSpans.push({
+            index: textLayerSpans.indexOf(part.span),
+            html: str,
+        });
+		console.log("hi");
+		listOfMarkedSpans.forEach((entry)=> {
+			console.log("marks list of spans");
+			console.log(entry);
+		})
+    });
+
+    // Associate the mark with a comment
+    listOfComments[newMark.getId()] = "This comment is by mark " + newMark.getId();
+    // Save changes
+    savePdfChanges();
 }
 
 // Example function to highlight selected text within a span
@@ -330,10 +389,10 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 
 	//highlgith tect needs to be before spaces span
 	setSpan.insertBefore(highlightText, highlightSpan.nextSibling);
-
+	
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
-	return highlightSpan;
+	return {"highlightSpan": highlightSpan, "spacesSpan":spacesSpan};
 }
 
 
@@ -431,96 +490,147 @@ function savePdfChanges(){
 	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 	var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 
-	//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
-	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+//Send the data to the database
+async function savePdfChanges(saveCommentsFlag){
 	const xhttp = new XMLHttpRequest();
-	//When the request has been dealt with, get the response
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == XMLHttpRequest.DONE) {
-			var response = JSON.parse(xhttp.response);
-			
-		}
-	};
 
 	let formData = new FormData();
 	formData.append('upload_id', upload_id);
-	formData.append('mark_id', Mark.instanceCount);
-	formData.append('listOfComments', listOfCommentsJson);
-	formData.append('listOfSpans', listOfMarkedSpansJson);
 
-
-	xhttp.open("POST", "/save_pdf_marks/", true); 
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
+	
+	if (!saveCommentsFlag) {
+		var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+		var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+	
+		//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
+		var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+		formData.append('mark_id', Mark.instanceCount);
+		formData.append('listOfComments', listOfCommentsJson);
+		formData.append('listOfSpans', listOfMarkedSpansJson);
+		xhttp.open("POST", "/save_pdf_marks/", true); 
+	} else {
+		var listOfVoiceCommentsJson = {};
+		// Convert audio into base64 to be compatible with JSON
+		for (const markId in listOfVoiceComments) {
+			if (listOfVoiceComments.hasOwnProperty(markId)) {
+				const blobs = listOfVoiceComments[markId];
+				const base64array = blobs.map(blob => {
+					return new Promise ((resolve) => {
+						const reader = new FileReader();
+						reader.onload = () => {
+							const b64string = reader.result.split(',')[1];
+							resolve(addPadding(b64string));
+						};
+						reader.readAsDataURL(blob);
+					});
+				});
+				listOfVoiceCommentsJson[markId] = await Promise.all(base64array);
+			}
+		}
+		var listOfVoiceCommentsJsonString = JSON.stringify(listOfVoiceCommentsJson);
+		formData.append('voice-comment-list', listOfVoiceCommentsJsonString);
+		xhttp.open("POST", "/save_pdf_comments/", true);
+	}
 
 	// Set CSRF token in request header
 	xhttp.setRequestHeader("X-CSRFToken", csrftoken);
 	xhttp.send(formData);
+
+	//When the request has been dealt with, clear the dictionary
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			if (this.status === 200) {
+				listOfVoiceComments = {};
+				if (saveCommentsFlag) {
+					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
+				}
+			}
+		}
+	};
 
 	return true; //Show the request has been sent successfully
 }
 */
 
 /* Search for Term Javascript */
-function escapeHtml(text) {
-	var map = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#039;'
-	};
-	return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+
+// Function to escape special characters in a string
+function escapeRegExp(string) {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+//Highlights the selected term in the content (string) provided
+function highlightTerms(content, term) {
+    const safeTerm = escapeRegExp(term.trim());
+    const regex =  new RegExp(`(${safeTerm})`, 'gi');
+	//Replace with a span with the content as well as the text and another span to preserve width
+	return content.replace(regex, `<span class="highlight text">$1</span>$1<span class="highlight text"></span>`);
 }
 
+
+
+/*
+Find matching words
+*/
 function searchForTerm(term) {
+	clearSearchHighlights(); //clear old highlights
 	const textLayer = document.getElementById("textLayerContainer");
-	const spans = textLayer.querySelectorAll('span[role="presentation"]');
-	const foundPositions = [];
-
-	spans.forEach((span, index) => {
-		let innerHTML = span.dataset.originalHtml || span.innerHTML;
-		const safeTerm = escapeHtml(term.trim()); // Ensure we're not dealing with leading/trailing spaces
-
-		// Create a regex that matches the term only if it's followed by a non-word character or at the end of the string,
-		// and only if it's preceded by a non-word character or at the start of the string.
-		// This approach accounts for punctuation, spaces, and ensures that partial matches are not highlighted.
-		const regex = new RegExp(`(?<!\\w)(${safeTerm})(?!\\w)`, 'gi');
-
-		if (!span.dataset.originalHtml) {
-			span.dataset.originalHtml = innerHTML;
-		}
-
-		const searchResult = innerHTML.search(regex);
-
-		if (searchResult !== -1) {
-			span.innerHTML = innerHTML.replace(regex, `<span style="background-color: lightblue;">$1</span>`);
-			foundPositions.push({ span: span, index: index });
-		}
-	});
-
-	return foundPositions;
-}
-
-
-let foundPositions = [];
-let currentPosition = -1; // Start before the first position
-
-function clearSearchHighlights() {
-    const textLayer = document.getElementById("textLayerContainer");
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
+    const foundPositions = [];
+    spans.forEach((span, index) => {
+		//create a copy without any marked sections
+		var clonedNode = span.cloneNode(true);
+		//remove marked stuff from cloned node before setting its content
+		clonedNode.querySelectorAll(`span`).forEach(e =>{
+			e.remove();
+			joinUpAdjacentTextNodes(clonedNode);
+		})
 
-    spans.forEach(span => {
-        // Check if the span has the dataset property 'originalHtml'
-        if (span.dataset.originalHtml) {
-            // Restore the original HTML content
-            span.innerHTML = span.dataset.originalHtml;
-            // Remove the dataset property to prevent future conflicts
-            delete span.dataset.originalHtml;
+        let contentToSearch =  clonedNode.innerHTML;
+        const highlightedContent = highlightTerms(contentToSearch, term); 
+		
+        //if there was replacement (so a change in the string)
+        if (highlightedContent !== contentToSearch) {
+			clonedNode.innerHTML = highlightedContent;
+			clonedNode.classList.add("clonedFindSpans")
+			clonedNode.style.pointerEvents = "none";
+			span.parentElement.insertBefore(clonedNode, span.nextSibling); //put the cloned span right before the real span
+            foundPositions.push({ span: span, index: index });
         }
     });
+    return foundPositions;
 }
 
+
+
+//Clears all the highlights by deleting all the clonedFindSpans in the document
+function clearSearchHighlights() {
+	document.querySelectorAll(`span[class="clonedFindSpans"]`).forEach(e =>{
+		e.remove();
+	})
+}
+
+//This is a duplicate function of the code in delete mark. Delete this one when it is merged
+function joinUpAdjacentTextNodes(parentElement){
+	//join up adjacent text nodes together (so they aren't separate)
+	var childNodes = parentElement.childNodes;
+	for (var i = 0; i < childNodes.length - 1; i++) {
+		if (childNodes[i].nodeType === Node.TEXT_NODE && childNodes[i + 1].nodeType === Node.TEXT_NODE) {
+			// Combine the text of adjacent text nodes
+			var combinedText = childNodes[i].nodeValue + childNodes[i + 1].nodeValue;
+			// Replace the first text node with the combined text
+			childNodes[i].nodeValue = combinedText;
+			// Remove the next text node
+			parentElement.removeChild(childNodes[i + 1]);
+			// Decrement the index since we removed a node
+			i--;
+		}
+	}
+}
+
+//Update the search results (highlights) based on what is typed in the bar
 function updateSearchResults() {
     const searchTerm = document.getElementById('searchTermInput').value.trim();
     if (searchTerm === "") {
@@ -544,37 +654,70 @@ function updateSearchResults() {
 document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
 
 
+//Below is all moving to position code, Needs to be changed to make it clearer
 function moveToPosition(index) {
-	// Ensure index is within bounds
-	if (index >= 0 && index < foundPositions.length) {
-		const position = foundPositions[index];
-		
-		// Logic to scroll to the position.span or highlight it
+    // Ensure index is within bounds
+    if (index >= 0 && index < foundPositions.length) {
+        const position = foundPositions[index];
+        
+        // Logic to scroll to the position.span or highlight it
 
-		// I put it false for now so it doesn't scroll past the main container, just the viewer
-		position.span.scrollIntoView(false);
+        // I put it false for now so it doesn't scroll past the main container, just the viewer
+        position.span.scrollIntoView(false);
 
-		//position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
-		
-		// Optionally highlight or otherwise indicate the current span
-	}
+        //position.span.scrollIntoView({ behavior: 'smooth', block: "center"});
+        
+        // Optionally highlight or otherwise indicate the current span
+    }
 }
 
 document.getElementById('nextSearchResult').addEventListener('click', () => {
-	if (foundPositions.length > 0) {
-		currentPosition = (currentPosition + 1) % foundPositions.length;
-		moveToPosition(currentPosition);
-	}
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition + 1) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
 });
 
 document.getElementById('prevSearchResult').addEventListener('click', () => {
-	if (foundPositions.length > 0) {
-		currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
-		moveToPosition(currentPosition);
-	}
+    if (foundPositions.length > 0) {
+        currentPosition = (currentPosition - 1 + foundPositions.length) % foundPositions.length;
+        moveToPosition(currentPosition);
+    }
 });
 
-document.getElementById('searchTermInput').addEventListener('input', updateSearchResults);
+
+/* Deleting Marks Javascript */
+const deleteMarkButton = document.getElementById('deleteMarkButton');
+deleteMarkButton.addEventListener('click', deleteMark);
+
+function deleteMark() {
+    // Ensure that a mark is selected
+    if (currentMarkId !== undefined && currentMarkId !== null) {
+        // Remove the span from the DOM
+        document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+			var parentElement = e.parentElement;
+			e.remove();
+			joinUpAdjacentTextNodes(parentElement);
+		})
+
+        // Remove the mark's data from listOfMarkedSpans
+		listOfMarkedSpans = listOfMarkedSpans.filter(mark => !mark.html.includes(`data-value=\\"${currentMarkId}\\"`));//1
+
+
+        // Remove the mark's comment from listOfComments
+        delete listOfComments[currentMarkId];
+
+        // Optionally, remove the mark's voice comments from listOfVoiceComments
+        delete listOfVoiceComments[currentMarkId];
+
+		console.log('listOfMarkedSpans',listOfMarkedSpans);
+		console.log('listOfComments',listOfComments);
+		console.log('listOfVoiceComments',listOfVoiceComments);
+        // Clear the current mark ID
+        currentMarkId = null;
+		savePdfChanges(false);
+    }
+}
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
@@ -792,11 +935,9 @@ function updateVoiceComments() {
 				chunks = [];
 				updateSaveButton();
 			});
-
 			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-
 		});
 	}
 	// Displays audio saved in the database
@@ -897,7 +1038,6 @@ document.addEventListener('afterSetup', () => {
 	// Call update everytime a button / marked section is clicked
 	document.addEventListener('click', e => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
-
 			// Do not update the voice comments when clicking buttons located in the voice-comment menu
 			if (!e.target.classList.contains('button-large')) {
 				updateVoiceComments();
@@ -927,7 +1067,7 @@ document.addEventListener('saveChanges', () => {
 refreshButton.addEventListener('click', () => {
     location.reload();
 });
-11
+
 // Clicking a marked section directs user to viewComments tab
 document.addEventListener('click', e => {
 	if (e.target.classList.contains('markedSection')) {
@@ -942,3 +1082,19 @@ document.addEventListener('click', e => {
 	}
 });
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    const viewFindbarButton = document.getElementById('viewFindbar');
+    const searchSection = document.getElementById('searchSection');
+
+    viewFindbarButton.addEventListener('click', () => {
+        // Check the current display state and toggle it
+        if (searchSection.style.display === 'none') {
+            searchSection.style.display = 'block'; // Show the search section
+            viewFindbarButton.classList.add('toggled'); // Optional: Add a class to indicate the toggle state
+        } else {
+            searchSection.style.display = 'none'; // Hide the search section
+            viewFindbarButton.classList.remove('toggled'); // Optional: Remove the toggle state class
+        }
+    });
+});

@@ -46,7 +46,7 @@ class VoiceCommentModelTestCase(TestCase):
         self.voice_comment.upload = None
         self._assert_voice_comment_is_invalid()
         self.voice_comment.upload = self.upload
-
+   
     def test_audio_cannot_be_blank(self):
         audio_name = self.voice_comment.audio.name
         self.voice_comment.audio = None
@@ -58,7 +58,7 @@ class VoiceCommentModelTestCase(TestCase):
             self.voice_comment.audio.url,
             f'https://mypdfbucket01.s3.amazonaws.com/media/{quote(self.voice_comment.audio.name)}'
         )
-
+        
     def test_audio_names_do_not_match(self):
         filenames = [user_directory_path(self.voice_comment, self.mock_audio.name) for _ in range(100)]
         self.assertEqual(len(set(filenames)), len(filenames))
