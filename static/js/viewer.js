@@ -86,7 +86,6 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
-				document.getElementById('addCommentBtn').disabled = false;
 				isMark = true;
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
@@ -108,20 +107,25 @@ function setup(){
 									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
-													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-													${comment.commenter}
 													<div class="button-container">
 														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+													</div>
+													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+													${comment.commenter}
+													<div class="updateTime">
+														<small style="color: #5c636a">${comment.date}</small>
 													</div>
 												</div>
 												<div class="card-body">
 													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
 												</div>
-												<div class="card-footer text-body-secondary">
-													<button class="btn-primary">save</button>
+												<div class="card-footer text-body-secondary p-2 flex-column" style="display: flex; justify-content: flex-end;">
+													<button class="btn-primary saveBtn">save</button>
 												</div>
+								
+
 											</div>
 										</div>`;
 								});
@@ -196,7 +200,6 @@ function renderAfterZoom() {
         // Add click event listener for all highlighted spans to handle comment updates
        		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
-				document.getElementById('addCommentBtn').disabled = false;
 				isMark = true;
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
@@ -217,20 +220,22 @@ function renderAfterZoom() {
 							    comments.forEach(comment => {
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
-													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-													${comment.commenter}
-													${comment.date}
 													<div class="button-container">
 														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+													</div>
+													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+													${comment.commenter}
+													<div class="updateTime">
+														<small style="color: #5c636a">${comment.date}</small>
 													</div>
 												</div>
 												<div class="card-body">
 													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
 												</div>
-												<div class="card-footer text-body-secondary">
-													<button class="btn-primary">save</button>
+												<div class="card-footer text-body-secondary p-2 flex-column">
+													<button class="btn-primary saveBtn" style="display: flex; justify-content: flex-end;">save</button>
 												</div>
 											</div>
 										</div>`;

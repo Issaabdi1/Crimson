@@ -185,7 +185,7 @@ def get_comments(request):
             'avatar_url': comment.commenter.avatar_url,
             'text': comment.text,
             'comment_id': comment.id,
-            'date': comment.date.isoformat(),
+            'date': comment.formatted_date(),
         } for comment in comments])
         print(comments_json)
 
