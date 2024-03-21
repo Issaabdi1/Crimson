@@ -26,13 +26,6 @@
 .centered-text {
 	text-align: center;
 }
-.transcript-div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    text-align: center;
-}
 
 /* Edit size and controls of audio (this is just a temporary solution, edit this for a better format */
 audio {
@@ -80,4 +73,7 @@ audio::-webkit-media-controls-overflow-button {
 }
 .rotate-down {
     transform: rotate(90deg);
+}
+.btn-custom {
+	margin-left: 4px;
 }

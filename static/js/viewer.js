@@ -771,17 +771,6 @@ function createAudioElement(audio_object, isBlob) {
     return audio;
 }
 
-// Function to create and configure reply buttons (functionality of replying not implemented)
-function createReplyButton() {
-	const reply = document.createElement('button');
-	const replyIcon = document.createElement('i');
-	replyIcon.className = 'fas fa-reply';
-	reply.appendChild(replyIcon);
-	reply.classList.add('button-large');
-	reply.title = 'Reply to voice comment';
-	return reply;
-}
-
 // Function to create and configure delete buttons
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
@@ -919,75 +908,60 @@ function updateVoiceComments() {
 	}
 	// Displays audio saved in the database
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		for (const user in listOfSavedComments[currentMarkId]) {
-
-			// Loop over each user's voice comments
-			listOfSavedComments[currentMarkId][user].forEach(audio_url => {
-
-				// Call functions for audio + reply button
-				var audio = createAudioElement(audio_url, false);
-				var replyBtn = createReplyButton();
-				var deleteBtn;
-
-				// Delete button can only be seen by the user who uploaded the PDF (subject to change)
-				if (currentUser === fileOwner) {
-					deleteBtn = createDeleteButton(() => {
-
-						// Warn user that deletion is permanent
-						if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
-							var csrftoken = getCookie('csrftoken');
-							var formData = new FormData();
-							formData.append('audio-url', audio_url);
-
-							// Send request to delete audio from backend
-							fetch('/delete_voice_comment/', {
-								method: 'POST',
-								headers: {
-									'X-CSRFToken': csrftoken
-								},
-								body: formData
-							})
-							.then(response => {
-								if (!response.ok) {
-									throw new Error('Error when returning response');
-								}
-								return response.json();
-							})
-							// On successful deletion, remove audio from frontend
-							.then(data => {
-								audio.remove();
-								deleteBtn.remove();
-								const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
-								if (index !== -1) {
-									listOfSavedComments[currentMarkId][user].splice(index, 1);
-								}
-								if (listOfSavedComments[currentMarkId][user].length == 0) {
-									delete listOfSavedComments[currentMarkId][user];
-								}
-								updateVoiceComments();
-							})
-						}
-					});
-				}
-
-				savedRecordings.appendChild(audio);
-				savedRecordings.appendChild(replyBtn);
-
-				if (deleteBtn) {
-					savedRecordings.appendChild(deleteBtn);
-				}
-
-			});
-		}
+		listOfSavedComments[currentMarkId].forEach(vc => {
+			var audio_url = vc.audio_url;
+			var audio = createAudioElement(audio_url, false);
+			var card;
+	
+			var deleteBtn;
+			if (currentUser === fileOwner) {
+				deleteBtn = createDeleteButton(() => {
+					if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+						const csrftoken = getCookie('csrftoken');
+						const formData = new FormData();
+						formData.append('audio-url', audio_url);
+	
+						fetch('/delete_voice_comment/', {
+							method: 'POST',
+							headers: {
+								'X-CSRFToken': csrftoken
+							},
+							body: formData
+						})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('Error when returning response');
+							}
+							return response.json();
+						})
+						.then(data => {
+							card.remove();
+							const index = listOfSavedComments[currentMarkId].findIndex(comment => comment.audio_url === audio_url);
+							if (index !== -1) {
+								listOfSavedComments[currentMarkId].splice(index, 1);
+							}
+							if (listOfSavedComments[currentMarkId].length === 0) {
+								delete listOfSavedComments[currentMarkId];
+							}
+							updateVoiceComments();
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+					}
+				});
+			}
+	
+			card = createCard(vc, audio, deleteBtn);
+			savedRecordings.appendChild(card);
+		});
 	}
+	
 
 	voiceCommentLabel.style.display = 'none';
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		for (const comments of Object.values(listOfSavedComments[currentMarkId])) {
-			if (comments.length > 0) {
-				voiceCommentLabel.style.display = 'flex';
-				break;
-			}
+		if (listOfSavedComments[currentMarkId].length > 0) {
+			voiceCommentLabel.style.display = 'flex';
 		}
 	}
 
@@ -995,6 +969,71 @@ function updateVoiceComments() {
 	updateSaveButton();
 	checkCurrentMark();
 }
+
+function createCard(vc, audio, deleteBtn) {
+    const user = vc.username;
+    const avatar_url = vc.avatar_url;
+    const transcript = vc.transcript;
+    const time_ago = vc.time_ago;
+
+    const card = document.createElement('div');
+
+    const cardTitle = document.createElement('div');
+	const cardSubTitle = document.createElement('div');
+    const cardBody = document.createElement('div');
+    const cardFooter = document.createElement('div');
+    const avatar = document.createElement('img');
+    const username = document.createElement('span');
+    const timestampText = document.createElement('span');
+    const transcriptText = document.createElement('span');
+    const transcriptBtn = document.createElement('button');
+
+    card.classList.add('card', 'mb-3');
+    cardTitle.classList.add('card-title', 'd-flex', 'justify-content-between');
+    cardBody.classList.add('card-body', 'centered-text');
+    cardFooter.classList.add('card-footer');
+    avatar.classList.add('card-img-top');
+    timestampText.classList.add('text-muted', 'text-nowrap');
+
+    avatar.src = avatar_url;
+    username.textContent = user;
+    timestampText.textContent = time_ago;
+    cardSubTitle.appendChild(avatar);
+    cardSubTitle.appendChild(username);
+	cardTitle.appendChild(cardSubTitle);
+    cardTitle.appendChild(timestampText);
+    cardBody.appendChild(audio);
+    cardBody.appendChild(transcriptText);
+    card.appendChild(cardTitle);
+    card.appendChild(cardBody);
+    card.appendChild(cardFooter);
+    
+    if (transcript) {
+		transcriptText.textContent = 'Transcript: ' + transcript;
+	} else {
+		transcriptText.textContent = 'No transcript available';
+	}
+    transcriptText.style.display = "none";
+
+    transcriptBtn.innerHTML = '<i class="fa fa-comment"></i>'
+    transcriptBtn.className = 'btn btn-info btn-custom';
+    
+    cardFooter.appendChild(transcriptBtn);
+    if (deleteBtn) {
+        cardFooter.appendChild(deleteBtn);
+    }
+
+    transcriptBtn.addEventListener('click', function() {
+        if (transcriptText.style.display == "none") {    
+            transcriptText.style.display = "block";
+        } else {
+            transcriptText.style.display = "none";
+        }
+    });
+
+    return card;
+}
+
 
 // this code is only called after setup() function is completed
 document.addEventListener('afterSetup', () => {
@@ -1005,7 +1044,7 @@ document.addEventListener('afterSetup', () => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
 
 			// Do not update the voice comments when clicking buttons located in the voice-comment menu
-			if (!e.target.classList.contains('button-large')) {
+			if (!e.target.classList.contains('btn-info')) {
 				updateVoiceComments();
 			}
 		}
