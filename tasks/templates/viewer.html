@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0">
 <link rel="stylesheet" href="{% static 'css/viewer.css'%}">
+<link rel="stylesheet" href="{% static 'css/voice_comments.css'%}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <link rel="stylesheet" href="{% static 'css/voice_comments.css'%}">
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
@@ -43,7 +44,10 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
-					<p id="testComment" class="centered-text">Select a mark to leave a comment</p>
+					<button id="deleteMarkButton" class="button-large" title="Delete Mark">
+						<i class= "fa solid fa-trash">Delete Mark</i>
+					</button>
+                    <p id="testComment" class="centered-text">Select a mark to leave a comment</p>
 					<div id="voiceRecordContainer">
 
 						<!-- Voice Recording Section -->
