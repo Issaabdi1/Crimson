@@ -1083,6 +1083,10 @@ function createCard(vc, audio, deleteBtn) {
 				resolveBtn.innerHTML = 'Resolved';
 				resolveBtn.disabled = true;
 				resolveBtn.className = 'btn btn-success btn-custom';
+				const commentToUpdate = listOfSavedComments[currentMarkId].find(comment => comment.audio_url == audio_url);
+				if (commentToUpdate) {
+					commentToUpdate.is_resolved = true;
+				}
 			}
 			})
 			.catch(error => {
