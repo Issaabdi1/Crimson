@@ -981,27 +981,26 @@ function updateVoiceComments() {
 }
 
 // Checks voice comment as resolved
-function markAsResolved(audio_url) {
-	let accepted = false;
+async function markAsResolved(audio_url) {
 	if (confirm("Are you sure you want to mark this voice comment as resolved? This action is irreversible.")) {
 		const csrftoken = getCookie('csrftoken');
 		const formData = new FormData();
 		formData.append('audio_url', audio_url);
-		fetch('/mark_as_resolved/', {
+		const response = await fetch('/mark_as_resolved/', {
 			method: 'POST',
 			headers: {
 				'X-CSRFToken': csrftoken
 			},
 			body: formData
-		})
-		.then (() => {
-			accepted = true;
-		})
-		.catch(error => {
-			console.error('Error:', error);
 		});
+		if (response.ok) {
+			return true;
+		} else {
+			console.error('Request failed: ', response.status);
+			return false;
+		}
 	}
-	return accepted;
+	return false;
 }
 
 // Voice comment cards creation
@@ -1078,12 +1077,17 @@ function createCard(vc, audio, deleteBtn) {
     });
 
 	resolveBtn.addEventListener('click', function() {
-		const accepted = markAsResolved(audio_url);
-		if (accepted) {
-			resolveBtn.innerHTML = 'Resolved';
-			resolveBtn.disabled = true;
-			resolveBtn.className = 'btn btn-success btn-custom';
-		}
+		markAsResolved(audio_url)
+			.then(accepted => {
+			if (accepted) {
+				resolveBtn.innerHTML = 'Resolved';
+				resolveBtn.disabled = true;
+				resolveBtn.className = 'btn btn-success btn-custom';
+			}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
 	});
 
     return card;
@@ -1115,7 +1119,6 @@ saveButton.addEventListener('click' , () => {
 
 // Once save is complete, an event is dispatched, calling this function
 document.addEventListener('saveChanges', () => {
-	console.log("AHSDAJSKDHAJSKHDAS")
 	saveButton.innerHTML = 'Save Comments';
 	updateVoiceComments();
 });
