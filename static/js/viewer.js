@@ -55,6 +55,7 @@ var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
 let isMark = false;
+var currentCommentId;
 
 function setup(){
 	//Load all the info and marks into the pdf
@@ -103,9 +104,10 @@ function setup(){
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
 							    comments.forEach(comment => {
+									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
-											<div class="card" style="width: 18rem;">
+											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
 													${comment.commenter}
@@ -135,23 +137,24 @@ function setup(){
 
 								// AJAX request to update the comment
 								$.ajax({
-									url: '/update_comment/', // Your endpoint to update the comment
+									url: '/update_comment/',
 									type: 'POST',
-									data: {
-										'mark_id': currentMarkId,
-										'upload_id': upload_id,
-										'text': commentText
-									},
-									beforeSend: function(xhr, settings) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Handles CSRF token
+									contentType: 'application/json',
+									data: JSON.stringify({
+										comment_id: currentCommentId,
+										text: commentText,
+										mark_id: currentMarkId,
+										upload_id: upload_id
+									}),
+									beforeSend: function(xhr) {
+										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 									},
 									success: function(response) {
 										console.log("Comment updated successfully:", response);
 									},
 									error: function(xhr, status, error) {
-										console.error("Error updating comment:", xhr.status);
-										// Optional: Provide error feedback to the user
-									},
+										console.error("Error updating comment:", error);
+									}
 								});
 							});
 						});
@@ -212,7 +215,7 @@ function renderAfterZoom() {
 							    comments.forEach(comment => {
 									commentsHTML += `
 										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
-											<div class="card" style="width: 18rem;">
+											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
 													${comment.commenter}
@@ -242,23 +245,24 @@ function renderAfterZoom() {
 
 								// AJAX request to update the comment
 								$.ajax({
-									url: '/update_comment/', // Your endpoint to update the comment
+									url: '/update_comment/',
 									type: 'POST',
-									data: {
-										'mark_id': currentMarkId,
-										'upload_id': upload_id,
-										'text': commentText
-									},
-									beforeSend: function(xhr, settings) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Handles CSRF token
+									contentType: 'application/json',
+									data: JSON.stringify({
+										comment_id: currentCommentId,
+										text: commentText,
+										mark_id: currentMarkId,
+										upload_id: upload_id
+									}),
+									beforeSend: function(xhr) {
+										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 									},
 									success: function(response) {
 										console.log("Comment updated successfully:", response);
 									},
 									error: function(xhr, status, error) {
-										console.error("Error updating comment:", xhr.status);
-										// Optional: Provide error feedback to the user
-									},
+										console.error("Error updating comment:", error);
+									}
 								});
 							});
 						});
@@ -1156,6 +1160,10 @@ function saveComment() {
         success: function(response) {
 			console.log("text is:", commentInput)
 			console.log("mark_id is:",  currentMarkId)
+			commentInput.value = "";
+            document.getElementById("inputText").style.display = "none";
+			loadComments(upload_id, mark_id)
+			simulateMarkedSectionClick(currentCommentId)
         },
         error: function(xhr, status, error) {
             console.error("Error saving comment: " + xhr.status);
@@ -1180,11 +1188,44 @@ function deleteComment(commentId) {
         },
         success: function(response) {
             console.log('Comment deleted successfully', response);
-            // Optionally, refresh comments to reflect deletion
-            $('#commentsContainer').empty();
+            // Remove only the deleted comment
+            $(`#textComment-${commentId}`).remove();
+			loadComments(upload_id, mark_id)
         },
         error: function(xhr, status, error) {
             console.error("Error deleting comment:", error);
         }
     });
+}
+
+function loadComments(uploadId, markId) {
+    $.ajax({
+        url: `/get_comments_json/${uploadId}/${markId}/`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            const commentsContainer = document.getElementById("commentsContainer");
+            commentsContainer.innerHTML = '';
+            response.comments.forEach(comment => {
+                const commentElement = document.createElement("div");
+                commentElement.className = "comment";
+                commentElement.id = `comment-${comment.comment_id}`;
+                commentElement.innerHTML = `
+                    <p>${comment.text}</p>
+                    <p>Comment by: ${comment.commenter}</p> 
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Failed to load comments:", error);
+        }
+    });
+}
+
+function simulateMarkedSectionClick(markId) {
+    var markedSection = document.querySelector(`[data-mark-id='${markId}']`);
+    if (markedSection) {
+        markedSection.click();
+    }
 }

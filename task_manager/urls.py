@@ -52,5 +52,7 @@ urlpatterns = [
     path('get_comments/', views.get_comments, name='get_comments'),
     path("save_current_mark_id/", views.save_current_mark_id, name="save_current_mark_id"),
     path("update_comment/", views.update_comment, name="update_comment"),
+    path("get_comments_json/<upload_id>/<mark_id>/", views.get_comments_json, name="get_comments_json"),
+
 
 ]

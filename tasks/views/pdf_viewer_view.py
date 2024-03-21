@@ -211,33 +211,36 @@ def save_current_mark_id(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 
-@csrf_exempt
-def update_comment(request):
-    if request.method == 'POST':
-        mark_id = request.POST.get('mark_id')
-        upload_id = request.POST.get('upload_id')
-        new_text = request.POST.get('text')
-
-        try:
-            comment = Comment.objects.get(mark_id=mark_id, upload_id=upload_id)
-            comment.text = new_text
-            comment.save()
-            return JsonResponse({'success': True, 'message': 'Comment updated successfully'})
-        except Comment.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Comment not found'})
-    else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method'})
-
 
 @require_POST
-@csrf_exempt  # Consider using CSRF token for security
+def update_comment(request):
+    data = json.loads(request.body)
+    comment_id = data.get('comment_id')
+    new_text = data.get('text')
+    try:
+        comment = Comment.objects.get(id=comment_id)
+        comment.text = new_text
+        comment.save()
+        return JsonResponse({'success': True, 'message': 'Comment updated successfully'})
+    except Comment.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Comment not found'}, status=404)
+    except Comment.MultipleObjectsReturned:
+        return JsonResponse({'success': False, 'message': 'Multiple comments found'}, status=400)
+
+@require_POST
+@csrf_exempt
 def delete_text_comment(request):
-    # Assuming you're sending the comment's ID in the request's body
     data = json.loads(request.body)
     comment_id = data.get('id')
-
-    # Authenticate the user and verify permissions if necessary
 
     comment = get_object_or_404(Comment, id=comment_id)
     comment.delete()
     return JsonResponse({'status': 'success', 'message': 'Comment deleted successfully'})
+
+def get_comments_json(request, upload_id, mark_id):
+    comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id)
+    comments_data = list(comments.values(
+        "id", "text", "commenter_id",
+        "commenter",
+    ))
+    return JsonResponse({"comments": comments_data})
