@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification
+from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification, PDFInfo, VoiceComment
 # Register your models here.
 
 
@@ -45,4 +45,18 @@ class NotificationAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for Notifications"""
     list_display = [
         'shared_file_instance', 'user', 'time_of_notification', 'notification_message'
+    ]
+
+@admin.register(PDFInfo)
+class PDFInfoAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for PDFInfo"""
+    list_display = [
+        'upload', 'mark_id'
+    ]
+
+@admin.register(VoiceComment)
+class VoiceCommentAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for VoiceComment"""
+    list_display = [
+        'user', 'upload', 'mark_id'
     ]
