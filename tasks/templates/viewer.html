@@ -107,10 +107,12 @@
 
 						<!-- Text Comment tab -->
 						<div class="tab-pane fade" id="text-pill" role="tabpanel" aria-labelledby="text-pill-tab">
-                            <button class="btn-primary" id="addCommentBtn" onclick="addComment()">+Add Note</button>
-                            <div class="input-group mb-3" id="inputText" style="display: none">
-                                <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>
-                                <button class="btn-primary" onclick="saveComment()">save</button>
+                            <button class="btn-primary p-2" id="addCommentBtn" onclick="addComment()" style="width: 100%">+Add Note</button>
+                            <div class="input-group mb-3 p-2" id="inputText" style="display: none; margin-bottom: 10px">
+                                <textarea id="textArea" type="text" class="form-control" style="width: 100%; padding: 0; border-radius: 15px" placeholder="Add your text comment here..."></textarea>
+                                <div style="text-align: right;">
+                                    <button class="btn-primary p-2" onclick="saveComment()" style="margin-top: 10px;">save</button>
+                                </div>
                             </div>
                             <div id="commentsContainer"></div>
 						</div>

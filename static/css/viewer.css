@@ -48,9 +48,10 @@ body {
 #sidebarViews {
 	position: absolute;
 	inset: 32px 0 0 0;
-	overflow: auto;
-    display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
+	/*overflow: auto;*/
+    display: flex;
+    justify-content: center;
+    background-color: #D8DEE9;
 }
 
 /* Toolbar */
@@ -83,7 +84,7 @@ body {
 	overflow: auto;
     display: flex; /* Use flexbox */
     justify-content: center; /* Center horizontally */
-	background: #6c757d;
+	/*background: #6c757d;*/
 }
 #container
 {
@@ -159,7 +160,6 @@ body {
 	flex-direction: column;
 	align-items: center;
 	margin: 10px;
-	width: 270px;
 	background-color: transparent;
 }
 
@@ -182,7 +182,18 @@ body {
 	border: 5px solid #ACCEF7;
 }
 
+#thumbnailView{
+    overflow: auto;
+    &::-webkit-scrollbar{
+        color: transparent;
+    }
+}
+
 /* Outline view */
+#outlineView{
+    overflow: auto;
+}
+
 #outlineView div {
   background-color: transparent;
 }
@@ -231,22 +242,6 @@ body {
 
 :root {
 	--secondary-color: #422C73;
-}
-
-/* Right sidebar */
-#rightSidebar {
-    position: fixed;
-    top: 200px; /* Adjust as needed */
-    right: 0;
-    width: auto; /* Adjust width as needed */
-    height: auto;
-    background-color: #25D831;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-	border-radius: 30px
 }
 
 #rightSidebar a {
@@ -300,7 +295,7 @@ body {
     padding: 5px; /* Add padding to the card-body */
 }
 
-textarea {
+#textArea {
     width: calc(100% - 10px); /* Adjusted width considering padding */
     height: 100px;
     padding: 5px; /* Padding to match card-body padding */
@@ -346,7 +341,6 @@ textarea:focus {
 .btn-primary{
     display: inline-block;
     outline: 0;
-    border: 0;
     cursor: pointer;
     background-color: white;
     border-radius: 4px;
@@ -370,28 +364,30 @@ textarea:focus {
   font-weight: bold;
   padding-top: 13px;
   text-align: center;
-  background: #343436;
-  color: #fff;
+  background-color: #000;
+  color: #FFFF;
   border-radius: 30px;
   height: 100px;
 
 }
 .nav-pills .nav-link.active{
-  background: #fff;
+  background-color: #fff;
   color: #000;
 }
 .tab-content{
+  display: flex;
   position: absolute;
   margin-top: -50px;
-  width: 100%;
+  width: 99%;
   height: 100%;
-  background: #fff;
+  background-color: #fff;
   color: #000;
   border-radius: 10px;
   z-index: 1000;
   box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
   padding: 30px;
   margin-bottom: 10px;
+  overflow-y: auto;
 }
 
 .button-container {
@@ -407,9 +403,3 @@ textarea:focus {
     top: 0.5rem;
     right: 0.5rem;
 }
-/*.tab-content button{*/
-/*  border-radius: 15px;*/
-/*  width: 100px;*/
-/*  margin: 0 auto;*/
-/*  float: right;*/
-/*}

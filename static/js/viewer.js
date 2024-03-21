@@ -106,7 +106,7 @@ function setup(){
 							    comments.forEach(comment => {
 									currentCommentId = comment.comment_id;
 									commentsHTML += `
-										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
+										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
 											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
@@ -116,7 +116,7 @@ function setup(){
 													</div>
 												</div>
 												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.id}" placeholder="${comment.text}"></textarea></p>
+													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
 												</div>
 												<div class="card-footer text-body-secondary">
 													<button class="btn-primary">save</button>
@@ -214,17 +214,18 @@ function renderAfterZoom() {
 							var commentsHTML = '';
 							    comments.forEach(comment => {
 									commentsHTML += `
-										<div id="textComment-${comment.id}" class="textComment" data-comment-id="${comment.id}">
+										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
 											<div class="card" style="border-radius: 30px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
 													${comment.commenter}
+													${comment.date}
 													<div class="button-container">
 														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
 													</div>
 												</div>
 												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.id}" placeholder="${comment.text}"></textarea></p>
+													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
 												</div>
 												<div class="card-footer text-body-secondary">
 													<button class="btn-primary">save</button>
@@ -241,9 +242,7 @@ function renderAfterZoom() {
 								var textarea = cardBody.querySelector('textarea');
 								var commentText = textarea.value; // Get the current text from the textarea
 								currentMarkId = element.dataset.value;
-								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
 
-								// AJAX request to update the comment
 								$.ajax({
 									url: '/update_comment/',
 									type: 'POST',
@@ -282,7 +281,6 @@ function renderAfterZoom() {
 		});
     }
 }
-
 
 markButton.addEventListener("click", highlightSelectedText);
 var currentStartingElement;
@@ -1147,6 +1145,7 @@ function addComment(){
 
 function saveComment() {
 	var commentInput = document.getElementById("textArea").value;
+	var commentBox = document.getElementById('textArea');
 	console.log("text is:", commentInput)
 	console.log("mark_id is:",  currentMarkId)
     $.ajax({
@@ -1160,7 +1159,7 @@ function saveComment() {
         success: function(response) {
 			console.log("text is:", commentInput)
 			console.log("mark_id is:",  currentMarkId)
-			commentInput.value = "";
+			commentBox.value = '';
             document.getElementById("inputText").style.display = "none";
 			loadComments(upload_id, mark_id)
 			simulateMarkedSectionClick(currentCommentId)
@@ -1191,6 +1190,8 @@ function deleteComment(commentId) {
             // Remove only the deleted comment
             $(`#textComment-${commentId}`).remove();
 			loadComments(upload_id, mark_id)
+			simulateMarkedSectionClick(currentCommentId)
+
         },
         error: function(xhr, status, error) {
             console.error("Error deleting comment:", error);
@@ -1224,8 +1225,12 @@ function loadComments(uploadId, markId) {
 }
 
 function simulateMarkedSectionClick(markId) {
-    var markedSection = document.querySelector(`[data-mark-id='${markId}']`);
-    if (markedSection) {
-        markedSection.click();
+    var markedSections = document.querySelectorAll('.markedSection');
+	console.log('current mark id in simulate mark section',currentMarkId)
+    var targetSection = Array.from(markedSections).find(section => section.dataset.value === currentMarkId);
+
+    if (targetSection) {
+        targetSection.click();
     }
 }
+
