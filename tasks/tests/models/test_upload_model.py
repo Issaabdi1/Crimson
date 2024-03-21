@@ -93,12 +93,19 @@ class UploadModelTestCase(TestCase):
         upload.save()
         self.assertEqual(upload.get_file_size_mb(), 0.0)
 
-    def test_upload_with_no_file_has_empty_name(self):
+    def test_upload_with_no_file_has_empty_name_simple(self):
         mock_file = SimpleUploadedFile(f'test_upload_model_file_other.pdf', b'file size')
         upload = Upload.objects.create(owner=self.user,  file=mock_file)
         upload.file.delete(save=False)
         upload.save()
         self.assertEqual(upload.get_simple_file_name(), '')
+
+    def test_upload_with_no_file_has_empty_name_path(self):
+        mock_file = SimpleUploadedFile(f'test_upload_model_file_other.pdf', b'file size')
+        upload = Upload.objects.create(owner=self.user,  file=mock_file)
+        upload.file.delete(save=False)
+        upload.save()
+        self.assertEqual(upload.get_file_name_without_path(), '')
 
     def test_rename_upload_with_exist_name_should_fail(self):
         with self.assertRaises(ValueError):

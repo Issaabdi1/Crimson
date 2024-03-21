@@ -33,8 +33,9 @@ class Upload(models.Model):
             return self.sharedfiles_set.all()[0].shared_to.all()
         else:
             return None
-        
+
     def rename_file(self, new_name):
+        old_file = self.file
         storage = self.file.storage
 
         with storage.open(self.file.name) as f:
@@ -51,10 +52,11 @@ class Upload(models.Model):
 
         new_file = ContentFile(content)
         storage.save(new_path, new_file)
+        old_file.delete()
 
         self.file.name = new_path
         self.save()
-    
+
     def get_file_size_mb(self):
         """Returns the size of the uploaded file in megabytes (MB)."""
         if self.file:
@@ -67,9 +69,16 @@ class Upload(models.Model):
     def get_simple_file_name(self):
         if self.file:
             original_file_name = self.file.name
-            file_name_without_path = original_file_name.split('/')[-1]
-            simplified_file_name = file_name_without_path.split('_', 1)[0].split('.')[0] + '.' + \
+            simplified_file_name = self.get_file_name_without_path().split('_', 1)[0].split('.')[0] + '.' + \
                                    original_file_name.split('.')[-1]
             return simplified_file_name
+        else:
+            return ""
+
+    def get_file_name_without_path(self):
+        if self.file:
+            original_file_name = self.file.name
+            file_name_without_path = original_file_name.split('/')[-1]
+            return file_name_without_path
         else:
             return ""

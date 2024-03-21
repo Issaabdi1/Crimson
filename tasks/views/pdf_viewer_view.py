@@ -9,8 +9,6 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 import base64, json, uuid
 
-
-
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""
@@ -27,7 +25,6 @@ def viewer(request):
                     #get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload = upload)
                     mark = PDFInfo.objects.get(upload = upload)
-                    print("List of omments is ", mark.listOfComments)
                     # Generate saved comments dictionary (2D Dictionary)
                     # outer key is mark ID inner key is user)
                     allVoiceComments = VoiceComment.objects.filter(upload=upload)
@@ -99,7 +96,7 @@ def save_pdf_comments(request):
         else:
             return JsonResponse({}, status=404)
     return JsonResponse({})
-
+            
 def delete_voice_comment(request):
     if request.method == "POST":
         audio_url = request.POST.get('audio-url')
@@ -119,3 +116,4 @@ def delete_voice_comment(request):
             else:
                 return JsonResponse({}, status=404)
     return JsonResponse({})
+

@@ -62,10 +62,9 @@ function setup(){
 	if(savedMarks!=""){
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
 		var jsonString = decodeEntities(marksListOfSpans);//"{{marks.listOfSpans}}");
-		var dict = JSON.parse(jsonString);
+		var dict = JSON.parse(jsonString).filter(entry => entry !== null);
 		listOfComments = JSON.parse(decodeEntities(marksListOfComments));//"{{marks.listOfComments}}"))
 		//go through list now
-
 
 		dict.forEach((entry)=>{
 
@@ -83,14 +82,26 @@ function setup(){
 			//add to marked spans
 			var str = html;
 			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:indexOfSpan, html: str});
+			listOfMarkedSpans.push({index:indexOfSpan, html: str,dataWidth: dataWidth});
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
+				// This changes the colour of the selected span to orange and changes back the old one
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
+				}
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 		
@@ -119,9 +130,25 @@ function renderAfterZoom(){
 			element.addEventListener('click', () => {
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+
+				// This changes the colour of the selected span to orange and changes back the old one
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
+				}
+				currentMarkId = element.dataset.value;
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 	}
+	document.dispatchEvent(setupEvent);
 }
 
 
@@ -252,6 +279,10 @@ function highlightSelectedText(event) {
     var endIndex = textLayerSpans.indexOf(endingElement.parentNode);
     var elementsList = textLayerSpans.slice(startIndex, endIndex + 1);
 
+	//create a new mark
+	var newMark = new Mark();
+	var count = 0;
+
     // Process each element in the selection
     elementsList.forEach((element) => {
         var partEnd = Math.min(offset + totalLength, element.textContent.length);
@@ -261,27 +292,32 @@ function highlightSelectedText(event) {
         offset = 0; // Reset offset for the next span
     });
 
-    // Create a new mark
-    var newMark = new Mark();
-    var count = 0;
-
-    // Iterate over each selected part
-    selectedParts.forEach(part => {
-        var highlightedSpan = highlightSpan(part.start, part.end, part.span, count === 0);
-        highlightedSpan.dataset.value = newMark.getId();
-
-        // Add event listener
-        highlightedSpan.addEventListener('click', () => {
-            currentMarkId = highlightedSpan.dataset.value;
-            document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
-        });
-
-        count += 1;
+	// Iterate over each selected part
+	selectedParts.forEach(part => {
+		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
+		highlightedSpan["highlightSpan"].dataset.value = newMark.getId();
+		highlightedSpan["spacesSpan"].dataset.value = newMark.getId();
+		//add event listener
+		highlightedSpan["highlightSpan"].addEventListener('click', () => {
+			// //  Handle click event (e.g., open a modal, execute a function, etc.)
+			if(currentMarkId && currentMarkId !== highlightedSpan["highlightSpan"].dataset.value){
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'yellow';
+				})
+			}
+			currentMarkId = highlightedSpan["highlightSpan"].dataset.value;
+			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan["highlightSpan"].dataset.value;
+			
+			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+				e.style.backgroundColor = 'orange';
+			})
+			savePdfChanges(false);
+		});
+		count+=1;
 
         // Measure and record the width of the highlighted span
-        const rect = highlightedSpan.getBoundingClientRect();
+        const rect = highlightedSpan["highlightSpan"].getBoundingClientRect();
         console.log("Measured width:", rect.width);
-
 
 		var highlightSpanRegex = /<span class=\\\"highlight text\\\">(.*?)<\/span>/g;
 
@@ -356,7 +392,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
-	return highlightSpan;
+	return {"highlightSpan": highlightSpan, "spacesSpan":spacesSpan};
 }
 
 
@@ -454,31 +490,65 @@ function savePdfChanges(){
 	var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 	var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
 
-	//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
-	var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+//Send the data to the database
+async function savePdfChanges(saveCommentsFlag){
 	const xhttp = new XMLHttpRequest();
-	//When the request has been dealt with, get the response
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == XMLHttpRequest.DONE) {
-			var response = JSON.parse(xhttp.response);
-			
-		}
-	};
 
 	let formData = new FormData();
 	formData.append('upload_id', upload_id);
-	formData.append('mark_id', Mark.instanceCount);
-	formData.append('listOfComments', listOfCommentsJson);
-	formData.append('listOfSpans', listOfMarkedSpansJson);
 
-
-	xhttp.open("POST", "/save_pdf_marks/", true); 
 	// Get CSRF token from cookie
 	let csrftoken = getCookie('csrftoken');
+	
+	if (!saveCommentsFlag) {
+		var listOfMarkedSpansJson = JSON.stringify(listOfMarkedSpans);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+		var listOfCommentsJson = JSON.stringify(listOfComments);//JSON.stringify([listOfMarkedSpans[0].innerHTML]);//listOfMarkedSpans);
+	
+		//pass parameters through url + "&listOfMarks=" + listOfMarksJson 
+		var parameters = "?upload_id=" + upload_id  + "&mark_id=" + Mark.instanceCount  + "&listOfComments=" + listOfCommentsJson + "&listOfSpans=" + listOfMarkedSpansJson;
+		formData.append('mark_id', Mark.instanceCount);
+		formData.append('listOfComments', listOfCommentsJson);
+		formData.append('listOfSpans', listOfMarkedSpansJson);
+		xhttp.open("POST", "/save_pdf_marks/", true); 
+	} else {
+		var listOfVoiceCommentsJson = {};
+		// Convert audio into base64 to be compatible with JSON
+		for (const markId in listOfVoiceComments) {
+			if (listOfVoiceComments.hasOwnProperty(markId)) {
+				const blobs = listOfVoiceComments[markId];
+				const base64array = blobs.map(blob => {
+					return new Promise ((resolve) => {
+						const reader = new FileReader();
+						reader.onload = () => {
+							const b64string = reader.result.split(',')[1];
+							resolve(addPadding(b64string));
+						};
+						reader.readAsDataURL(blob);
+					});
+				});
+				listOfVoiceCommentsJson[markId] = await Promise.all(base64array);
+			}
+		}
+		var listOfVoiceCommentsJsonString = JSON.stringify(listOfVoiceCommentsJson);
+		formData.append('voice-comment-list', listOfVoiceCommentsJsonString);
+		xhttp.open("POST", "/save_pdf_comments/", true);
+	}
 
 	// Set CSRF token in request header
 	xhttp.setRequestHeader("X-CSRFToken", csrftoken);
 	xhttp.send(formData);
+
+	//When the request has been dealt with, clear the dictionary
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			if (this.status === 200) {
+				listOfVoiceComments = {};
+				if (saveCommentsFlag) {
+					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
+				}
+			}
+		}
+	};
 
 	return true; //Show the request has been sent successfully
 }
@@ -523,7 +593,6 @@ function searchForTerm(term) {
 		
         //if there was replacement (so a change in the string)
         if (highlightedContent !== contentToSearch) {
-
 			clonedNode.innerHTML = highlightedContent;
 			clonedNode.classList.add("clonedFindSpans")
 			clonedNode.style.pointerEvents = "none";
@@ -617,6 +686,38 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 });
 
 
+/* Deleting Marks Javascript */
+const deleteMarkButton = document.getElementById('deleteMarkButton');
+deleteMarkButton.addEventListener('click', deleteMark);
+
+function deleteMark() {
+    // Ensure that a mark is selected
+    if (currentMarkId !== undefined && currentMarkId !== null) {
+        // Remove the span from the DOM
+        document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+			var parentElement = e.parentElement;
+			e.remove();
+			joinUpAdjacentTextNodes(parentElement);
+		})
+
+        // Remove the mark's data from listOfMarkedSpans
+		listOfMarkedSpans = listOfMarkedSpans.filter(mark => !mark.html.includes(`data-value=\\"${currentMarkId}\\"`));//1
+
+
+        // Remove the mark's comment from listOfComments
+        delete listOfComments[currentMarkId];
+
+        // Optionally, remove the mark's voice comments from listOfVoiceComments
+        delete listOfVoiceComments[currentMarkId];
+
+		console.log('listOfMarkedSpans',listOfMarkedSpans);
+		console.log('listOfComments',listOfComments);
+		console.log('listOfVoiceComments',listOfVoiceComments);
+        // Clear the current mark ID
+        currentMarkId = null;
+		savePdfChanges(false);
+    }
+}
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
@@ -834,11 +935,9 @@ function updateVoiceComments() {
 				chunks = [];
 				updateSaveButton();
 			});
-
 			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-
 		});
 	}
 	// Displays audio saved in the database
@@ -939,7 +1038,6 @@ document.addEventListener('afterSetup', () => {
 	// Call update everytime a button / marked section is clicked
 	document.addEventListener('click', e => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
-
 			// Do not update the voice comments when clicking buttons located in the voice-comment menu
 			if (!e.target.classList.contains('button-large')) {
 				updateVoiceComments();

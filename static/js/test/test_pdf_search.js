@@ -74,4 +74,3 @@ QUnit.module('Utilities', {
     const foundPositions = searchForTerm(term);
     assert.equal(foundPositions.length, 0, 'No terms are found when they do not exist in the text.');
   });
-  
