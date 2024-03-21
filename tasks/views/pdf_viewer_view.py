@@ -57,7 +57,8 @@ def viewer(request):
                                 'avatar_url': vc.user.avatar_url,
                                 'audio_url': vc.audio.url,
                                 'transcript': vc.transcript,
-                                'time_ago': timesince(vc.timestamp) + ' ago'
+                                'time_ago': timesince(vc.timestamp) + ' ago',
+                                'is_resolved': vc.is_resolved
                             })
                         context['listOfSavedComments'] = json.dumps(listOfSavedComments)
             except Upload.DoesNotExist:
@@ -129,7 +130,8 @@ def save_voice_comments(request):
                         'avatar_url': saved_comment.user.avatar_url,
                         'audio_url': saved_comment.audio.url,
                         'transcript': saved_comment.transcript,
-                        'time_ago': timesince(saved_comment.timestamp) + ' ago'
+                        'time_ago': timesince(saved_comment.timestamp) + ' ago',
+                        'is_resolved': saved_comment.is_resolved
                     })
             return JsonResponse({'recentlySavedComments': saved_comments})
         else:
@@ -155,6 +157,20 @@ def delete_voice_comment(request):
                 voice_comment.delete()
             else:
                 return JsonResponse({}, status=404)
+    return JsonResponse({})
+
+def mark_as_resolved(request):
+    if request.method == "POST":
+        audio_url = request.POST.get('audio_url')
+        if audio_url is not None:
+            voice_comment = None
+            for vc in VoiceComment.objects.all():
+                if audio_url == vc.audio.url:
+                    voice_comment = vc
+                    break
+            if voice_comment is not None:
+                voice_comment.is_resolved = True
+                voice_comment.save()
     return JsonResponse({})
 
 

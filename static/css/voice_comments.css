@@ -75,5 +75,8 @@ audio::-webkit-media-controls-overflow-button {
     transform: rotate(90deg);
 }
 .btn-custom {
-	margin-left: 4px;
+	height: 29px;
+	margin-right: 6px;
+	display: flex;
+    align-items: center;
 }

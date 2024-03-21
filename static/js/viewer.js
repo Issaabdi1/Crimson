@@ -785,7 +785,7 @@ function createAudioElement(audio_object, isBlob) {
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
 	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'
-	deleteBtn.className = 'btn btn-danger btn-custom';
+	deleteBtn.className = 'btn btn-danger';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -980,14 +980,35 @@ function updateVoiceComments() {
 	checkCurrentMark();
 }
 
+// Checks voice comment as resolved
+function markAsResolved(audio_url) {
+	if (confirm("Are you sure you want to mark this voice comment as resolved? This action is irreversible.")) {
+		const csrftoken = getCookie('csrftoken');
+		const formData = new FormData();
+		formData.append('audio_url', audio_url);
+		fetch('/mark_as_resolved/', {
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': csrftoken
+			},
+			body: formData
+		})
+		.catch(error => {
+			console.error('Error:', error);
+		});
+	}
+}
+
+// Voice comment cards creation
 function createCard(vc, audio, deleteBtn) {
     const user = vc.username;
     const avatar_url = vc.avatar_url;
     const transcript = vc.transcript;
     const time_ago = vc.time_ago;
+	const is_resolved = vc.is_resolved;
+	const audio_url = vc.audio_url;
 
     const card = document.createElement('div');
-
     const cardTitle = document.createElement('div');
 	const cardSubTitle = document.createElement('div');
     const cardBody = document.createElement('div');
@@ -997,6 +1018,7 @@ function createCard(vc, audio, deleteBtn) {
     const timestampText = document.createElement('span');
     const transcriptText = document.createElement('span');
     const transcriptBtn = document.createElement('button');
+	const resolveBtn = document.createElement('button');
 
     card.classList.add('card', 'mb-3');
     cardTitle.classList.add('card-title', 'd-flex', 'justify-content-between');
@@ -1024,10 +1046,19 @@ function createCard(vc, audio, deleteBtn) {
 		transcriptText.textContent = 'No transcript available';
 	}
     transcriptText.style.display = "none";
-
     transcriptBtn.innerHTML = '<i class="fa fa-comment"></i>'
     transcriptBtn.className = 'btn btn-info btn-custom';
+
+	if (is_resolved) {
+		resolveBtn.innerHTML = 'Resolved';
+        resolveBtn.disabled = true;
+        resolveBtn.className = 'btn btn-success btn-custom';
+	} else {
+		resolveBtn.innerHTML = '<i class="fa fa-check"></i> &nbsp;Resolve';
+        resolveBtn.className = 'btn btn-outline-success btn-custom';
+	}
     
+	cardFooter.appendChild(resolveBtn);
     cardFooter.appendChild(transcriptBtn);
     if (deleteBtn) {
         cardFooter.appendChild(deleteBtn);
@@ -1040,6 +1071,13 @@ function createCard(vc, audio, deleteBtn) {
             transcriptText.style.display = "none";
         }
     });
+
+	resolveBtn.addEventListener('click', function() {
+		markAsResolved(audio_url);
+		resolveBtn.innerHTML = 'Resolved';
+        resolveBtn.disabled = true;
+        resolveBtn.className = 'btn btn-success btn-custom';
+	});
 
     return card;
 }
@@ -1054,7 +1092,7 @@ document.addEventListener('afterSetup', () => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
 
 			// Do not update the voice comments when clicking buttons located in the voice-comment menu
-			if (!e.target.classList.contains('btn-info')) {
+			if (!e.target.classList.contains('btn-custom')) {
 				updateVoiceComments();
 			}
 		}
