@@ -587,13 +587,14 @@ async function savePdfChanges(saveCommentsFlag){
 					listOfVoiceComments = {};
 					const response = JSON.parse(this.responseText);
 					const recentlySavedComments = response.recentlySavedComments;
-					recentlySavedComments[currentMarkId].forEach(comment => {
-						console.log(comment);
-						if (!(currentMarkId in listOfSavedComments)) {
-							listOfSavedComments[currentMarkId] = [];
+					for (const markId in recentlySavedComments) {
+						for (const comment of recentlySavedComments[markId]) {
+							if (!(markId in listOfSavedComments)) {
+								listOfSavedComments[markId] = [];
+							}
+							listOfSavedComments[markId].push(comment);
 						}
-						listOfSavedComments[currentMarkId].push(comment);
-					});
+					}
 					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
 				}
 			}
