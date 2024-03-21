@@ -90,8 +90,20 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element =>{
 			element.addEventListener('click', () => {
+				// This changes the colour of the selected span to orange and changes back the old one
+				if(currentMarkId && currentMarkId !== element.dataset.value){
+					document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+						e.style.backgroundColor = 'yellow';
+					})
+				}
 				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];			
+				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+				
+
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'orange';
+				})
+				savePdfChanges(false);
 			});
 		})
 		
@@ -272,28 +284,6 @@ function highlightSelectedText(event) {
 	//create a new mark
 	var newMark = new Mark();
 	var count = 0;
-	// Iterate over each selected part
-	selectedParts.forEach(part => {
-		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
-		highlightedSpan.dataset.value = newMark.getId();
-		//add event listener
-		highlightedSpan.addEventListener('click', () => {
-			// //  Handle click event (e.g., open a modal, execute a function, etc.)
-			if(currentMarkId && currentMarkId !== highlightedSpan.dataset.value){
-				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
-					e.style.backgroundColor = 'yellow';
-				})
-			}
-			currentMarkId = highlightedSpan.dataset.value;
-			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan.dataset.value;
-			
-			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
-				e.style.backgroundColor = 'orange';
-			})
-			savePdfChanges(false);
-		});
-		count+=1;
-	});
 
     // Process each element in the selection
     elementsList.forEach((element) => {
@@ -304,25 +294,31 @@ function highlightSelectedText(event) {
         offset = 0; // Reset offset for the next span
     });
 
-    // Create a new mark
-    var newMark = new Mark();
-    var count = 0;
-
-    // Iterate over each selected part
-    selectedParts.forEach(part => {
-        var highlightedSpan = highlightSpan(part.start, part.end, part.span, count === 0);
-        highlightedSpan.dataset.value = newMark.getId();
-
-        // Add event listener
-        highlightedSpan.addEventListener('click', () => {
-            currentMarkId = highlightedSpan.dataset.value;
-            document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
-        });
-
-        count += 1;
+	// Iterate over each selected part
+	selectedParts.forEach(part => {
+		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
+		highlightedSpan["highlightSpan"].dataset.value = newMark.getId();
+		highlightedSpan["spacesSpan"].dataset.value = newMark.getId();
+		//add event listener
+		highlightedSpan["highlightSpan"].addEventListener('click', () => {
+			// //  Handle click event (e.g., open a modal, execute a function, etc.)
+			if(currentMarkId && currentMarkId !== highlightedSpan["highlightSpan"].dataset.value){
+				document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+					e.style.backgroundColor = 'yellow';
+				})
+			}
+			currentMarkId = highlightedSpan["highlightSpan"].dataset.value;
+			document.getElementById('testComment').textContent = "This comment was made by mark " + highlightedSpan["highlightSpan"].dataset.value;
+			
+			document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+				e.style.backgroundColor = 'orange';
+			})
+			savePdfChanges(false);
+		});
+		count+=1;
 
         // Measure and record the width of the highlighted span
-        const rect = highlightedSpan.getBoundingClientRect();
+        const rect = highlightedSpan["highlightSpan"].getBoundingClientRect();
         console.log("Measured width:", rect.width);
 
 		var highlightSpanRegex = /<span class=\\\"highlight text\\\">(.*?)<\/span>/g;
@@ -399,7 +395,7 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately. 
-	return highlightSpan;
+	return {"highlightSpan": highlightSpan, "spacesSpan":spacesSpan};
 }
 
 
@@ -706,7 +702,9 @@ function deleteMark() {
     if (currentMarkId !== undefined && currentMarkId !== null) {
         // Remove the span from the DOM
         document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
+			var parentElement = e.parentElement;
 			e.remove();
+			joinUpAdjacentTextNodes(parentElement);
 		})
 
         // Remove the mark's data from listOfMarkedSpans
@@ -727,6 +725,24 @@ function deleteMark() {
 		savePdfChanges(false);
     }
 }
+
+function joinUpAdjacentTextNodes(parentElement){
+	//join up adjacent text nodes together (so they aren't separate)
+	var childNodes = parentElement.childNodes;
+	for (var i = 0; i < childNodes.length - 1; i++) {
+		if (childNodes[i].nodeType === Node.TEXT_NODE && childNodes[i + 1].nodeType === Node.TEXT_NODE) {
+			// Combine the text of adjacent text nodes
+			var combinedText = childNodes[i].nodeValue + childNodes[i + 1].nodeValue;
+			// Replace the first text node with the combined text
+			childNodes[i].nodeValue = combinedText;
+			// Remove the next text node
+			parentElement.removeChild(childNodes[i + 1]);
+			// Decrement the index since we removed a node
+			i--;
+		}
+	}
+}
+
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
