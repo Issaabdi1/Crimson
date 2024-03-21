@@ -51,6 +51,7 @@ function decodeEntities(encodedString) {
 var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
+var listOfSavedComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
@@ -584,6 +585,15 @@ async function savePdfChanges(saveCommentsFlag){
 			if (this.status === 200) {
 				if (saveCommentsFlag) {
 					listOfVoiceComments = {};
+					const response = JSON.parse(this.responseText);
+					const recentlySavedComments = response.recentlySavedComments;
+					recentlySavedComments[currentMarkId].forEach(comment => {
+						console.log(comment);
+						if (!(currentMarkId in listOfSavedComments)) {
+							listOfSavedComments[currentMarkId] = [];
+						}
+						listOfSavedComments[currentMarkId].push(comment);
+					});
 					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
 				}
 			}
@@ -725,7 +735,6 @@ const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
 const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match =>
   String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
 );
-var listOfSavedComments = {};
 if (decodedJSONString) {
 	listOfSavedComments= JSON.parse(decodedJSONString);
 }
@@ -1060,9 +1069,9 @@ saveButton.addEventListener('click' , () => {
 
 // Once save is complete, an event is dispatched, calling this function
 document.addEventListener('saveChanges', () => {
+	console.log("AHSDAJSKDHAJSKHDAS")
 	saveButton.innerHTML = 'Save Comments';
 	updateVoiceComments();
-	location.reload();
 });
 
 // Clicking a marked section directs user to viewComments tab
@@ -1121,7 +1130,6 @@ function saveComment() {
             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
     });
-	savePdfChanges(true)
 }
 
 

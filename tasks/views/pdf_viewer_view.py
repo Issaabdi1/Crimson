@@ -107,6 +107,7 @@ def save_voice_comments(request):
         upload = Upload.objects.get(id=upload_id)
         user = request.user
         if upload and voice_comment_list:
+            saved_comments = {}
             for mark_id in voice_comment_list:
                 for voice_comment_data in voice_comment_list[mark_id]:
                     voice_comment = voice_comment_data.get("blob")
@@ -114,13 +115,23 @@ def save_voice_comments(request):
                     filename = f"{uuid.uuid4()}.wav"
                     voice_comment_decode = base64.b64decode(voice_comment)
                     audio_file = ContentFile(voice_comment_decode, name=filename)
-                    VoiceComment.objects.create(
+                    saved_comment = VoiceComment.objects.create(
                         user=user,
                         upload=upload,
                         mark_id=mark_id,
                         audio=audio_file,
                         transcript=transcript
                     )
+                    if mark_id not in saved_comments:
+                        saved_comments[mark_id] = []
+                    saved_comments[mark_id].append({
+                        'username': saved_comment.user.username,
+                        'avatar_url': saved_comment.user.avatar_url,
+                        'audio_url': saved_comment.audio.url,
+                        'transcript': saved_comment.transcript,
+                        'time_ago': timesince(saved_comment.timestamp) + ' ago'
+                    })
+            return JsonResponse({'recentlySavedComments': saved_comments})
         else:
             return JsonResponse({}, status=404)
     return JsonResponse({})
