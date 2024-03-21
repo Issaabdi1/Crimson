@@ -2,34 +2,52 @@
 
 /* This function is run when the delete button or the dismiss all button is pressed
 * Runs view to delete the relevant notifications, and then gets back the updated notification list  
-*/ 
-function delete_notifications(id, forTests = false){
+*/
+function delete_notifications(id, forTests = false) {
     //pass parameters through url
     var parameters = "?notification_id=" + id + "&forTests=" + forTests;
     console.log(forTests);
-    const xhttp = new XMLHttpRequest();
-    //When the request has been dealt with, get the response
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == XMLHttpRequest.DONE) {
-            var response = JSON.parse(xhttp.response);
-            //If there are no more notifications, disable the dismiss all button
-            if(response['notifications'].length <=0){
-              var element = document.querySelector('#dismiss-notifications');
-              element.style.display = "none";
-            }
+    var notificationCards = document.querySelectorAll('.notification-card');
+    notificationCards.forEach(card => {
+        if (card.getAttribute("data-id") === id) {
+            card.remove();
         }
-    };
-    xhttp.open("GET", "/process_notification_delete/" + parameters); 
+    });
+    console.log(id)
+    if (notificationCards.length <= 1) {
+        var element = document.querySelector('#dismiss-notifications');
+        element.style.display = "none";
+    } else {
+        // Add a notification placeholder.
+        const newNotificationCard = document.createElement('div');
+        newNotificationCard.classList.add('card', 'card-body', 'mb-3', 'notification-card');
+        newNotificationCard.id = 'closeable-card';
+        newNotificationCard.style.display = 'none';
+        newNotificationCard.dataset.id = '99999';
+        const notificationCardsContainer = notificationCards[0].parentElement;
+        notificationCardsContainer.insertBefore(newNotificationCard, notificationCards[0]);
+    }
+    //Send the deletion request asynchronously
+    // fetch(`/process_notification_delete/` + parameters)
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log("Notification deletion request processed:", data);
+    //     })
+    //     .catch(error => {
+    //         console.error("Error deleting notification:", error);
+    //     });
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/process_notification_delete/" + parameters);
     xhttp.send();
     return true; //Show the request has been sent successfully
-  }
+}
 
-  //Add listener to every remove notification button to run the above method
-  const btns = document.querySelectorAll('#remove-notification');
+//Add listener to every remove notification button to run the above method
+const btns = document.querySelectorAll('#remove-notification');
 
-  btns.forEach(btn => {
+btns.forEach(btn => {
     btn.addEventListener('click', event => {
-      delete_notifications(btn.getAttribute("value"));
+        delete_notifications(btn.getAttribute("value"));
     });
 
-  });
+});

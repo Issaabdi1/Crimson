@@ -36,8 +36,12 @@
         {% endif %}
         <!--List of notifications-->
         <div class="all-notifications mt-3" id="notis">
+            <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px; display:none"
+                 data-id="99999">
+            </div>
             {% for notification in notifications %}
-                <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;" data-id="{{ notification.id }}">
+                <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;"
+                     data-id="{{ notification.id }}">
                     <div class="row g-0">
                         <div class="col-12">
                             <div class="delete-button">
@@ -48,7 +52,8 @@
                             </div>
                         </div>
                         <div class="col-12 mt-2" style="overflow-x: hidden;">
-                            <h5 class="card-title fs-6" style="margin:10px">{{ notification.notification_message }} {{ notification.id }}</h5>
+                            <h5 class="card-title fs-6"
+                                style="margin:10px">{{ notification.notification_message }} {{ notification.id }}</h5>
                             {% if user in notification.shared_file_instance.shared_to.all %}
                                 <form method="post" action="{% url 'pdf_viewer' %}" target="_blank">
                                     {% csrf_token %}

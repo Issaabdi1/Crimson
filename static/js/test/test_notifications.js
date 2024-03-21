@@ -46,8 +46,9 @@ QUnit.module('notifications', {
         //Wait for a time, and assert that the dismiss all button has disappeared
         setTimeout(function() {
             // Check that the dismiss all button is hidden
-            assert.equal(display.style.display, "none");
-    
+            console.log("this is"+display);
+            assert.equal(delete_all_button.style.display, "none");
+
             // Call done to signal that the test is complete
             done();
         }, 1000); // Wait for 1000 milliseconds (1 second)
