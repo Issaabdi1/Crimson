@@ -86,6 +86,7 @@ function setup(){
 		//the code currently changes the text of a test element
 		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
+				document.getElementById('addCommentBtn').disabled = false;
 				isMark = true;
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
@@ -195,6 +196,7 @@ function renderAfterZoom() {
         // Add click event listener for all highlighted spans to handle comment updates
        		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
+				document.getElementById('addCommentBtn').disabled = false;
 				isMark = true;
 				currentMarkId = element.dataset.value;
 				document.getElementById('testComment').textContent = listOfComments[currentMarkId];

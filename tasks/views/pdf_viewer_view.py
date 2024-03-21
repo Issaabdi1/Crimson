@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from tasks.models import Comment
 from django.shortcuts import HttpResponse
-from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render
@@ -185,7 +184,8 @@ def get_comments(request):
             'commenter': comment.commenter.username,
             'avatar_url': comment.commenter.avatar_url,
             'text': comment.text,
-            'comment_id': comment.id
+            'comment_id': comment.id,
+            'date': comment.date.isoformat(),
         } for comment in comments])
         print(comments_json)
 
