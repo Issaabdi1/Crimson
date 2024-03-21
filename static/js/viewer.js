@@ -881,45 +881,6 @@ function checkCurrentMark() {
 	}
 }
 
-// Functions to create user label, button and menu to sort voice comments
-function createUserLabel (user, markId, userBtn) {
-	const userLabel = document.createElement('div');
-	userLabel.id = 'userLabel_' + user + markId;
-	userLabel.appendChild(userBtn);
-	userLabel.appendChild(document.createTextNode(` ${user}`));
-	return userLabel;
-}
-
-function createUserButton (user, markId) {
-	const userButton = document.createElement('div');
-	userButton.id = 'userButton_' + user + markId;
-	userButton.classList.add('collapse-button');
-	const chevron = document.createElement('i');
-	chevron.className = 'fas fa-chevron-right';
-	userButton.appendChild(chevron);
-
-	// Embed event listener to toggle correct menu
-	userButton.addEventListener('click', function() {
-		const userMenu = document.getElementById('userMenu_' + user + markId);
-        if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
-            userMenu.style.display = "block";
-            userButton.classList.add("rotate-down");
-        } else {
-            userMenu.style.display = "none";
-            userButton.classList.remove("rotate-down");
-        }
-	});
-
-	return userButton;
-}
-
-function createUserMenu (user, markId) {
-	const userMenu = document.createElement('div');
-	userMenu.id = 'userMenu_' + user + markId;
-	userMenu.style.display = 'none';
-	return userMenu;
-}
-
 // Updates voice comments in current recordings and saved recordings dynamically
 function updateVoiceComments() {
 	allRecordings.innerHTML = '';
@@ -959,15 +920,6 @@ function updateVoiceComments() {
 	// Displays audio saved in the database
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
 		for (const user in listOfSavedComments[currentMarkId]) {
-
-			// Create collapsible button for each user
-			const userButton = createUserButton(user, currentMarkId);
-
-			// Create user menu for each user
-			const userMenu = createUserMenu(user, currentMarkId);
-
-			// Create user label to store user and button
-			const userLabel = createUserLabel(user, currentMarkId, userButton);
 
 			// Loop over each user's voice comments
 			listOfSavedComments[currentMarkId][user].forEach(audio_url => {
@@ -1018,17 +970,14 @@ function updateVoiceComments() {
 					});
 				}
 
-				userMenu.appendChild(audio);
-				userMenu.appendChild(replyBtn);
+				savedRecordings.appendChild(audio);
+				savedRecordings.appendChild(replyBtn);
 
 				if (deleteBtn) {
-					userMenu.appendChild(deleteBtn);
+					savedRecordings.appendChild(deleteBtn);
 				}
 
 			});
-
-			savedRecordings.appendChild(userLabel);
-			savedRecordings.appendChild(userMenu);
 		}
 	}
 
@@ -1068,13 +1017,13 @@ document.addEventListener('afterSetup', () => {
 saveButton.addEventListener('click' , () => {
 	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
 	savePdfChanges(true);
-	location.reload();
 });
 
 // Once save is complete, an event is dispatched, calling this function
 document.addEventListener('saveChanges', () => {
 	saveButton.innerHTML = 'Save Comments';
 	updateVoiceComments();
+	location.reload();
 });
 
 // Clicking a marked section directs user to viewComments tab

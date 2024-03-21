@@ -11,12 +11,9 @@
 	align-items: center;
 	margin: 5px 5px;
 }
-#recordings > *, #savedRecordings > div[id^="userMenu_"] > * {
+#recordings > *, #savedRecordings > * {
 	display: inline-block;
 	vertical-align: middle;
-}
-div[id^="userMenu_"] {
-	text-align: center;
 }
 #saveContainer {
 	display: flex;
@@ -52,28 +49,34 @@ audio::-webkit-media-controls-overflow-button {
 }
 
 /* Collapsible Menu CSS */
-#voiceCommentLabel, div[id^="userLabel_"] {
+#voiceCommentLabel {
 	display: flex;
-	padding-bottom: 5px;
     align-items: center;
 	justify-content: center;
+	margin: 8px 0 8px;
 	width: 100%;
-}
-.collapse-button {
-	width: 18px;
-	height: 18px;
-	border-radius: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	box-shadow: rgba(0, 0, 0, 0.2) 2px 2px 2px;
+	border-radius: 10px;
 	cursor: pointer;
-	transition: transform 0.5s ease, background-color 0.5s ease; 
+	transition: background-color 0.5s ease;
+	font-weight: 600;
 }
-.collapse-button:hover {
+#collapseButton {
+	transition: transform 0.5s ease;
+}
+#collapseContainer {
+	width: 20px;
+	height: 20px;
+	display: flex;
+    align-items: center;
+	justify-content: center;
+	margin-top: 1px;
+}
+#voiceCommentLabel:hover {
 	background-color: #D8DEE4;
 }
-.fa-chevron-right {
-	font-size: 0.75em;
+.fa-angle-right {
+	font-size: 0.9em;
 }
 .rotate-down {
     transform: rotate(90deg);
