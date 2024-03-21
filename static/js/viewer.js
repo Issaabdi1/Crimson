@@ -70,8 +70,6 @@ function setup(){
 
 			var indexOfSpan = entry["index"];
 			var html = entry["html"];
-			//add dataWidth attribute
-			var dataWidth = entry["dataWidth"];
 			//console.log("original htkl is", html);
 			var span = fromHTML(html);//JSON.parse(testList));
 			//console.log(span);
@@ -84,7 +82,7 @@ function setup(){
 			//add to marked spans
 			var str = html;
 			str = str.replace(/"/g, '\\"');
-			listOfMarkedSpans.push({index:indexOfSpan, html: str,dataWidth: dataWidth});
+			listOfMarkedSpans.push({index:indexOfSpan, html: str});
 		})
 		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
 		//the code currently changes the text of a test element
@@ -334,7 +332,6 @@ function highlightSelectedText(event) {
         listOfMarkedSpans.push({
             index: textLayerSpans.indexOf(part.span),
             html: str,
-            dataWidth: rect.width.toString() // Store the width
         });
 		console.log("hi");
 		listOfMarkedSpans.forEach((entry)=> {
@@ -555,7 +552,6 @@ async function savePdfChanges(saveCommentsFlag){
 
 	return true; //Show the request has been sent successfully
 }
-<<<<<<< HEAD
 */
 
 /* Search for Term Javascript */
@@ -584,22 +580,19 @@ function searchForTerm(term) {
     const spans = textLayer.querySelectorAll('span[role="presentation"]');
     const foundPositions = [];
     spans.forEach((span, index) => {
-        if (span.parentNode && span.parentNode.getAttribute('role') === 'presentation') {
-            return; // Skip nested spans
-        }
+		//create a copy without any marked sections
+		var clonedNode = span.cloneNode(true);
+		//remove marked stuff from cloned node before setting its content
+		clonedNode.querySelectorAll(`span`).forEach(e =>{
+			e.remove();
+			joinUpAdjacentTextNodes(clonedNode);
+		})
 
-        let contentToSearch =  span.innerHTML;
+        let contentToSearch =  clonedNode.innerHTML;
         const highlightedContent = highlightTerms(contentToSearch, term); 
 		
         //if there was replacement (so a change in the string)
         if (highlightedContent !== contentToSearch) {
-			//create a copy and put it here, without any marked sections
-			var clonedNode = span.cloneNode(true);
-			//remove marked stuff from cloned node
-			clonedNode.querySelectorAll(`span[class="markedSection"]`).forEach(e =>{
-				e.remove();
-				joinUpAdjacentTextNodes(clonedNode);
-			})
 			clonedNode.innerHTML = highlightedContent;
 			clonedNode.classList.add("clonedFindSpans")
 			clonedNode.style.pointerEvents = "none";
@@ -725,24 +718,6 @@ function deleteMark() {
 		savePdfChanges(false);
     }
 }
-
-function joinUpAdjacentTextNodes(parentElement){
-	//join up adjacent text nodes together (so they aren't separate)
-	var childNodes = parentElement.childNodes;
-	for (var i = 0; i < childNodes.length - 1; i++) {
-		if (childNodes[i].nodeType === Node.TEXT_NODE && childNodes[i + 1].nodeType === Node.TEXT_NODE) {
-			// Combine the text of adjacent text nodes
-			var combinedText = childNodes[i].nodeValue + childNodes[i + 1].nodeValue;
-			// Replace the first text node with the combined text
-			childNodes[i].nodeValue = combinedText;
-			// Remove the next text node
-			parentElement.removeChild(childNodes[i + 1]);
-			// Decrement the index since we removed a node
-			i--;
-		}
-	}
-}
-
 
 /* -------------------------------------------------------------------------------- */
 /* -------------------------- VOICE RECORDING JAVASCRIPT -------------------------- */
