@@ -982,6 +982,7 @@ function updateVoiceComments() {
 
 // Checks voice comment as resolved
 function markAsResolved(audio_url) {
+	let accepted = false;
 	if (confirm("Are you sure you want to mark this voice comment as resolved? This action is irreversible.")) {
 		const csrftoken = getCookie('csrftoken');
 		const formData = new FormData();
@@ -993,10 +994,14 @@ function markAsResolved(audio_url) {
 			},
 			body: formData
 		})
+		.then (() => {
+			accepted = true;
+		})
 		.catch(error => {
 			console.error('Error:', error);
 		});
 	}
+	return accepted;
 }
 
 // Voice comment cards creation
@@ -1073,10 +1078,12 @@ function createCard(vc, audio, deleteBtn) {
     });
 
 	resolveBtn.addEventListener('click', function() {
-		markAsResolved(audio_url);
-		resolveBtn.innerHTML = 'Resolved';
-        resolveBtn.disabled = true;
-        resolveBtn.className = 'btn btn-success btn-custom';
+		const accepted = markAsResolved(audio_url);
+		if (accepted) {
+			resolveBtn.innerHTML = 'Resolved';
+			resolveBtn.disabled = true;
+			resolveBtn.className = 'btn btn-success btn-custom';
+		}
 	});
 
     return card;
