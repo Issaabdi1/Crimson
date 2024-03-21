@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
-from tasks.models import User, Upload, Team
+from tasks.models import User, Upload, Team, SharedFiles
 from tasks.forms import FileForm
 from tasks.tests.helpers import reverse_with_next
 
@@ -18,6 +18,7 @@ class UploadFileViewTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='@johndoe')
+        self.other_user = User.objects.get(username='@janedoe')
         self.url = reverse('upload_file')
         mock_file = SimpleUploadedFile(f'test_upload_file_view_file.pdf', b'file_content')
         self.form_input = {
@@ -104,6 +105,54 @@ class UploadFileViewTest(TestCase):
         self.form_input['team_id'] = 1
         response = self.client.post(self.url, self.form_input)
         self.assertEqual(team.shared_uploads.count(), 1)
+
+    def test_post_upload_file_with_sharing_via_username(self):
+        self.login(self.user)
+        self.form_input['share'] = self.other_user.username
+        before_count_upload = Upload.objects.count()
+        before_count_shared = SharedFiles.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count_upload = Upload.objects.count()
+        after_count_shared = SharedFiles.objects.count()
+        self.assertEqual(after_count_upload, before_count_upload + 1)
+        self.assertEqual(after_count_shared, before_count_shared + 1)
+        self.assertTemplateUsed(response, 'upload_file.html')
+        upload_file = Upload.objects.first()
+        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_upload_file_view_file.pdf')
+        self.assertEqual(upload_file.owner, self.user)
+
+    def test_post_upload_file_with_sharing_via_email(self):
+        self.login(self.user)
+        self.form_input['share'] = self.other_user.email
+        before_count_upload = Upload.objects.count()
+        before_count_shared = SharedFiles.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count_upload = Upload.objects.count()
+        after_count_shared = SharedFiles.objects.count()
+        self.assertEqual(after_count_upload, before_count_upload + 1)
+        self.assertEqual(after_count_shared, before_count_shared + 1)
+        self.assertTemplateUsed(response, 'upload_file.html')
+        upload_file = Upload.objects.first()
+        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_upload_file_view_file.pdf')
+        self.assertEqual(upload_file.owner, self.user)
+
+    def test_post_upload_file_with_sharing_fail_with_wrong_input(self):
+        self.login(self.user)
+        self.form_input['share'] = 'xxxxxx'
+        before_count_upload = Upload.objects.count()
+        before_count_shared = SharedFiles.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count_upload = Upload.objects.count()
+        after_count_shared = SharedFiles.objects.count()
+        self.assertEqual(after_count_upload, before_count_upload + 1)
+        self.assertEqual(after_count_shared, before_count_shared)
+        self.assertTemplateUsed(response, 'upload_file.html')
+        upload_file = Upload.objects.first()
+        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_upload_file_view_file.pdf')
+        self.assertEqual(upload_file.owner, self.user)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f'File has been uploaded but not shared. Provided username or email does not exist.')
 
 
     def test_post_upload_file_redirects_when_not_logged_in(self):

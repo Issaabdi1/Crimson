@@ -20,7 +20,7 @@ def delete_upload(request, upload_id):
 @login_required
 def delete_all_upload_views(request):
     if request.method == 'POST':
-        upload = Upload.objects.all()
+        upload = Upload.objects.filter(owner=request.user)
         upload.delete()
         return HttpResponseRedirect(reverse('filelist'))
     else:

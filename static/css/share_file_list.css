@@ -1,0 +1,22 @@
+#share-to-me .list-group {
+    flex-direction: row;
+    height: 1000px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        background-color: transparent;
+    }
+}
+
+#share-to-me .list-group .text-list-item{
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.shared-by-detail{
+    display: flex;
+}
+
+.shared-by-name{
+    margin-left: 10px;
+    margin-top: 5px;
+}

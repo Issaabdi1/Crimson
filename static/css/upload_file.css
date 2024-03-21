@@ -66,3 +66,17 @@
     padding: 0.2rem 0.4rem;
     font-size: 0.875rem;
 }
+
+.form-container{
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgb(211,211,211);
+}
+
+.drag-zone{
+    background-color: transparent;
+}
+
+.share-input{
+    background-color: transparent;
+    border: solid 2px rgb(230,230,230);
+}

@@ -1,29 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {   
+document.addEventListener('DOMContentLoaded', function() {
+    var search = document.getElementById('search');
     // Search function
-    document.getElementById('search').addEventListener('input', function () {
-        const search = this.value.toLowerCase();
-        const items = document.querySelectorAll('.search-filter');
-        for (const item of items) {
-            const selected = item.classList.contains('selected');
-            const username = item.querySelector('.username').textContent;
-            if (search.length >= 3 && !selected) {
-                if (username.includes(search)) {
-                    item.classList.remove('d-none');
-                } else {
+    if(search) {
+        search.addEventListener('input', function () {
+            const search = this.value.toLowerCase();
+            const items = document.querySelectorAll('.search-filter');
+            for (const item of items) {
+                const selected = item.classList.contains('selected');
+                const username = item.querySelector('.username').textContent;
+                if (search.length >= 3 && !selected) {
+                    if (username.includes(search)) {
+                        item.classList.remove('d-none');
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                } else if (!selected) {
                     item.classList.add('d-none');
                 }
-            } else if (!selected) {
-                item.classList.add('d-none');
             }
-        }
-    });
+        });
 
-    // Disables the Enter key which could cause unintentional sharing
-    document.getElementById('search').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-        }
-    });
+        // Disables the Enter key which could cause unintentional sharing
+        search.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    }
 
 
     // Each thumbnail selected updates the hidden 'select option' menu
@@ -51,30 +54,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Each user selected updates the button's userID
     let selectedUsers = [];
     const users = document.querySelectorAll('.search-filter');
-    users.forEach(user => {
-        user.addEventListener('click', function() {
+    if (users) {
+        users.forEach(user => {
+            user.addEventListener('click', function () {
 
-            // Update selected class (visual update)
-            const selected = this.classList.contains('selected');
-            if (!selected) {
-                this.classList.add('selected');
-            } else {
-                this.classList.remove('selected');
-            }
-            
-            // Update selected array (data update)
-            const userid = user.getAttribute('value');
-            const index = selectedUsers.indexOf(userid);
-            if (index === -1) {
-                selectedUsers.push(userid);
-            } else {
-                selectedUsers.splice(index, 1);
-            }
-            // Update button with new array
-            const sharebtn = document.querySelector('.share-btn');
-            sharebtn.value = selectedUsers.join(',');
+                // Update selected class (visual update)
+                const selected = this.classList.contains('selected');
+                if (!selected) {
+                    this.classList.add('selected');
+                } else {
+                    this.classList.remove('selected');
+                }
+
+                // Update selected array (data update)
+                const userid = user.getAttribute('value');
+                const index = selectedUsers.indexOf(userid);
+                if (index === -1) {
+                    selectedUsers.push(userid);
+                } else {
+                    selectedUsers.splice(index, 1);
+                }
+                // Update button with new array
+                const sharebtn = document.querySelector('.share-btn');
+                sharebtn.value = selectedUsers.join(',');
+            });
         });
-    });
+    }
 
     // Add delay to each animation manually
     thumbnails.forEach(function(_, index) {

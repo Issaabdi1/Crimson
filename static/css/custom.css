@@ -407,7 +407,7 @@ Dark mode
 }
 
 .dark-mode .sidebar {
-  background-color: rgb(211,211,211) ;
+  background-color: rgb(255,255,251) ;
 }
 
 .dark-mode .a {
@@ -441,6 +441,50 @@ Dark mode
     height: auto;
     width: 80%;
     max-width: 300px;
+}
+
+.dark-mode .team-link {
+  color: #fff;
+}
+
+.dark-mode .team-name {
+  color: #fff;
+}
+
+.dark-mode .team-details {
+  color: #fff;
+}
+
+.dark-mode .team-box {
+  background-color: rgb(211,211,211);
+    border: 2px solid #fff;
+}
+
+.dark-mode .modal-body{
+    color: #000000;
+}
+
+.dark-mode .share-input{
+    border-color: rgb(230,230,230);
+}
+
+.dark-mode .share-form input{
+    background-color: transparent;
+    border-color: rgb(230,230,230);
+    border-width: 2px;
+    color: #fff;
+}
+
+.dark-mode .offcanvas{
+    background-color: rgb(211,211,211);
+}
+
+.dark-mode .card{
+    background-color: rgb(211,211,211);
+}
+
+.dark-mode .form-check-label{
+    color: #111111;
 }
 
 /*
@@ -504,4 +548,13 @@ Pink mode
 
 .pink-mode a {
   color: #9E5062;
+}
+
+.file-link {
+    font: inherit;
+    color: #0d6efd;
+}
+
+#themePreferencesForm{
+
 }

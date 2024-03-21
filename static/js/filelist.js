@@ -52,13 +52,16 @@ function confirmRename(form) {
 document.addEventListener("DOMContentLoaded", function () {
     const selectAllCheckbox = document.getElementById('flexCheckDefault');
     const deleteAllForm = document.getElementById('delete-all');
-    selectAllCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            deleteAllForm.style.display = 'block';
-        } else {
-            deleteAllForm.style.display = 'none';
-        }
-    });
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                deleteAllForm.style.display = 'block';
+            } else {
+                deleteAllForm.style.display = 'none';
+            }
+        });
+    }
+
     const items = document.querySelectorAll("#fileList .list-item");
     let index = 0;
     const interval = setInterval(function () {
@@ -75,13 +78,15 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", function () {
     const selectAllCheckbox = document.getElementById('flexCheckDefault');
     const deleteAllForm = document.getElementById('delete-all');
-    selectAllCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            deleteAllForm.style.display = 'block';
-        } else {
-            deleteAllForm.style.display = 'none';
-        }
-    });
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                deleteAllForm.style.display = 'block';
+            } else {
+                deleteAllForm.style.display = 'none';
+            }
+        });
+    }
 });
 
 /**
