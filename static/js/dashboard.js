@@ -135,3 +135,73 @@ document.addEventListener('DOMContentLoaded', function () {
         collapseSection.classList.remove('show');
     }
 });
+
+/**
+ * submit selected form handler
+ */
+$(document).ready(function () {
+    // Function to submit forms of selected rows
+    function submitSelectedForms() {
+        // Iterate over each checkbox
+        $('.row-checkbox:checked').each(function () {
+            // Find the closest 'tr' parent, then find the form within that row and submit it
+            $(this).closest('tr').find('form').submit();
+        });
+    }
+
+    // Attach the function to the "View Selected" button click event
+    $('#viewSelected').on('click', function () {
+        submitSelectedForms();
+    });
+});
+
+/**
+ * download file handler
+ */
+
+$(document).ready(function () {
+    $('#downloadSelected').on('click', function () {
+        const selectedRows = $('.row-checkbox:checked');
+        if (selectedRows.length === 1) {
+            // Direct download for single file
+            const uploadId = selectedRows.closest('tr').data('upload-id');
+            window.location.href = `/download-single/${uploadId}`; // Update with your actual endpoint
+        } else if (selectedRows.length > 1) {
+            // Prepare data for zipped download
+            let uploadIds = [];
+            selectedRows.each(function () {
+                uploadIds.push($(this).closest('tr').data('upload-id'));
+            });
+
+            // Assuming you're using a method to handle POST requests
+            // You might need to adjust this to your specific backend handling
+            fetch('/download_multiple/', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                },
+                body: JSON.stringify({ upload_ids: uploadIds }),
+            }).then(response => {
+                if (response.ok) return response.blob();
+                throw new Error('Network response was not ok.');
+            }).then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "downloads.zip"; // Or any filename you wish to give
+                document.body.appendChild(a); // Required for Firefox
+                a.click();
+                a.remove();
+            }).catch(error => console.error('Error:', error));
+        } else {
+            // No selection made
+            alert('Please select one or more files to download.');
+        }
+    });
+});
+
+function getCsrfToken() {
+    return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+}

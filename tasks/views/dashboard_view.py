@@ -1,8 +1,15 @@
 """Main dashboard view"""
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+import json
 from tasks.models import Upload, User
 from django.core.paginator import Paginator
+from django.http import HttpResponse, FileResponse, JsonResponse
+from django.shortcuts import get_list_or_404, get_object_or_404
+import zipfile
+import os
+from io import BytesIO
 
 
 @login_required
@@ -32,3 +39,30 @@ def dashboard(request):
                "current_page": paginator.page(page_number)
                }
     return render(request, 'dashboard.html', context)
+
+
+def download_single(request, upload_id):
+    # Retrieve the Upload object
+    upload = get_object_or_404(Upload, id=upload_id, owner=request.user)
+    # Access the file's content directly from storage
+    file_content = upload.file.read()
+    # Create an HTTP response with the file content, MIME type, and suggested file name
+    response = HttpResponse(file_content, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{upload.file.name}"'
+    return response
+
+
+def download_multiple(request):
+    if request.method != "POST":
+        return JsonResponse({'error': 'This method is not allowed'}, status=405)
+    try:
+        data = json.loads(request.body)
+        upload_ids = data.get('upload_ids', [])
+
+        if not upload_ids:
+            return JsonResponse({'error': 'No upload IDs provided'}, status=400)
+        return HttpResponse("Success", content_type='text/plain')
+
+    except Exception as e:
+        # Log the exception or handle it as needed
+        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)

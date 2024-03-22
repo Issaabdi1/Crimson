@@ -41,8 +41,8 @@
             <div class="toolbar-container row justify-content-end">
                 <div class="col-md-3">
                     <div class="button-bar">
-                        <button type="button" class="btn btn-primary"><i class="bi bi-play-btn"></i></button>
-                        <button type="button" class="btn btn-secondary"><i class="bi bi-download"></i></button>
+                        <button type="button" id="viewSelected" class="btn btn-primary"><i class="bi bi-play-btn"></i></button>
+                        <button type="button" class="btn btn-secondary" id="downloadSelected"><i class="bi bi-download"></i></button>
                         <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
                             </thead>
                             <tbody>
                             {% for upload in uploads %}
-                                <tr>
+                                <tr data-upload-id="{{ upload.id }}">
                                     <td scope="row">
                                         <input class="form-check-input row-checkbox" type="checkbox">
                                     </td>
@@ -176,6 +176,14 @@
                                         <td>-</td>
                                     {% endif %}
                                     <td>{{ upload.file_size_mb }} Mb</td>
+                                    <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm{{ upload.id }}" style="display: none">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="upload_id" value="{{ upload.id }}">
+                                        <a href="#" class="a"
+                                           onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;"
+                                           style="text-decoration: none">
+                                        </a>
+                                    </form>
                                 </tr>
                             {% endfor %}
                             </tbody>
