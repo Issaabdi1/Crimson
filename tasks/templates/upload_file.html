@@ -9,7 +9,7 @@
         <div class="absolute bg-dark-subtle inset-0 z-0"></div>
         <div class="sm:max-w-lg w-full p-10 rounded-xl z-10 form-container">
             <div class="text-center">
-                <h2 class="mt-5 text-3xl font-bold text-gray-900">
+                <h2 class="mt-5 text-3xl font-bold text-gray-900" id="upload-header">
                     Upload
                 </h2>
                 <p class="mt-2 text-sm text-gray-400">File size no more than 100M</p>
@@ -94,7 +94,7 @@
                         {% endif %}
 
                         <div class="flex justify-center">
-                            <button type="submit"
+                            <button type="submit" id="upload-btn"
                                     class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300">
                                 Upload
                             </button>

@@ -399,7 +399,7 @@ Dark mode
 */
 .dark-mode {
   background-color: rgb(211,211,211);
-  color: #fff;
+  color:#7A7A7A;
 }
 .dark-mode .dropdown-custom-theme  {
   background-color: rgb(211,211,211) ;
@@ -408,6 +408,28 @@ Dark mode
 
 .dark-mode .sidebar {
   background-color: rgb(255,255,251) ;
+}
+
+.dark-mode .sidebar a{
+  color: #7A7A7A;
+}
+
+.dark-mode .sidebar .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+}
+
+.dark-mode .nav-link {
+    display: block;
+    padding: .5rem 1rem;
+    color: #7A7A7A;
+    text-decoration: none;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+
+.dark-mode .form-check-input:checked {
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
 }
 
 .dark-mode .a {
@@ -444,20 +466,20 @@ Dark mode
 }
 
 .dark-mode .team-link {
-  color: #fff;
+  color: #7A7A7A;
 }
 
 .dark-mode .team-name {
-  color: #fff;
+  color: #7A7A7A;
 }
 
 .dark-mode .team-details {
-  color: #fff;
+  color: #7A7A7A;
 }
 
 .dark-mode .team-box {
   background-color: rgb(211,211,211);
-    border: 2px solid #fff;
+    border: 2px solid #7A7A7A;
 }
 
 .dark-mode .modal-body{
@@ -472,7 +494,7 @@ Dark mode
     background-color: transparent;
     border-color: rgb(230,230,230);
     border-width: 2px;
-    color: #fff;
+    color: #7A7A7A;
 }
 
 .dark-mode .offcanvas{
@@ -484,11 +506,106 @@ Dark mode
 }
 
 .dark-mode .form-check-label{
-    color: #111111;
+    color: #7A7A7A;
 }
 
 .dark-mode .modal-title{
     color: #111111;
+}
+
+.dark-mode #CreateTeamPopup{
+    color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.dark-mode #CreateTeamPopup:hover {
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.dark-mode #JoinTeamPopup{
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.dark-mode #teamBack{
+    color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.dark-mode #teamBack:hover {
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.dark-mode  .button_plus {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    background: rgb(211,211,211);
+    cursor: pointer;
+    border: 3px solid #7A7A7A;
+    border-radius: 50%;
+    transition: transform 0.8s;
+    top: 20px;
+}
+
+.dark-mode  .button_plus:after {
+    background: #7A7A7A;
+}
+
+.dark-mode  .button_plus:before {
+    background: #7A7A7A;
+}
+
+.dark-mode  .action-button {
+    background-color: #7A7A7A;
+    color: rgb(211,211,211);
+}
+
+.dark-mode  .action-button:hover {
+    background-color: #919191;
+}
+
+.dark-mode #upload-btn {
+    background-color: #7A7A7A;
+    color: rgb(211,211,211);
+}
+
+.dark-mode  #upload-btn {
+    background-color: #919191;
+}
+
+.dark-mode  #upload-header {
+    color: #7A7A7A;
+}
+
+.dark-mode #file-icon {
+    filter: invert(57%) sepia(0%) saturate(885%) hue-rotate(140deg) brightness(83%) contrast(86%);
+}
+
+.dark-mode  .share-btn {
+    border: rgb(210,210,210);
+    background-color: #7A7A7A;
+    color: rgb(211,211,211);
+}
+
+.dark-mode  .share-btn:hover {
+    background-color: #919191;
+}
+
+.dark-mode .share-offcanvas-label{
+    background-color: #D2D2D2;
+    color: #7A7A7A;
+}
+
+.share-offcanvas-label{
+    background-color: whitesmoke;
+    color: black;
+    font-weight: bold;
 }
 
 /*
