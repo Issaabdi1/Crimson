@@ -49,4 +49,6 @@ urlpatterns = [
     path('team_detail/<int:team_id>/leave', views.leave_team_view, name='team_leave'),
     path('download-single/<int:upload_id>/', views.download_single, name='download_single'),
     path('download_multiple/', views.download_multiple, name='download_multiple'),
+    path('delete_selected_uploads/', views.delete_selected_uploads, name='delete_selected_uploads'),
+
 ]

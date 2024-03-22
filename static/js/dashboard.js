@@ -202,6 +202,41 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    $('#deleteSelected').on('click', function () {
+        const selectedUploadIds = $('.row-checkbox:checked').map(function () {
+            return $(this).closest('tr').data('upload-id');
+        }).get();
+
+        if (selectedUploadIds.length > 0) {
+            if (!confirm('Are you sure you want to delete the selected files?')) {
+                return;  // User canceled the action
+            }
+
+            // Send the IDs to the server for deletion
+            fetch('/delete_selected_uploads/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(), // Ensure CSRF token is sent
+                },
+                body: JSON.stringify({ upload_ids: selectedUploadIds }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload or update the page content
+                    location.reload();  // Simple way to update the page content
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        } else {
+            alert('Please select at least one file to delete.');
+        }
+    });
+});
+
 function getCsrfToken() {
     return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 }

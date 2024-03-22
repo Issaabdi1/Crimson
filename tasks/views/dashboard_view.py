@@ -7,9 +7,7 @@ from tasks.models import Upload, User
 from django.core.paginator import Paginator
 from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
-import zipfile
-import os
-from io import BytesIO
+from django.views.decorators.http import require_POST
 
 
 @login_required
@@ -69,3 +67,19 @@ def download_multiple(request):
     except Exception as e:
         # Log the exception or handle it as needed
         return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def delete_selected_uploads(request):
+    data = json.loads(request.body)
+    upload_ids = data.get('upload_ids', [])
+
+    # Filter uploads to ensure they belong to the user
+    uploads_to_delete = Upload.objects.filter(id__in=upload_ids, owner=request.user)
+
+    for upload in uploads_to_delete:
+        upload.file.delete()  # This deletes the file from storage
+        upload.delete()  # This deletes the Upload record from the database
+
+    return JsonResponse({'status': 'success'})
