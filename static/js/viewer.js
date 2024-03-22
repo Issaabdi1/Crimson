@@ -57,9 +57,9 @@ const saveChanges = new Event('saveChanges');
 let isMark = false;
 var currentCommentId;
 
-function setup(){
+function setup() {
 	//Load all the info and marks into the pdf
-	if(savedMarks!=""){
+	if (savedMarks != "") {
 		Mark.instanceCount = mark_id;//"{{marks.mark_id}}";
 		var jsonString = decodeEntities(marksListOfSpans);//"{{marks.listOfSpans}}");
 		var dict = JSON.parse(jsonString);
@@ -104,6 +104,7 @@ function setup(){
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
 							    comments.forEach(comment => {
+									var resolvedAttribute = comment.resolved ? 'disabled' : '';
 									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
@@ -125,7 +126,7 @@ function setup(){
 												</div>
 												<div class="card-footer text-body-secondary p-2 flex-column">
 													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
+                        							<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
 												</div>
 											</div>
 										</div>`;
@@ -164,6 +165,37 @@ function setup(){
 									},
 									error: function(xhr, status, error) {
 										console.error("Error updating comment:", error);
+									}
+								});
+							});
+						});
+						document.querySelectorAll('.resolveBtn').forEach((button, index) => {
+							button.addEventListener('click', function() {
+								var commentId = this.getAttribute('data-comment-id');
+
+								currentMarkId = element.dataset.value;
+								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+								// AJAX request to update the comment
+								$.ajax({
+									url: '/update_comment_status/',
+									type: 'POST',
+									contentType: 'application/json',
+									data: JSON.stringify({
+										comment_id: commentId,
+										resolved: true
+									}),
+									beforeSend: function(xhr) {
+										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+									},
+									success: function(response) {
+										console.log("Comment marked as resolved successfully:", response);
+										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+									},
+									error: function(xhr, status, error) {
+										console.error("Error marking comment as resolved:", error);
+										// Re-enable the button if there's an error, or handle errors appropriately
+										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
 									}
 								});
 							});
@@ -223,6 +255,7 @@ function renderAfterZoom() {
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
 							    comments.forEach(comment => {
+									var resolvedAttribute = comment.resolved ? 'disabled' : '';
 									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
@@ -243,7 +276,7 @@ function renderAfterZoom() {
 												</div>
 												<div class="card-footer text-body-secondary p-2 flex-column">
 													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
+                        							<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
 												</div>
 											</div>
 										</div>`;
@@ -262,16 +295,16 @@ function renderAfterZoom() {
 								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
 
 								// AJAX request to update the comment
-								$.ajax({
-									url: '/update_comment/',
-									type: 'POST',
-									contentType: 'application/json',
-									data: JSON.stringify({
-										comment_id: commentId,
-										text: commentText,
-										mark_id: currentMarkId,
-										upload_id: upload_id
-									}),
+									$.ajax({
+										url: '/update_comment/',
+										type: 'POST',
+										contentType: 'application/json',
+										data: JSON.stringify({
+											comment_id: commentId,
+											text: commentText,
+											mark_id: currentMarkId,
+											upload_id: upload_id,
+										}),
 									beforeSend: function(xhr) {
 										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 									},
@@ -281,6 +314,38 @@ function renderAfterZoom() {
 									},
 									error: function(xhr, status, error) {
 										console.error("Error updating comment:", error);
+									}
+								});
+							});
+						});
+
+						document.querySelectorAll('.resolveBtn').forEach((button, index) => {
+							button.addEventListener('click', function() {
+								var commentId = this.getAttribute('data-comment-id');
+
+								currentMarkId = element.dataset.value;
+								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+								// AJAX request to update the comment
+								$.ajax({
+									url: '/update_comment_status/',
+									type: 'POST',
+									contentType: 'application/json',
+									data: JSON.stringify({
+										comment_id: commentId,
+										resolved: true
+									}),
+									beforeSend: function(xhr) {
+										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+									},
+									success: function(response) {
+										console.log("Comment marked as resolved successfully:", response);
+										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+									},
+									error: function(xhr, status, error) {
+										console.error("Error marking comment as resolved:", error);
+										// Re-enable the button if there's an error, or handle errors appropriately
+										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
 									}
 								});
 							});
@@ -1230,9 +1295,10 @@ function loadComments(uploadId, markId) {
                 const commentElement = document.createElement("div");
                 commentElement.className = "comment";
                 commentElement.id = `comment-${comment.comment_id}`;
+
                 commentElement.innerHTML = `
                     <p>${comment.text}</p>
-                    <p>Comment by: ${comment.commenter}</p> 
+                    <p>Comment by: ${comment.commenter}</p>
                 `;
                 commentsContainer.appendChild(commentElement);
             });
@@ -1242,6 +1308,7 @@ function loadComments(uploadId, markId) {
         }
     });
 }
+
 
 function simulateMarkedSectionClick(markId) {
     var markedSections = document.querySelectorAll('.markedSection');
@@ -1253,32 +1320,40 @@ function simulateMarkedSectionClick(markId) {
     }
 }
 
-function markAsResolved(commentId) {
-    // Confirm with the user
-    if (confirm('Are you sure you want to mark this as resolved?')) {
-        // Disable the button
-        document.querySelector(`#textComment-${commentId} .btn-success`).disabled = true;
-
-        $.ajax({
-            url: '/update_comment_status/',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                comment_id: commentId,
-                resolved: true
-            }),
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-            },
-            success: function(response) {
-                console.log("Comment marked as resolved successfully:", response);
-            },
-            error: function(xhr, status, error) {
-                console.error("Error marking comment as resolved:", error);
-                // Re-enable the button if there's an error, or handle errors appropriately
-                document.querySelector(`#textComment-${commentId} .btn-success`).disabled = false;
-            }
-        });
-    }
-}
-
+// function markAsResolved(commentId) {
+//     // Confirm with the user
+//     if (confirm('Are you sure you want to mark this as resolved?')) {
+//         // Disable the button
+//         document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+// 		const resolveButton = document.querySelector(`#textComment-${commentId} .resolveBtn`);
+//
+//
+//         $.ajax({
+//             url: '/update_comment_status/',
+//             type: 'POST',
+//             contentType: 'application/json',
+//             data: JSON.stringify({
+//                 comment_id: commentId,
+//                 resolved: true
+//             }),
+//             beforeSend: function(xhr) {
+//                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+//             },
+//             success: function(response) {
+//                 console.log("Comment marked as resolved successfully:", response);
+// 				document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+// 				if (resolveButton) {
+//                     resolveButton.disabled = true;
+//                     resolveButton.textContent = 'Resolved';
+//                 }
+//
+//             },
+//             error: function(xhr, status, error) {
+//                 console.error("Error marking comment as resolved:", error);
+//                 // Re-enable the button if there's an error, or handle errors appropriately
+//                 document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
+//             }
+//         });
+//     }
+// }
+//

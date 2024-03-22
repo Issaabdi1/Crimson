@@ -185,6 +185,7 @@ def get_comments(request):
             'text': comment.text,
             'comment_id': comment.id,
             'date': comment.formatted_date(),
+            'resolved': comment.resolved,
         } for comment in comments])
         print(comments_json)
 
@@ -242,7 +243,7 @@ def get_comments_json(request, upload_id, mark_id):
     comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id)
     comments_data = list(comments.values(
         "id", "text", "commenter_id",
-        "commenter",
+        "commenter", "resolved",
     ))
     return JsonResponse({"comments": comments_data})
 
@@ -255,12 +256,11 @@ def update_comment_status(request):
     try:
         data = json.loads(request.body)
         comment_id = data.get('comment_id')
-        resolved = data.get('resolved', False)
+        resolved = data.get('resolved')
         comment = Comment.objects.get(id=comment_id)
         comment.resolved = resolved
         comment.save()
 
-        # Make sure to replace the above example with your actual model update logic
         return JsonResponse({"success": True, "message": "Comment status updated successfully."})
     except json.JSONDecodeError as e:
         return JsonResponse({'error': 'Invalid JSON or empty payload'}, status=400)
