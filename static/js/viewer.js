@@ -119,10 +119,11 @@ function setup(){
 													</div>
 												</div>
 												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
+													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 												</div>
 												<div class="card-footer text-body-secondary p-2 flex-column" style="display: flex; justify-content: flex-end;">
 													<button class="btn-primary saveBtn">save</button>
+													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
 												</div>
 								
 
@@ -232,10 +233,11 @@ function renderAfterZoom() {
 													</div>
 												</div>
 												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.id}">${comment.text}</textarea></p>
+													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 												</div>
 												<div class="card-footer text-body-secondary p-2 flex-column">
 													<button class="btn-primary saveBtn" style="display: flex; justify-content: flex-end;">save</button>
+													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
 												</div>
 											</div>
 										</div>`;
@@ -1238,6 +1240,35 @@ function simulateMarkedSectionClick(markId) {
 
     if (targetSection) {
         targetSection.click();
+    }
+}
+
+function markAsResolved(commentId) {
+    // Confirm with the user
+    if (confirm('Are you sure you want to mark this as resolved?')) {
+        // Disable the button
+        document.querySelector(`#textComment-${commentId} .btn-success`).disabled = true;
+
+        $.ajax({
+            url: '/update_comment_status/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                comment_id: commentId,
+                resolved: true
+            }),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            },
+            success: function(response) {
+                console.log("Comment marked as resolved successfully:", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error marking comment as resolved:", error);
+                // Re-enable the button if there's an error, or handle errors appropriately
+                document.querySelector(`#textComment-${commentId} .btn-success`).disabled = false;
+            }
+        });
     }
 }
 

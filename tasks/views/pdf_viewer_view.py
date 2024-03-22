@@ -22,7 +22,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 
-
 @login_required
 def viewer(request):
     """Displays the PDF in the custom PDF viewer"""
@@ -211,7 +210,6 @@ def save_current_mark_id(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 
-
 @require_POST
 def update_comment(request):
     data = json.loads(request.body)
@@ -227,6 +225,7 @@ def update_comment(request):
     except Comment.MultipleObjectsReturned:
         return JsonResponse({'success': False, 'message': 'Multiple comments found'}, status=400)
 
+
 @require_POST
 @csrf_exempt
 def delete_text_comment(request):
@@ -237,6 +236,7 @@ def delete_text_comment(request):
     comment.delete()
     return JsonResponse({'status': 'success', 'message': 'Comment deleted successfully'})
 
+
 def get_comments_json(request, upload_id, mark_id):
     comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id)
     comments_data = list(comments.values(
@@ -244,3 +244,25 @@ def get_comments_json(request, upload_id, mark_id):
         "commenter",
     ))
     return JsonResponse({"comments": comments_data})
+
+@require_POST
+def update_comment_status(request):
+    # Check for the correct content type
+    if request.content_type != 'application/json':
+        return JsonResponse({'error': 'Invalid content type'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        comment_id = data.get('comment_id')
+        resolved = data.get('resolved', False)
+        comment = Comment.objects.get(id=comment_id)
+        comment.resolved = resolved
+        comment.save()
+
+        # Make sure to replace the above example with your actual model update logic
+        return JsonResponse({"success": True, "message": "Comment status updated successfully."})
+    except json.JSONDecodeError as e:
+        return JsonResponse({'error': 'Invalid JSON or empty payload'}, status=400)
+    except Comment.DoesNotExist:
+        # Handle case where comment does not exist
+        return JsonResponse({'error': 'Comment not found'}, status=404)
