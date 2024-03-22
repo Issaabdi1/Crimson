@@ -1,6 +1,7 @@
 """Share file related views"""
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from tasks.models import User, Upload, SharedFiles, Notification
 from django.utils import timezone
@@ -11,8 +12,19 @@ def shared_file_list(request):
     """Display the current user's shared files."""
     current_user = request.user
     shared_files = SharedFiles.objects.filter(shared_to=current_user)
-    context = {'shared_files': shared_files,
+
+    page_number = request.GET.get('page', 1)
+    per_page = 6
+    paginator = Paginator(shared_files, per_page)
+    page_obj = paginator.get_page(page_number)
+
+    context = {'shared_files': page_obj.object_list,
                'user': current_user,
+               "paginator": paginator,
+               "current_page": paginator.page(page_number),
+               "last_three_page": paginator.num_pages - 2,
+               "last_few_pages": paginator.num_pages - 4,
+               "next_few_page": int(page_number) + 3,
                }
     return render(request, 'shared_file_list.html', context)
 

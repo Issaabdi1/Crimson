@@ -29,6 +29,9 @@ def dashboard(request):
                "all_users": all_users,
                "row_number": row_number,
                "paginator": paginator,
-               "current_page": paginator.page(page_number)
+               "current_page": paginator.page(page_number),
+               "last_three_page": paginator.num_pages - 2,
+               "last_few_pages": paginator.num_pages - 4,
+               "next_few_page": int(page_number) + 3,
                }
     return render(request, 'dashboard.html', context)

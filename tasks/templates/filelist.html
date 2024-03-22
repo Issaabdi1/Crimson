@@ -12,18 +12,87 @@
         <div class="row d-flex justify-content-center">
             <div class="col-12">
                 <h1>My files:</h1>
-                <div class="delete-all" style="display: flex; align-items: center;">
-                    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                    <label class="form-check-label" for="flexCheckDefault">
-                        Select All
-                    </label>
-                    <span style="margin-left: 20px;"></span>
-                    <form action="{% url 'delete_all_upload_views' %}" method="post" class="d-all" id="delete-all"
-                          style="display: none; ">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i>Delete
-                        </button>
-                    </form>
+                <div class="row justify-content-between">
+                    <div class="delete-all col-3" style="display: flex; align-items: center;">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Select All
+                        </label>
+                        <span style="margin-left: 20px;"></span>
+
+                        <form action="{% url 'delete_all_upload_views' %}" method="post" class="d-all" id="delete-all"
+                              style="display: none; ">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i>Delete
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-3 justify-content-end">
+                        {% if paginator.num_pages > 1 %}
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <li class="page-item {% if not current_page.has_previous %}disabled{% endif %}">
+                                        <a class="page-link" aria-label="Previous"
+                                           {% if current_page.has_previous %}href="?page={{ current_page.previous_page_number }}"
+                                           {% else %}href="#"{% endif %}>
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% if paginator.num_pages <= 5 %}
+                                        {% for page_num in paginator.page_range %}
+                                            <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% if current_page.number == 1 %}
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num < 5 %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                        {% elif current_page.number >= last_three_page %}
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num > last_few_pages %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ current_page.previous_page_number }}">{{ current_page.previous_page_number }}</a>
+                                            </li>
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num >= current_page.number and page_num < next_few_page %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <li class="page-item {% if not current_page.has_next %}disabled{% endif %}">
+                                        <a class="page-link" aria-label="Next"
+                                           {% if current_page.has_next %}href="?page={{ current_page.next_page_number }}"
+                                           {% else %}href="#"{% endif %}>
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    </div>
                 </div>
                 {#            <div class="list-container custom-list-size">#}
                 <div class="list-group-file" id="fileList">
@@ -51,7 +120,8 @@
                                             </h6>
                                             <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
                                                     class="upload-time">{{ upload.uploaded_at }}</span></p>
-                                            <p class="mb-0 opacity-75"><strong>Description:</strong>{{ upload.comments }}
+                                            <p class="mb-0 opacity-75">
+                                                <strong>Description:</strong>{{ upload.comments }}
                                             </p>
 
                                         </div>
