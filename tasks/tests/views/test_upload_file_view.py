@@ -154,6 +154,21 @@ class UploadFileViewTest(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), f'File has been uploaded but not shared. Provided username or email does not exist.')
 
+    def test_post_upload_file_with_sharing_fail_with_no_input(self):
+        self.login(self.user)
+        self.form_input['share'] = ''
+        before_count_upload = Upload.objects.count()
+        before_count_shared = SharedFiles.objects.count()
+        response = self.client.post(self.url, self.form_input, follow=True)
+        after_count_upload = Upload.objects.count()
+        after_count_shared = SharedFiles.objects.count()
+        self.assertEqual(after_count_upload, before_count_upload + 1)
+        self.assertEqual(after_count_shared, before_count_shared)
+        self.assertTemplateUsed(response, 'upload_file.html')
+        upload_file = Upload.objects.first()
+        self.assertEqual(upload_file.file.name, f'user_@johndoe/test_upload_file_view_file.pdf')
+        self.assertEqual(upload_file.owner, self.user)
+
 
     def test_post_upload_file_redirects_when_not_logged_in(self):
         redirect_url = reverse_with_next('log_in', self.url)

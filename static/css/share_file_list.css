@@ -1,7 +1,9 @@
 #share-to-me .list-group {
+    display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
     min-height: 250px;
-    max-height: 1000px;
+    max-height: 880px;
     overflow-y: auto;
     &::-webkit-scrollbar {
         background-color: transparent;
