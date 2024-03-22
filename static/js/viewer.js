@@ -107,6 +107,8 @@ function setup(){
 									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
+											<p>comment id: ${comment.comment_id}</p>
+
 											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<div class="button-container">
@@ -121,17 +123,14 @@ function setup(){
 												<div class="card-body">
 													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 												</div>
-												<div class="card-footer text-body-secondary p-2 flex-column" style="display: flex; justify-content: flex-end;">
-													<button class="btn-primary saveBtn">save</button>
+												<div class="card-footer text-body-secondary p-2 flex-column">
+													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
 													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
 												</div>
-								
-
 											</div>
 										</div>`;
 								});
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-														document.getElementById("commentsContainer").innerHTML = commentsHTML;
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 							button.addEventListener('click', function() {
 								// Find the textarea associated with this button
@@ -139,6 +138,8 @@ function setup(){
 								var textarea = cardBody.querySelector('textarea');
 								var commentText = textarea.value; // Get the current text from the textarea
 								currentMarkId = element.dataset.value;
+								var commentId = this.getAttribute('data-comment-id');
+
 								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
 
 								// AJAX request to update the comment
@@ -147,7 +148,7 @@ function setup(){
 									type: 'POST',
 									contentType: 'application/json',
 									data: JSON.stringify({
-										comment_id: currentCommentId,
+										comment_id: commentId,
 										text: commentText,
 										mark_id: currentMarkId,
 										upload_id: upload_id
@@ -156,7 +157,10 @@ function setup(){
 										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 									},
 									success: function(response) {
+										console.log('current comment id is:', currentCommentId)
+										console.log('current mark id is:', currentMarkId)
 										console.log("Comment updated successfully:", response);
+
 									},
 									error: function(xhr, status, error) {
 										console.error("Error updating comment:", error);
@@ -199,7 +203,7 @@ function renderAfterZoom() {
         });
 
         // Add click event listener for all highlighted spans to handle comment updates
-       		document.querySelectorAll('#markedSection').forEach(element => {
+    		document.querySelectorAll('#markedSection').forEach(element => {
 			element.addEventListener('click', () => {
 				isMark = true;
 				currentMarkId = element.dataset.value;
@@ -219,8 +223,10 @@ function renderAfterZoom() {
 							console.log("Parsed comments:", comments);
 							var commentsHTML = '';
 							    comments.forEach(comment => {
+									currentCommentId = comment.comment_id;
 									commentsHTML += `
 										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
+										<p>comment id: ${comment.comment_id}</p>
 											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 												<div>
 													<div class="button-container">
@@ -236,28 +242,32 @@ function renderAfterZoom() {
 													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 												</div>
 												<div class="card-footer text-body-secondary p-2 flex-column">
-													<button class="btn-primary saveBtn" style="display: flex; justify-content: flex-end;">save</button>
+													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
 													<button class="btn-success" onclick="markAsResolved(${comment.comment_id})">resolved</button>
 												</div>
 											</div>
 										</div>`;
 								});
 							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-														document.getElementById("commentsContainer").innerHTML = commentsHTML;
+							// save button
 							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 							button.addEventListener('click', function() {
 								// Find the textarea associated with this button
 								var cardBody = button.closest('.card').querySelector('.card-body');
 								var textarea = cardBody.querySelector('textarea');
 								var commentText = textarea.value; // Get the current text from the textarea
-								currentMarkId = element.dataset.value;
+								var commentId = this.getAttribute('data-comment-id');
 
+								currentMarkId = element.dataset.value;
+								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+								// AJAX request to update the comment
 								$.ajax({
 									url: '/update_comment/',
 									type: 'POST',
 									contentType: 'application/json',
 									data: JSON.stringify({
-										comment_id: currentCommentId,
+										comment_id: commentId,
 										text: commentText,
 										mark_id: currentMarkId,
 										upload_id: upload_id
@@ -267,6 +277,7 @@ function renderAfterZoom() {
 									},
 									success: function(response) {
 										console.log("Comment updated successfully:", response);
+
 									},
 									error: function(xhr, status, error) {
 										console.error("Error updating comment:", error);
@@ -280,7 +291,6 @@ function renderAfterZoom() {
 					},
 					error: function(xhr, status, error) {
 						console.error("Error saving current mark ID: " + xhr.status);
-						// Handle error if needed
 					},
 					beforeSend: function(xhr, settings) {
 						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));

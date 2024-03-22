@@ -213,6 +213,7 @@ def save_current_mark_id(request):
 @require_POST
 def update_comment(request):
     data = json.loads(request.body)
+    print('data is:', data)
     comment_id = data.get('comment_id')
     new_text = data.get('text')
     try:
