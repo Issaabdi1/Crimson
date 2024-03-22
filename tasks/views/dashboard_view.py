@@ -1,13 +1,10 @@
 """Main dashboard view"""
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from tasks.forms import FileForm
-from django.core.files.storage import FileSystemStorage
-from tasks.models import Upload, User, SharedFiles, Team
-from django.core.exceptions import ValidationError
+from tasks.models import Upload, User
+from django.core.paginator import Paginator
 
 
-"""Rick Version"""
 @login_required
 def dashboard(request):
     """Display the current user's dashboard."""
@@ -15,50 +12,23 @@ def dashboard(request):
     uploads = Upload.objects.filter(owner=current_user)
     all_users = User.objects.exclude(username=current_user.username)
 
-    row_number = 1
-    for upload in uploads:
+    page_number = request.GET.get('page', 1)
+    per_page = 7
+    paginator = Paginator(uploads, per_page)
+    page_obj = paginator.get_page(page_number)
+
+    row_number = (int(page_number) - 1) * per_page
+    for upload in page_obj.object_list:
         upload.file_size_mb = upload.get_file_size_mb()
         upload.simple_file_name = upload.get_simple_file_name()
+        row_number += 1
+        upload.row_id = row_number
 
-    context = {'uploads': uploads,
+    context = {'uploads': page_obj.object_list,
                'user': current_user,
                "all_users": all_users,
                "row_number": row_number,
+               "paginator": paginator,
+               "current_page": paginator.page(page_number)
                }
     return render(request, 'dashboard.html', context)
-
-
-"""Hanson's Version"""
-# @login_required
-# def dashboard(request):
-#     """Display the current user's dashboard."""
-#     current_user = request.user
-#     image_url = None
-#     context = {'user': current_user}
-#     form = FileForm(user=current_user)
-#     if request.method == 'POST':
-#         form = FileForm(request.POST, request.FILES, user=current_user)
-#         if form.is_valid():
-#             media_file = request.FILES['file']
-#             if settings.USE_S3:
-#                 try:
-#                     upload = form.save(media_file)
-#                     image_url = upload.file.url
-
-#                     # Add upload to team files
-#                     team_id = request.POST.get("team_id")
-#                     if team_id is not None:
-#                         team = Team.objects.get(id=team_id)
-#                         team.add_upload(upload)
-
-#                 except ValidationError as e:
-#                     messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
-#             else:
-#                 messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
-#         else:
-#             form = FileForm()
-#     if image_url:
-#         context['image_url'] = image_url
-#     context['form'] = form
-#     context['shared'] = SharedFiles.objects.filter(shared_to=current_user)
-#     return render(request, 'dashboard.html', context)

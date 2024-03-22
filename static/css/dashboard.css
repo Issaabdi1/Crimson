@@ -51,8 +51,6 @@
 /*}*/
 
 
-
-
 .icon-btn {
     width: 1em;
     height: 1em;
@@ -63,77 +61,98 @@
 
 /* Slide-in animation */
 @keyframes slideIn {
-from {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-to {
-  opacity: 1;
-  transform: translateY(0);
-}
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Apply slide-in animation to table rows */
 tbody tr {
-animation: slideIn 0.5s ease-in-out;
+    animation: slideIn 0.5s ease-in-out;
 }
 
-*, *:before, *:after{
-  box-sizing: border-box;
-  padding: 0; margin: 0;
-  font: 300 1em/1.5 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
-  text-decoration: none;
-  /*color: #111;*/
+*, *:before, *:after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font: 300 1em/1.5 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    text-decoration: none;
+    /*color: #111;*/
 }
 
-  section.container{
+section.container {
     min-width: 600px;
     margin: 10% auto;
     text-align: center;
-  }
-    /*a:hover{border-bottom: 1px solid #111;}*/
-    h1{font-size: 2em; padding: 20px 0;}
-    p{
-      font-size: .75em;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      padding: 20px 0;
-    }
+}
 
-    button:hover{cursor: pointer}
-    button {
-      background: transparent; outline: none;
-      position: relative;
-      border: 2px solid #111;
-      padding: 15px 50px;
-      overflow: hidden;
-    }
-    /*button:before (attr data-hover)*/
-    button:hover:before{opacity: 1; transform: translate(0,0);}
-    button:before{
-      content: attr(data-hover);
-      position: absolute;
-      top: 1.1em; left: 0;
-      width: 100%;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      font-weight: 800;
-      font-size: .8em;
-      opacity: 0;
-      transform: translate(-100%,0);
-      transition: all .3s ease-in-out;
-    }
-      /*button div (button text before hover)*/
-      button:hover div{opacity: 0; transform: translate(100%,0)}
-      button div{
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        font-weight: 800;
-        font-size: .8em;
-        transition: all .3s ease-in-out;
-      }
+/*a:hover{border-bottom: 1px solid #111;}*/
+h1 {
+    font-size: 2em;
+    padding: 20px 0;
+}
 
-a{
+p {
+    font-size: .75em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 20px 0;
+}
+
+button:hover {
+    cursor: pointer
+}
+
+button {
+    background: transparent;
+    outline: none;
+    position: relative;
+    border: 2px solid #111;
+    padding: 15px 50px;
+    overflow: hidden;
+}
+
+/*button:before (attr data-hover)*/
+button:hover:before {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+button:before {
+    content: attr(data-hover);
+    position: absolute;
+    top: 1.1em;
+    left: 0;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 800;
+    font-size: .8em;
+    opacity: 0;
+    transform: translate(-100%, 0);
+    transition: all .3s ease-in-out;
+}
+
+/*button div (button text before hover)*/
+button:hover div {
+    opacity: 0;
+    transform: translate(100%, 0)
+}
+
+button div {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 800;
+    font-size: .8em;
+    transition: all .3s ease-in-out;
+}
+
+a {
     text-decoration: none;
 }
 
@@ -142,21 +161,27 @@ table#dataTable {
     user-select: none;
 }
 
-.searchbar-container {
-    max-width: 600px;
+.toolbar-container {
+    max-width: 2500px;
+    min-width: 1000px;
     margin-left: auto;
     margin-bottom: 20px;
 }
 
-.searchbar-container.row.justify-content-end {
+.toolbar-container.row.justify-content-end {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
 }
 
-.searchbar-container .col-md-6 {
+.toolbar-container .col-md-6 {
     flex: 0 0 auto;
     width: auto;
+}
+
+.buttonbar {
+    display: flex;
+    margin-right: auto; /* Push it to the left */
 }
 
 .avatar {
@@ -170,3 +195,91 @@ table#dataTable {
 .td {
     text-align: center;
 }
+
+.wave {
+    animation-name: wave-animation; /* Refers to the name of your @keyframes element below */
+    animation-duration: 2.5s; /* Change to speed up or slow down */
+    animation-iteration-count: infinite; /* Never stop waving :) */
+    transform-origin: 70% 70%; /* Pivot around the bottom-left palm */
+    display: inline-block;
+    font-size: 3.5em;
+}
+
+@keyframes wave-animation {
+    0% {
+        transform: rotate(0.0deg)
+    }
+    10% {
+        transform: rotate(14.0deg)
+    }
+    /* The following five values can be played with to make the waving more or less extreme */
+    20% {
+        transform: rotate(-8.0deg)
+    }
+    30% {
+        transform: rotate(14.0deg)
+    }
+    40% {
+        transform: rotate(-4.0deg)
+    }
+    50% {
+        transform: rotate(10.0deg)
+    }
+    60% {
+        transform: rotate(0.0deg)
+    }
+    /* Reset for the last half to pause */
+    100% {
+        transform: rotate(0.0deg)
+    }
+}
+
+.schoolbell {
+    font-family: "Schoolbell", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.noto-sans {
+    font-family: "Noto Sans Mongolian", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.welcome-header {
+    font-size: 5em;
+}
+
+.intro-header {
+    font-size: 1.4em;
+    position: relative;
+    top: -15px;
+}
+
+.start-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+#start {
+    margin: 0 auto;
+    text-align: start;
+    position: relative;
+    top: -80px;
+}
+
+#start-footer {
+    position: absolute;
+    bottom: 150px;
+}
+
+#start-footer .start-btn{
+    color:#FFFFFF;
+    background-color:#29D685;
+    border-color: #29D685;
+    border-radius: 10px;
+}
+
+/* For demonstration purposes only: */

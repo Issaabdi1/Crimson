@@ -10,131 +10,183 @@
         <h1><strong>Dashboard</strong></h1>
     </head>
     <body>
-
-    <section>
-        <p class="d-inline-flex gap-1">
-            <button class="container" data-hover="Read More" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                <div>
-                    <i class="bi bi-plus-lg"></i>
+    {% if not uploads %}
+        <div class="start-block">
+            <div id="start">
+                <div style="display: flex;">
+                    <span class="wave">👋</span>
+                    <h1 class="schoolbell welcome-header">Welcome!</h1>
                 </div>
-            </button>
-        </p>
-    </section>
-
-    <div class="collapse" id="collapseExample">
-        <!-- <div class="get-start">
-        <div class="d-grid gap-2 col-6 mx-auto">
-            <button class="start-button" type="button" onclick="window.location='{% url 'upload_file' %}'">
-                Get Start
-            </button>
-        </div>
-    </div> -->
-        <div class="searchbar-container row justify-content-end">
-            <div class="col-md-6">
-                <div class="form-inline justify-content-end">
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
-                               id="searchInput">
-                    </form>
-                </div>
+                <h4 class="noto-sans intro-header">Upload Your First PDF File to Get Start</h4>
+            </div>
+            <div id="start-footer">
+                <button type="button" class="btn start-btn" onclick="window.location='{% url 'upload_file' %}'">Start
+                    Upload
+                </button>
             </div>
         </div>
+    {% else %}
+        <section>
+            <p class="d-inline-flex gap-1">
+                <button class="container" data-hover="Read More" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <div>
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                </button>
+            </p>
+        </section>
+
+        <div class="collapse" id="collapseExample">
+            <div class="toolbar-container row justify-content-end">
+                <div class="col-md-3">
+                    <div class="button-bar">
+                        <button type="button" class="btn btn-primary"><i class="bi bi-play-btn"></i></button>
+                        <button type="button" class="btn btn-secondary"><i class="bi bi-download"></i></button>
+                        <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-5"></div>
+                <div class="col-md-2">
+                    {% if paginator.num_pages > 1 %}
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item {% if not current_page.has_previous %}disabled{% endif %}">
+                                    <a class="page-link" aria-label="Previous"
+                                       {% if current_page.has_previous %}href="?page={{ current_page.previous_page_number }}"
+                                       {% else %}href="#"{% endif %}>
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                {% for page_num in paginator.page_range %}
+                                    <li class="{% if page_num == paginator.page.number %}active{% endif %} page-item">
+                                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-item {% if not current_page.has_next %}disabled{% endif %}">
+                                    <a class="page-link" aria-label="Next"
+                                       {% if current_page.has_next %}href="?page={{ current_page.next_page_number }}"
+                                       {% else %}href="#"{% endif %}>
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+                <div class="col-md-2">
+                    <div class="form-inline justify-content-end">
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                                   id="searchInput">
+                        </form>
+                    </div>
+                </div>
+            </div>
 
 
-        <div class="text-center">
-            <div class="row">
-                <div class="table-responsive">
-                    <table class="table table-light table-bordered" id="dataTable">
-                        <thead class="table-secondary">
-                        <tr>
-                            <th scope="col">
-                                <input class="form-check-input" type="checkbox" value="" id="selectAll">
-                            </th>
-
-                            <th scope="col">
-                                ID
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th scope="col">
-                                File Name
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th scope="col">
-                                Owner
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th scope="col">
-                                Uploaded At
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th scope="col">
-                                Description
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                            <th scope="col">
-                                Size
-                                <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-down"></i>
-                                    </button>
-                                </div>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for upload in uploads %}
+            <div class="text-center">
+                <div class="row">
+                    <div class="table-responsive">
+                        <table class="table table-light table-bordered" id="dataTable">
+                            <thead class="table-secondary">
                             <tr>
-                                <td scope="row">
-                                    <input class="form-check-input row-checkbox" type="checkbox">
-                                </td>
-                                <td scope="row">{{ forloop.counter }}</td>
-                                <td>{{ upload.get_file_name_without_path }}</td>
-                                <td>
-                                    <img src="{{ upload.owner.avatar_url }}" alt="Mini Gravatar" class="avatar">
-                                    {{ upload.owner.username }}
-                                </td>
-                                <td>{{ upload.uploaded_at }}</td>
-                                {% if upload.comments %}
-                                    <td>{{ upload.comments }}</td>
-                                {% else %}
-                                    <td>-</td>
-                                {% endif %}
-                                <td>{{ upload.file_size_mb }} Mb</td>
+                                <th scope="col">
+                                    <input class="form-check-input" type="checkbox" value="" id="selectAll">
+                                </th>
+
+                                <th scope="col">
+                                    ID
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    File Name
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Owner
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Uploaded At
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Description
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    Size
+                                    <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                                        <button type="button" class="btn btn-sm icon-btn"><i class="bi bi-caret-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm icon-btn"><i
+                                                class="bi bi-caret-down"></i>
+                                        </button>
+                                    </div>
+                                </th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {% for upload in uploads %}
+                                <tr>
+                                    <td scope="row">
+                                        <input class="form-check-input row-checkbox" type="checkbox">
+                                    </td>
+                                    <td scope="row">{{ upload.row_id }}</td>
+                                    <td>{{ upload.get_file_name_without_path }}</td>
+                                    <td>
+                                        <img src="{{ upload.owner.avatar_url }}" alt="Mini Gravatar" class="avatar">
+                                        {{ upload.owner.username }}
+                                    </td>
+                                    <td>{{ upload.uploaded_at }}</td>
+                                    {% if upload.comments %}
+                                        <td>{{ upload.comments }}</td>
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                    <td>{{ upload.file_size_mb }} Mb</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endif %}
+
+
     </body>
 
 {% endblock %}

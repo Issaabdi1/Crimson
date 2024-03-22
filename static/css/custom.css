@@ -602,10 +602,10 @@ Dark mode
     color: #7A7A7A;
 }
 
-.share-offcanvas-label{
-    background-color: whitesmoke;
-    color: black;
-    font-weight: bold;
+.dark-mode #start-footer .start-btn{
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
 }
 
 /*
@@ -678,4 +678,10 @@ Pink mode
 
 #themePreferencesForm{
 
+}
+
+.share-offcanvas-label{
+    background-color: whitesmoke;
+    color: black;
+    font-weight: bold;
 }
