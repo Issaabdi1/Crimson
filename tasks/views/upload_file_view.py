@@ -65,7 +65,7 @@ def upload_file_view(request):
 
     uploaded_file = Upload.objects.last()
     if uploaded_file:
-        simple_file_name = uploaded_file.get_simple_file_name()
+        simple_file_name = uploaded_file.get_file_name_without_path()
         context['simple_file_name'] = simple_file_name
 
     context['form'] = form
