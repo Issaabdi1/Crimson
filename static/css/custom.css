@@ -699,3 +699,7 @@ Pink mode
     color: black;
     font-weight: bold;
 }
+
+.toast-body{
+    font-weight: 450;
+}
