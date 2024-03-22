@@ -608,6 +608,20 @@ Dark mode
     border-color: #7A7A7A;
 }
 
+.dark-mode .pagination .page-item:not(.active) .page-link{
+    color: #7A7A7A;
+}
+
+.dark-mode .page-item.active .page-link {
+    color: rgb(211,211,211);
+    background-color: #7A7A7A;
+    border-color: #7A7A7A;
+}
+
+.page-item.disabled .page-link {
+    background-color: #f7f7f7;
+}
+
 /*
 Orange mode
 */

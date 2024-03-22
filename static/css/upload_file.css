@@ -80,3 +80,8 @@
     background-color: transparent;
     border: solid 2px rgb(230,230,230);
 }
+
+#file-name{
+    position: relative;
+    top:-12px;
+}

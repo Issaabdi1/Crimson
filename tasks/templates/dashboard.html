@@ -46,8 +46,8 @@
                         <button type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
                     </div>
                 </div>
-                <div class="col-md-5"></div>
-                <div class="col-md-2">
+                <div class="col-md-4"></div>
+                <div class="col-md-2" id="page-col">
                     {% if paginator.num_pages > 1 %}
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
@@ -59,7 +59,7 @@
                                     </a>
                                 </li>
                                 {% for page_num in paginator.page_range %}
-                                    <li class="{% if page_num == paginator.page.number %}active{% endif %} page-item">
+                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
                                         <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
                                     </li>
                                 {% endfor %}
@@ -74,7 +74,7 @@
                         </nav>
                     {% endif %}
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2" id="search-col">
                     <div class="form-inline justify-content-end">
                         <form class="d-flex" role="search">
                             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"

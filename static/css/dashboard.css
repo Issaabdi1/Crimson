@@ -282,4 +282,12 @@ table#dataTable {
     border-radius: 10px;
 }
 
+#page-col{
+    margin-right: auto;
+}
+
+#search-col{
+    margin-left: auto;
+}
+
 /* For demonstration purposes only: */
