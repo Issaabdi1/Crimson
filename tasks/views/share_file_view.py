@@ -11,7 +11,7 @@ from django.utils import timezone
 def shared_file_list(request):
     """Display the current user's shared files."""
     current_user = request.user
-    shared_files = SharedFiles.objects.filter(shared_to=current_user)
+    shared_files = SharedFiles.objects.filter(shared_to=current_user).order_by('shared_date')
 
     page_number = request.GET.get('page', 1)
     per_page = 6

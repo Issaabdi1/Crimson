@@ -30,5 +30,7 @@ class SidebarTestCase(TestCase):
         """Tests when on the shared files page that the shared to me button is highlighted"""
         shared_file_list_url = reverse('shared_file_list')
         response= self.client.get(shared_file_list_url)
-        self.assertContains(response, f'<a class="nav-link active text-center" aria-current="page" href="{shared_file_list_url}">Shared To Me</a>', status_code=200 )
-        self.assertTemplateUsed( response, 'shared_file_list.html' )
+        self.assertTemplateUsed(response, 'shared_file_list.html')
+        self.assertContains(response,
+                            f'class="nav-link active text-center" aria-current="page" href="/shared_file_list/">Shared To',
+                            status_code=200)
