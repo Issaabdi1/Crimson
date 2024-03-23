@@ -53,7 +53,14 @@ class User(AbstractUser):
 
     def generate_ui_avatar_url(self):
         """Generate an avatar URL using the UI Avatars API."""
-        initials = f"{self.first_name[0]}{self.last_name[0]}".upper()
+        if self.first_name and self.last_name:
+            initials = f"{self.first_name[0]}{self.last_name[0]}".upper()
+        elif self.first_name:
+            initials = f"{self.first_name[0]}".upper()
+        elif self.last_name:
+            initials = f"{self.last_name[0]}".upper()
+        else:
+            initials = "AD"
         base_url = "https://ui-avatars.com/api/"
         params = {
             'name': initials,
