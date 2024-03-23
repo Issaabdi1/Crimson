@@ -2,7 +2,6 @@
 {% block content %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static '/css/upload_file.css' %}">
-    <script src="{% static '/js/upload_file.js' %}"></script>
 
     <div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative items-center"
          style="background-color: transparent">
@@ -110,14 +109,14 @@
                         {% endif %}
 
                         <div class="flex justify-center p-5">
-{#                            <button type="submit" id="upload-btn"#}
-{#                                    class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300">#}
-{#                                Upload#}
-{#                            </button>#}
-                            <button type="submit" id="upload-btn"  class="button">
-                              <svg class="svgIcon" viewBox="0 0 384 512">
-                                <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
-                              </svg>
+                            {#                            <button type="submit" id="upload-btn"#}
+                            {#                                    class="my-5 w-full flex justify-center bg-blue-500 text-gray-100 p-4  rounded-full tracking-wide font-semibold  focus:outline-none focus:shadow-outline hover:bg-blue-600 shadow-lg cursor-pointer transition ease-in duration-300">#}
+                            {#                                Upload#}
+                            {#                            </button>#}
+                            <button type="submit" id="upload-btn" class="button">
+                                <svg class="svgIcon" viewBox="0 0 384 512">
+                                    <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -126,25 +125,26 @@
         </div>
     </div>
 
-<script>
-    /**
-     * close button
-     * @type {NodeListOf<Element>}
-     */
-    var closeButtons = document.querySelectorAll('.btn-close');
-    
-    // Loop through each close button
-    closeButtons.forEach(function(button) {
-        // Add click event listener
-        button.addEventListener('click', function() {
-            // Find the parent div and remove it
-            var parentDiv = button.closest('.uploaded-file');
-            if (parentDiv) {
-                parentDiv.remove();
-            }
-        });
-    });
+    <script>
+        /**
+         * close button
+         * @type {NodeListOf<Element>}
+         */
+        var closeButtons = document.querySelectorAll('.btn-close');
 
-</script>
+        // Loop through each close button
+        closeButtons.forEach(function (button) {
+            // Add click event listener
+            button.addEventListener('click', function () {
+                // Find the parent div and remove it
+                var parentDiv = button.closest('.uploaded-file');
+                if (parentDiv) {
+                    parentDiv.remove();
+                }
+            });
+        });
+
+    </script>
+    <script src="{% static '/js/upload_file.js' %}"></script>
 
 {% endblock %}

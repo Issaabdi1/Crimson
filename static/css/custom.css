@@ -945,3 +945,12 @@ Pink mode
 .page-item.disabled .page-link {
     background-color: #f7f7f7;
 }
+
+/* Height of main page*/
+.min-vh-100 {
+    min-height: 94vh !important; /*the side bar will extended if the vh is set to 100*/
+}
+
+.min-h-screen {
+    min-height: 91vh !important;
+}
