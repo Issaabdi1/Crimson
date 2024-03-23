@@ -3,7 +3,7 @@
  */
 
 .alert {
-  border-radius: 0px;
+    border-radius: 0px;
 }
 
 
@@ -12,15 +12,15 @@
  */
 
 .content {
-  padding-top: 10px;
+    padding-top: 10px;
 }
 
 .h-100 {
-  min-height: 100vh;
-  height: 100vh;
+    min-height: 100vh;
+    height: 100vh;
 }
 
-.vcenter-item{
+.vcenter-item {
     display: flex;
     align-items: center;
 }
@@ -29,24 +29,25 @@
  * Cover page
  */
 h1.cover-heading {
-  font-size: 4rem;
+    font-size: 4rem;
 }
 
 p.cover-text {
-  font-size: 1.7rem;
+    font-size: 1.7rem;
 }
 
 .cover-card {
-  background-color: rgba(245, 245, 245, 0.6);
-  max-width: 30rem;
-  padding-top: 30px;
-  padding-left: 50px;
-  padding-right: 50px;
-  padding-bottom: 30px;
-  border-radius: 15%;
+    background-color: rgba(245, 245, 245, 0.6);
+    max-width: 30rem;
+    padding-top: 30px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 30px;
+    border-radius: 15%;
 }
+
 .cover-card-block {
-  opacity: 1
+    opacity: 1
 }
 
 
@@ -54,13 +55,13 @@ p.cover-text {
  * forms
  */
 .nolabel label {
-  display: none;
+    display: none;
 }
 
 ul.errorlist {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
 /*
@@ -68,38 +69,38 @@ ul.errorlist {
  */
 
 .low-key {
-  color: #777777;
-  font-weight: 300;
+    color: #777777;
+    font-weight: 300;
 }
 
 .list-title {
-  margin-top: 10px;
-  margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 /*
  * Profile
  */
 .profile-image {
-  width: 120px;
-  clear:both;
-  float:left;
+    width: 120px;
+    clear: both;
+    float: left;
 }
 
 .profile-text {
-  overflow:hidden;
-  padding-left:20px;
-  padding-top:20px;
+    overflow: hidden;
+    padding-left: 20px;
+    padding-top: 20px;
 }
 
 h3.profile-title {
-  margin-bottom: 0px;
+    margin-bottom: 0px;
 }
 
 .profile-username {
-  color: #777777;
-  font-weight: 300;
-  font-style: italic;
+    color: #777777;
+    font-weight: 300;
+    font-style: italic;
 }
 
 
@@ -107,12 +108,13 @@ h3.profile-title {
  * Hyperlinks
  */
 .content a {
-  text-decoration: none;
-  color: #0d6efd;
+    text-decoration: none;
+    color: #0d6efd;
 }
+
 .content a:hover {
-  text-decoration: underline;
-  color: #0d6efd;
+    text-decoration: underline;
+    color: #0d6efd;
 }
 
 
@@ -120,30 +122,30 @@ h3.profile-title {
  * Popup window
  */
 
-.popup-container, .profile-popup-container{
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+.popup-container, .profile-popup-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
 }
 
 .profile-popup {
-  border-radius: 25px;
-  border: 2px solid white;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  height: 300px;
-  width: 300px;
+    border-radius: 25px;
+    border: 2px solid white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    height: 300px;
+    width: 300px;
 }
 
 .popup {
@@ -162,9 +164,15 @@ h3.profile-title {
     max-width: 300px;
 }
 
+#closePopup {
+    font-size: xx-large;
+    margin: 0;
+
+}
+
 /* Issa's Popup container */
 .popup-container {
-  opacity: 0;
+    opacity: 0;
 }
 
 .popup-container.active {
@@ -173,14 +181,14 @@ h3.profile-title {
 }
 
 @keyframes fadeIn {
-  from {
-      opacity: 0;
-      transform: translate(0%, 10%) scale(1.2);
-  }
-  to {
-      opacity: 1;
-      transform: translate(0%, 0%) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translate(0%, 10%) scale(1.2);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0%, 0%) scale(1);
+    }
 }
 
 .popup-container.active {
@@ -189,15 +197,16 @@ h3.profile-title {
 }
 
 @keyframes fadeIn {
-  from {
-      opacity: 0;
-      transform: translate(0%, 10%) scale(1.2);
-  }
-  to {
-      opacity: 1;
-      transform: translate(0%, 0%) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translate(0%, 10%) scale(1.2);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0%, 0%) scale(1);
+    }
 }
+
 .close-btn {
     position: absolute;
     top: 10px;
@@ -209,101 +218,110 @@ h3.profile-title {
  * Team list style
  */
 
- .teams-list {
-  list-style-type: none;
-  padding: 0;
+.teams-list {
+    list-style-type: none;
+    padding: 0;
 }
 
 .team-item {
-  margin-top: 20px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+    margin-top: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .team-link {
-  display: block;
-  text-decoration: none;
+    display: block;
+    text-decoration: none;
 }
 
 .team-box {
-  border: 1px solid lightgray;
-  border-radius: 5px;
-  padding: 10px;
-  background-color: white;
-  transition: color 0.3s ease;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+    transition: color 0.3s ease;
 }
 
 .team-link:hover .team-box:hover {
-  color: navy;
+    color: navy;
 }
 
 .team-name {
-  margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: inherit;
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: inherit;
 }
 
 .team-details {
-  margin: 5px 0 0;
-  font-size: 14px;
-  color: inherit;
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: inherit;
 }
+
 .team-text {
-  font-family: 'IBM Plex Serif', serif;
+    font-family: 'IBM Plex Serif', serif;
 }
+
 .shading {
-box-shadow: inset 0 5px 5px -5px rgba(0, 0, 0, 0.2), inset 5px 0 5px -5px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 5px 5px -5px rgba(0, 0, 0, 0.2), inset 5px 0 5px -5px rgba(0, 0, 0, 0.2);
 }
+
 .pfp {
-font-size: 40px;
+    font-size: 40px;
 }
 
 /* CSS design to team detail page */
 body {
-  overflow-x: hidden;
+    overflow-x: hidden;
 }
+
 .rectangle {
-  width: 150px;
-  height: 700px;
-  background-color: rgb(0, 102, 255);
-  position: absolute;
-  top: 0;
-  left: 0;
-  animation: diagonal-slide 0.8s cubic-bezier(0, 0.6, 0.3, 1.1) forwards;
-  z-index: -1;
-  opacity: 0%;
+    width: 150px;
+    height: 700px;
+    background-color: rgb(0, 102, 255);
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: diagonal-slide 0.8s cubic-bezier(0, 0.6, 0.3, 1.1) forwards;
+    z-index: -1;
+    opacity: 0%;
 }
+
 .rectangle:nth-child(1) {
-  --index: 1;
-  animation-delay: 0.3s;
+    --index: 1;
+    animation-delay: 0.3s;
 }
+
 .rectangle:nth-child(2) {
-  --index: 2;
-  animation-delay: 0.2s;
+    --index: 2;
+    animation-delay: 0.2s;
 }
+
 .rectangle:nth-child(3) {
-  --index: 3;
-  animation-delay: 0.1s;
+    --index: 3;
+    animation-delay: 0.1s;
 }
 
 @keyframes diagonal-slide {
-  0% {
-      transform: translateX(-200%) skew(-60deg);
-      opacity: calc(5% * (var(--index)));
-  }
-  100% {
-      transform: translateX(calc(48% - (150px * (var(--index) - 1)))) skew(-60deg);
-      opacity: calc(5% * (var(--index)));
-  }
+    0% {
+        transform: translateX(-200%) skew(-60deg);
+        opacity: calc(5% * (var(--index)));
+    }
+    100% {
+        transform: translateX(calc(48% - (150px * (var(--index) - 1)))) skew(-60deg);
+        opacity: calc(5% * (var(--index)));
+    }
 }
+
 /* Team detail buttons */
 .team-detail-button {
-  transition: transform 0.3s ease;
+    transition: transform 0.3s ease;
 }
+
 .team-detail-button:hover {
-  transform: scale(0.90);
+    transform: scale(0.90);
 }
 
 
@@ -311,41 +329,41 @@ body {
 Fade in transition
 */
 .fade-in {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 
 }
 
 /*
  * Profile image style
  */
-.large-image{
+.large-image {
     height: 120px;
     width: 120px;
 }
 
-.medium-image{
+.medium-image {
     height: 70px;
     width: 70px;
 }
 
-.medium-small-image{
+.medium-small-image {
     height: 45px;
     width: 45px;
 }
 
-.small-image{
+.small-image {
     height: 20px;
     width: 20px;
 }
 
-.invert_image{
+.invert_image {
     filter: invert(100%);
 }
 
@@ -373,14 +391,14 @@ Fade in transition
 Fade in transition
 */
 .fade-in {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .avatar-selected {
@@ -391,31 +409,40 @@ Fade in transition
 Default mode 
 */
 .default-mode .sidebar {
-  background-color: rgb(239, 239, 239);
+    background-color: rgb(239, 239, 239);
 }
 
 /*
 Dark mode  
 */
 .dark-mode {
-  background-color: rgb(211,211,211);
-  color:#7A7A7A;
+    background-color: #212121;
+    color: #7A7A7A;
 }
-.dark-mode .dropdown-custom-theme  {
-  background-color: rgb(211,211,211) ;
-  color: rgb(100,100,100) !important;
+
+/* Dark mode dropdown*/
+
+.dark-mode .dropdown-custom-theme {
+    background-color: #212121;
+    color: #7A7A7A !important;
 }
+
+.dark-mode .dropdown-item {
+    color: #7A7A7A !important;
+}
+
+/* Dark mode sidebar */
 
 .dark-mode .sidebar {
-  background-color: rgb(255,255,251) ;
+    background-color: #181818;
 }
 
-.dark-mode .sidebar a{
-  color: #7A7A7A;
+.dark-mode .sidebar a {
+    color: #7A7A7A;
 }
 
-.dark-mode .sidebar .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-    color: rgb(211,211,211);
+.dark-mode .sidebar .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
 }
 
@@ -433,21 +460,23 @@ Dark mode
 }
 
 .dark-mode .a {
-  background: rgb(100,100,100);
+    background: rgb(100, 100, 100);
 }
 
+/* Dark mode popup*/
+
 .dark-mode .profile-popup {
-  border: transparent;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgb(211,211,211);
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  height: 300px;
-  width: 300px;
+    border: transparent;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #212121;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    height: 300px;
+    width: 300px;
 }
 
 .dark-mode .popup {
@@ -456,7 +485,7 @@ Dark mode
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgb(211,211,211);
+    background-color: #212121;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     z-index: 1000;
@@ -465,87 +494,174 @@ Dark mode
     max-width: 300px;
 }
 
-.dark-mode .team-link {
-  color: #7A7A7A;
+.dark-mode #popupForm input {
+    color: #FFFFFF;
+    background-color: #212121;
+    border-color: #7A7A7A;
 }
 
-.dark-mode .team-name {
-  color: #7A7A7A;
+.dark-mode #popupForm .btn-primary {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
 }
 
-.dark-mode .team-details {
-  color: #7A7A7A;
+.dark-mode #popupInviteForm input {
+    color: #FFFFFF;
+    background-color: #212121;
+    border-color: #7A7A7A;
 }
 
-.dark-mode .team-box {
-  background-color: rgb(211,211,211);
-    border: 2px solid #7A7A7A;
+.dark-mode #popupInviteForm .btn-primary {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
 }
 
-.dark-mode .modal-body{
-    color: #000000;
+
+/* Dark mode notification bar */
+.dark-mode .offcanvas {
+    background-color: #212121;
 }
 
-.dark-mode .share-input{
-    border-color: rgb(230,230,230);
+.dark-mode .card {
+    background-color: #212121;
+    z-index: 3;
+    border-color: #7A7A7A;
 }
 
-.dark-mode .share-form input{
-    background-color: transparent;
-    border-color: rgb(230,230,230);
-    border-width: 2px;
+.dark-mode .form-check-label {
     color: #7A7A7A;
 }
 
-.dark-mode .offcanvas{
-    background-color: rgb(211,211,211);
+.dark-mode .btn-close {
+    filter: invert(99%) sepia(100%) saturate(0%) hue-rotate(248deg) brightness(108%) contrast(105%);
 }
 
-.dark-mode .card{
-    background-color: rgb(211,211,211);
-}
-
-.dark-mode .form-check-label{
+.dark-mode .file-link:hover {
     color: #7A7A7A;
 }
 
-.dark-mode .modal-title{
-    color: #111111;
+/* Dark mode modal */
+
+.dark-mode .modal-title {
+    color: #FFFFFF;
+    background-color: #212121;
 }
 
-.dark-mode #CreateTeamPopup{
+.dark-mode .modal-body {
+    color: #FFFFFF;
+    background-color: #212121;
+}
+
+.dark-mode .modal-body #textInput {
+    color: #FFFFFF;
+    background-color: #212121;
+}
+
+.dark-mode .modal-footer {
+    color: #FFFFFF;
+    background-color: #212121;
+}
+
+.dark-mode .modal-content {
+    background-color: #212121;
+}
+
+.dark-mode .modal-content textarea {
+    background-color: #212121;
+    border-color: #7A7A7A;
+}
+
+.dark-mode .modal-content .btn-close {
+    filter: invert(99%) sepia(100%) saturate(0%) hue-rotate(248deg) brightness(108%) contrast(105%);
+}
+
+.dark-mode .modal-content .save-button {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
+}
+
+.dark-mode .modal-content .save-button:hover {
+    background-color: #919191;
+}
+
+.dark-mode .modal-content .unshare-btn {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
+}
+
+.dark-mode .modal-content .unshare-btn:hover {
+    background-color: #919191;
+}
+
+.dark-mode .modal-content .rename-close-btn {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
+}
+
+.dark-mode .modal-content .rename-close-btn:hover {
+    background-color: #919191;
+}
+
+/* Dark mode team list button*/
+
+.dark-mode #CreateTeamPopup {
     color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
 .dark-mode #CreateTeamPopup:hover {
-    color: rgb(211,211,211);
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
-.dark-mode #JoinTeamPopup{
-    color: rgb(211,211,211);
+.dark-mode #JoinTeamPopup {
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
-.dark-mode #teamBack{
+.dark-mode .team-link {
+    color: #7A7A7A;
+}
+
+.dark-mode .team-name {
+    color: #7A7A7A;
+}
+
+.dark-mode .team-details {
+    color: #7A7A7A;
+}
+
+.dark-mode .team-box {
+    background-color: #212121;
+    border: 2px solid #7A7A7A;
+}
+
+
+/* Dark mode team action button*/
+
+.dark-mode #teamBack {
     color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
 .dark-mode #teamBack:hover {
-    color: rgb(211,211,211);
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
-.dark-mode  .button_plus {
+.dark-mode .button_plus {
     position: absolute;
     width: 45px;
     height: 45px;
-    background: rgb(211,211,211);
+    background: #212121;
     cursor: pointer;
     border: 3px solid #7A7A7A;
     border-radius: 50%;
@@ -553,33 +669,40 @@ Dark mode
     top: 20px;
 }
 
-.dark-mode  .button_plus:after {
+.dark-mode .button_plus:after {
     background: #7A7A7A;
 }
 
-.dark-mode  .button_plus:before {
+.dark-mode .button_plus:before {
     background: #7A7A7A;
 }
 
-.dark-mode  .action-button {
+.dark-mode .action-button {
     background-color: #7A7A7A;
-    color: rgb(211,211,211);
+    color: rgb(211, 211, 211);
 }
 
-.dark-mode  .action-button:hover {
+.dark-mode .action-button:hover {
     background-color: #919191;
+}
+
+.dark-mode .share-btn-team{
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
+}
+
+/* Dark mode upload*/
+.dark-mode #upload-btn {
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
 }
 
 .dark-mode #upload-btn {
-    background-color: #7A7A7A;
-    color: rgb(211,211,211);
-}
-
-.dark-mode  #upload-btn {
     background-color: #919191;
 }
 
-.dark-mode  #upload-header {
+.dark-mode #upload-header {
     color: #7A7A7A;
 }
 
@@ -587,102 +710,191 @@ Dark mode
     filter: invert(57%) sepia(0%) saturate(885%) hue-rotate(140deg) brightness(83%) contrast(86%);
 }
 
-.dark-mode  .share-btn {
-    border: rgb(210,210,210);
-    background-color: #7A7A7A;
-    color: rgb(211,211,211);
+/* Dark mode share*/
+.dark-mode .share-input {
+    border-color: rgb(230, 230, 230);
 }
 
-.dark-mode  .share-btn:hover {
+.dark-mode .share-form input {
+    background-color: transparent;
+    border-color: rgb(230, 230, 230);
+    border-width: 2px;
+    color: #7A7A7A;
+}
+
+.dark-mode .share-btn {
+    border: rgb(210, 210, 210);
+    background-color: #7A7A7A;
+    color: rgb(211, 211, 211);
+}
+
+.dark-mode .share-btn:hover {
     background-color: #919191;
 }
 
-.dark-mode .share-offcanvas-label{
-    background-color: #D2D2D2;
+.dark-mode .share-offcanvas-label {
+    background-color: #212121;
     color: #7A7A7A;
 }
 
-.dark-mode #start-footer .start-btn{
-    color: rgb(211,211,211);
+.dark-mode #start-footer .start-btn {
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
-.dark-mode .pagination .page-item:not(.active) .page-link{
+.dark-mode .share-form-pop input {
+    border-color: #7A7A7A;
+    color: #FFFFFF;
+    background-color: #212121;
+}
+
+.dark-mode .thumbnail {
+    color: #FFFFFF;
+}
+
+.dark-mode .thumbnail .file-name{
+    color: #FFFFFF;
+}
+.dark-mode .thumbnail:hover {
+    border-color: #7A7A7A;
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3);
+}
+.dark-mode .thumbnail.selected {
+    border-color: #7A7A7A;
+    box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1000px #7A7A7A;
+}
+
+/* Dark mode paging*/
+.dark-mode .pagination .page-item:not(.active) .page-link {
     color: #7A7A7A;
+    background-color: #212121;
+    border-color: #7A7A7A;
 }
 
 .dark-mode .page-item.active .page-link {
-    color: rgb(211,211,211);
+    color: rgb(211, 211, 211);
     background-color: #7A7A7A;
     border-color: #7A7A7A;
 }
 
-.page-item.disabled .page-link {
-    background-color: #f7f7f7;
+/* Dark mode profile password*/
+.dark-mode .profile-text h3 {
+    color: #FFFFFF;
+}
+
+.dark-mode .profile-text p {
+    color: #FFFFFF;
+}
+
+.dark-mode #new-info h1 {
+    color: #FFFFFF;
+}
+
+.dark-mode #new-info label {
+    color: #FFFFFF;
+}
+
+.dark-mode #new-info input {
+    color: #FFFFFF;
+}
+
+/* Dark mode dashboard */
+
+.dark-mode #search-col input {
+    color: #FFFFFF;
+    background-color: #212121;
+    border-color: #7A7A7A;
+}
+
+.dark-mode .list-table{
+    filter: brightness(80%);
+}
+
+.dark-mode .button-bar .btn{
+    filter: brightness(90%);
+}
+
+/* File card */
+.dark-mode .text-list-item{
+    background-color: #7A7A7A;
+}
+
+.dark-mode .list-group-file .list-item{
+    background-color: #7A7A7A;
+}
+
+.dark-mode .list-group-file .btn{
+    filter: brightness(90%);
+}
+
+.dark-mode .list-group .list-item{
+    background-color: #7A7A7A;
 }
 
 /*
 Orange mode
 */
 .orange-mode {
-  background-color: #FFD7BA;
-  color: #5A2C04;
+    background-color: #FFD7BA;
+    color: #5A2C04;
 }
 
 .orange-mode .sidebar {
-  background-color: #ffc99f;
-  color: #FFFFFF;
+    background-color: #ffc99f;
+    color: #FFFFFF;
 }
+
 .orange-mode a {
-  color: #000000;
+    color: #000000;
 }
 
 .orange-mode .dropdown-custom-theme {
-  background-color: #ffffff;
-  color: #5A2C04;
+    background-color: #ffffff;
+    color: #5A2C04;
 }
 
 /*
 Forest mode
 */
 .forest-mode {
-  background-color: #A3C1AD;
-  color: #1E3D22;
+    background-color: #A3C1AD;
+    color: #1E3D22;
 }
+
 .forest-mode .dropdown-custom-theme {
-  background-color: #507D60;
-  color: #c7cec8;
+    background-color: #507D60;
+    color: #c7cec8;
 }
 
 .forest-mode .sidebar {
-  background-color: #507D60;
-  color: #1E3D22;
+    background-color: #507D60;
+    color: #1E3D22;
 }
 
 .forest-mode a {
-  color: #ffffff;
+    color: #ffffff;
 }
 
 .forest-mode a .btn {
-  background-color: red ;
+    background-color: red;
 }
 
 /*
 Pink mode
 */
 .pink-mode {
-  background-color: #FDE2E4;
-  color: #882D60;
+    background-color: #FDE2E4;
+    color: #882D60;
 }
 
 .pink-mode .sidebar {
-  background-color: #F4C2C2;
-  color: #882D60;
+    background-color: #F4C2C2;
+    color: #882D60;
 }
 
 .pink-mode a {
-  color: #9E5062;
+    color: #9E5062;
 }
 
 .file-link {
@@ -690,16 +902,20 @@ Pink mode
     color: #0d6efd;
 }
 
-#themePreferencesForm{
+#themePreferencesForm {
 
 }
 
-.share-offcanvas-label{
+.share-offcanvas-label {
     background-color: whitesmoke;
     color: black;
     font-weight: bold;
 }
 
-.toast-body{
+.toast-body {
     font-weight: 450;
+}
+
+.page-item.disabled .page-link {
+    background-color: #f7f7f7;
 }

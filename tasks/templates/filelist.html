@@ -212,16 +212,14 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" style="color: black">New File Name</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                style="background: whitesmoke; color: black">X
-                        </button>
+                        <h5 class="modal-title">New File Name</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form id="renameForm_{{ upload.id }}" action="{% url 'rename_upload' upload.id %}"
                               method="post">
                             {% csrf_token %}
-                            <label for="textInput" style="color: black">New File Name:</label>
+                            <label for="textInput">New File Name:</label>
                             <input type="text" id="textInput" name="new_name">
                         </form>
                     </div>
@@ -237,14 +235,14 @@
 
     {% for upload in uploads %}
         <div style="background: whitesmoke; color: black">
-            {% include 'unshare_file.html' with upload=upload %}
+            {% include 'partials/unshare_file.html' with upload=upload %}
         </div>
     {% endfor %}
 
 
     {% if uploads %}
         <div class="col-lg-7 col-sm-6" style="background: whitesmoke; color: black">
-            {% include 'unshare_file.html' with uploads=uploads %}
+            {% include 'partials/unshare_file.html' with uploads=uploads %}
         </div>
     {% endif %}
 
