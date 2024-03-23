@@ -64,14 +64,10 @@
 
 								<!-- Voice Recording Section -->
 								<div id="voiceRecord">
-									<div id="playCircle">
-										<i id="play" class="fas fa-play" title="Start Recording"></i>
-									</div>
-									<div title="Recording...">
-										<div class="animation-block block-1"></div>
-										<div class="animation-block block-2"></div>
-										<div class="animation-block block-3"></div>
-									</div>
+									<button class="btn btn-primary" id="recordButton">
+										<i id="play" class="fas fa-microphone" title="Start Recording"></i>
+										&nbspRecord
+									</button>
 								</div>
 
 								<!-- Current Voice Comments Section -->
@@ -81,20 +77,10 @@
 								</div>
 								<br>
 
-								<!-- Refresh Section -->
-								<div id="refreshContainer" style="display: none;">
-									<div class="centered-text">Voice comments saved</div>
-									<div class="centered-text">
-										Refresh page to view:
-										<button id="refresh"><i class="fas fa-redo"></i></button>
-									</div>
-									<br>
-								</div>
-
 								<!-- Saved Voice Comments Section -->
 								<div id="voiceCommentLabel" class="centered-text">
-									<div id="collapseButton" class="collapse-button">
-										<i class="fas fa-chevron-right"></i>
+									<div id="collapseContainer">
+										<i id="collapseButton" class="fas fa-angle-right"></i>
 									</div>
 									&nbsp;Saved Voice Comments
 								</div>

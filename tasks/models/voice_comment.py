@@ -1,6 +1,7 @@
 from django.db import models
 from .user import User
 from .upload import Upload
+from django.utils import timezone
 import secrets, string
 
 
@@ -19,3 +20,6 @@ class VoiceComment(models.Model):
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, blank=False)
     mark_id = models.IntegerField(null=True)
     audio = models.FileField(upload_to=user_directory_path, blank=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    transcript = models.TextField(blank=True)
+    is_resolved = models.BooleanField(default=False)

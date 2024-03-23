@@ -51,6 +51,7 @@ function decodeEntities(encodedString) {
 var listOfMarkedSpans = []; //list of all the spans that are marked.
 var listOfComments = {} //this should be passed in from outside.
 var listOfVoiceComments = {};
+var listOfSavedComments = {};
 var currentMarkId;
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
@@ -339,9 +340,6 @@ function setupSpanClickEvent(element)
 		isMark = true;
 		currentMarkId = element.dataset.value;
 		
-		//document.getElementById('testComment').textContent = listOfComments[currentMarkId];
-		//console.log('current mark id is:' + currentMarkId);
-		
 		$.ajax({
 			url: '/get_comments/',
 			type: 'GET',
@@ -360,7 +358,6 @@ function setupSpanClickEvent(element)
 							currentCommentId = comment.comment_id;
 							commentsHTML += `
 								<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-									<p>comment id: ${comment.comment_id}</p>
 
 									<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 										<div>
@@ -549,6 +546,16 @@ async function savePdfChanges(saveCommentsFlag){
 			if (this.status === 200) {
 				if (saveCommentsFlag) {
 					listOfVoiceComments = {};
+					const response = JSON.parse(this.responseText);
+					const recentlySavedComments = response.recentlySavedComments;
+					for (const markId in recentlySavedComments) {
+						for (const comment of recentlySavedComments[markId]) {
+							if (!(markId in listOfSavedComments)) {
+								listOfSavedComments[markId] = [];
+							}
+							listOfSavedComments[markId].push(comment);
+						}
+					}
 					document.dispatchEvent(saveChanges); // dispatch event after save of comments is complete
 				}
 			}
@@ -681,17 +688,15 @@ document.getElementById('searchTermInput').addEventListener('input', updateSearc
 
 const voiceCommentLabel = document.getElementById('voiceCommentLabel');
 const collapseMenu = document.getElementById('collapseMenu');
-const playButton = document.getElementById('playCircle');
+const playButton = document.getElementById('recordButton');
 const playIcon = document.getElementById('play');
 const saveButton = document.getElementById('save');
 const allRecordings = document.getElementById('recordings');
 const savedRecordings = document.getElementById('savedRecordings');
-const animationBlocks = document.querySelectorAll('.animation-block');
 const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
 const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match =>
   String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
 );
-var listOfSavedComments = {};
 if (decodedJSONString) {
 	listOfSavedComments= JSON.parse(decodedJSONString);
 }
@@ -716,20 +721,10 @@ updateSaveButton();
 playButton.addEventListener('click', () => {
 	if (mediaRecorder && mediaRecorder.state === 'recording') {
 		stopRecording();
-		playIcon.classList.remove('fa-stop');
-		playIcon.classList.add('fa-play');
-		playIcon.setAttribute('title', 'Start Recording');
-		animationBlocks.forEach(block => {
-			block.style.display = 'none';
-		});
+		playButton.innerHTML = '<i id="play" class="fas fa-microphone" title="Start Recording"></i>&nbspRecord'
 	} else {
 		startRecording();
-		playIcon.classList.remove('fa-play');
-		playIcon.classList.add('fa-stop');
-		playIcon.setAttribute('title', 'Stop Recording');
-		animationBlocks.forEach(block => {
-			block.style.display = 'inline-block';
-		});
+		playButton.innerHTML = '<i id="play" class="fas fa-stop" title="Stop Recording"></i>&nbspStop Recording'
 	}
 });
 
@@ -747,25 +742,13 @@ function createAudioElement(audio_object, isBlob) {
     return audio;
 }
 
-// Function to create and configure reply buttons (functionality of replying not implemented)
-function createReplyButton() {
-	const reply = document.createElement('button');
-	const replyIcon = document.createElement('i');
-	replyIcon.className = 'fas fa-reply';
-	reply.appendChild(replyIcon);
-	reply.classList.add('button-large');
-	reply.title = 'Reply to voice comment';
-	return reply;
-}
 
 // Function to create and configure delete buttons
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
     const trashIcon = document.createElement('i');
-    trashIcon.className = 'fa solid fa-trash';
-    deleteBtn.appendChild(trashIcon);
-	deleteBtn.classList.add('button-large');
-    deleteBtn.title = 'Delete voice comment';
+	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'
+	deleteBtn.className = 'btn btn-danger';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -792,9 +775,6 @@ async function startRecording() {
 		}
 	};
 
-	/* CHANGE UPDATEVOICECOMMENTS FUNCTION TO INCLUDE TRANSCRIPT WHEN LOADING */
-	/* SAVE TRANSCRIPT IN COMMENTS MODEL (can use seperate button to save with transcript and without) */
-
 	mediaRecorder.addEventListener('stop', () => {
 
 		// Initialise file for recording
@@ -803,11 +783,6 @@ async function startRecording() {
 		setTimeout(() => { // Timeout used so recognizer catches up to audio
 			// Stop transcription
 			recognizer.stop();
-
-			// Create transcript div
-			const transcriptDiv = document.createElement('p');
-			transcriptDiv.classList.add("transcript-div");
-			transcriptDiv.textContent = "Transcript: " + finalTranscript;
 
 			// Call functions for audio + delete button
 			const audio = createAudioElement(blob, true)
@@ -830,10 +805,9 @@ async function startRecording() {
 				updateSaveButton();
 			});
 
-			// Add audio + delete button + transcript to div
+			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-			allRecordings.appendChild(transcriptDiv);
 
 			// Check if save button needs to be visible
 			updateSaveButton();
@@ -870,45 +844,6 @@ function checkCurrentMark() {
 	}
 }
 
-// Functions to create user label, button and menu to sort voice comments
-function createUserLabel (user, markId, userBtn) {
-	const userLabel = document.createElement('div');
-	userLabel.id = 'userLabel_' + user + markId;
-	userLabel.appendChild(userBtn);
-	userLabel.appendChild(document.createTextNode(` ${user}`));
-	return userLabel;
-}
-
-function createUserButton (user, markId) {
-	const userButton = document.createElement('div');
-	userButton.id = 'userButton_' + user + markId;
-	userButton.classList.add('collapse-button');
-	const chevron = document.createElement('i');
-	chevron.className = 'fas fa-chevron-right';
-	userButton.appendChild(chevron);
-
-	// Embed event listener to toggle correct menu
-	userButton.addEventListener('click', function() {
-		const userMenu = document.getElementById('userMenu_' + user + markId);
-        if (userMenu.style.display == "none" || collapseMenu.style.display == "") {
-            userMenu.style.display = "block";
-            userButton.classList.add("rotate-down");
-        } else {
-            userMenu.style.display = "none";
-            userButton.classList.remove("rotate-down");
-        }
-	});
-
-	return userButton;
-}
-
-function createUserMenu (user, markId) {
-	const userMenu = document.createElement('div');
-	userMenu.id = 'userMenu_' + user + markId;
-	userMenu.style.display = 'none';
-	return userMenu;
-}
-
 // Updates voice comments in current recordings and saved recordings dynamically
 function updateVoiceComments() {
 	allRecordings.innerHTML = '';
@@ -918,18 +853,12 @@ function updateVoiceComments() {
 		listOfVoiceComments[currentMarkId].forEach(blobTuple => {
 
 			const [blob, transcript] = blobTuple;
-					
-			// Create transcript div
-			var transcriptDiv = document.createElement('p');
-			transcriptDiv.classList.add("transcript-div");
-			transcriptDiv.textContent = "Transcript: " + transcript;
 
 			// Call functions for audio + delete button
 			var audio = createAudioElement(blob, true);
 			var deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				transcriptDiv.remove();
 				var index = -1;
 				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
 					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
@@ -948,99 +877,185 @@ function updateVoiceComments() {
 			// Add audio + delete button to div
 			allRecordings.appendChild(audio);
 			allRecordings.appendChild(deleteBtn);
-			allRecordings.appendChild(transcriptDiv);
-
 		});
 	}
 	// Displays audio saved in the database
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		for (const user in listOfSavedComments[currentMarkId]) {
+		listOfSavedComments[currentMarkId].forEach(vc => {
+			var audio_url = vc.audio_url;
+			var audio = createAudioElement(audio_url, false);
+			var card;
 
-			// Create collapsible button for each user
-			const userButton = createUserButton(user, currentMarkId);
+			var deleteBtn;
+			if (currentUser === fileOwner) {
+				deleteBtn = createDeleteButton(() => {
+					if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+						const csrftoken = getCookie('csrftoken');
+						const formData = new FormData();
+						formData.append('audio-url', audio_url);
 
-			// Create user menu for each user
-			const userMenu = createUserMenu(user, currentMarkId);
+						fetch('/delete_voice_comment/', {
+							method: 'POST',
+							headers: {
+								'X-CSRFToken': csrftoken
+							},
+							body: formData
+						})
+						.then(response => {
+							if (!response.ok) {
+								throw new Error('Error when returning response');
+							}
+							return response.json();
+						})
+						.then(data => {
+							card.remove();
+							const index = listOfSavedComments[currentMarkId].findIndex(comment => comment.audio_url === audio_url);
+							if (index !== -1) {
+								listOfSavedComments[currentMarkId].splice(index, 1);
+							}
+							if (listOfSavedComments[currentMarkId].length === 0) {
+								delete listOfSavedComments[currentMarkId];
+							}
+							updateVoiceComments();
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+					}
+				});
+			}
 
-			// Create user label to store user and button
-			const userLabel = createUserLabel(user, currentMarkId, userButton);
-
-			// Loop over each user's voice comments
-			listOfSavedComments[currentMarkId][user].forEach(audio_url => {
-
-				// Call functions for audio + reply button
-				var audio = createAudioElement(audio_url, false);
-				var replyBtn = createReplyButton();
-				var deleteBtn;
-
-				// Delete button can only be seen by the user who uploaded the PDF (subject to change)
-				if (currentUser === fileOwner) {
-					deleteBtn = createDeleteButton(() => {
-
-						// Warn user that deletion is permanent
-						if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
-							var csrftoken = getCookie('csrftoken');
-							var formData = new FormData();
-							formData.append('audio-url', audio_url);
-
-							// Send request to delete audio from backend
-							fetch('/delete_voice_comment/', {
-								method: 'POST',
-								headers: {
-									'X-CSRFToken': csrftoken
-								},
-								body: formData
-							})
-							.then(response => {
-								if (!response.ok) {
-									throw new Error('Error when returning response');
-								}
-								return response.json();
-							})
-							// On successful deletion, remove audio from frontend
-							.then(data => {
-								audio.remove();
-								deleteBtn.remove();
-								const index = listOfSavedComments[currentMarkId][user].indexOf(audio_url);
-								if (index !== -1) {
-									listOfSavedComments[currentMarkId][user].splice(index, 1);
-								}
-								if (listOfSavedComments[currentMarkId][user].length == 0) {
-									delete listOfSavedComments[currentMarkId][user];
-								}
-								updateVoiceComments();
-							})
-						}
-					});
-				}
-
-				userMenu.appendChild(audio);
-				userMenu.appendChild(replyBtn);
-
-				if (deleteBtn) {
-					userMenu.appendChild(deleteBtn);
-				}
-
-			});
-
-			savedRecordings.appendChild(userLabel);
-			savedRecordings.appendChild(userMenu);
-		}
+			card = createCard(vc, audio, deleteBtn);
+			savedRecordings.appendChild(card);
+		});
 	}
 
 	voiceCommentLabel.style.display = 'none';
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
-		for (const comments of Object.values(listOfSavedComments[currentMarkId])) {
-			if (comments.length > 0) {
-				voiceCommentLabel.style.display = 'flex';
-				break;
-			}
-		}
+		if (listOfSavedComments[currentMarkId].length > 0) {
+			voiceCommentLabel.style.display = 'flex';
 	}
 
 	// Check if save button needs to be visible
 	updateSaveButton();
 	checkCurrentMark();
+}
+
+// Checks voice comment as resolved
+async function markAsResolved(audio_url) {
+	if (confirm("Are you sure you want to mark this voice comment as resolved? This action is irreversible.")) {
+		const csrftoken = getCookie('csrftoken');
+		const formData = new FormData();
+		formData.append('audio_url', audio_url);
+		const response = await fetch('/mark_as_resolved/', {
+			method: 'POST',
+			headers: {
+				'X-CSRFToken': csrftoken
+			},
+			body: formData
+		});
+		if (response.ok) {
+			return true;
+		} else {
+			console.error('Request failed: ', response.status);
+			return false;
+		}
+	}
+	return false;
+}
+
+// Voice comment cards creation
+function createCard(vc, audio, deleteBtn) {
+    const user = vc.username;
+    const avatar_url = vc.avatar_url;
+    const transcript = vc.transcript;
+    const time_ago = vc.time_ago;
+	const is_resolved = vc.is_resolved;
+	const audio_url = vc.audio_url;
+
+    const card = document.createElement('div');
+    const cardTitle = document.createElement('div');
+	const cardSubTitle = document.createElement('div');
+    const cardBody = document.createElement('div');
+    const cardFooter = document.createElement('div');
+    const avatar = document.createElement('img');
+    const username = document.createElement('span');
+    const timestampText = document.createElement('span');
+    const transcriptText = document.createElement('span');
+    const transcriptBtn = document.createElement('button');
+	const resolveBtn = document.createElement('button');
+
+    card.classList.add('card', 'mb-3');
+    cardTitle.classList.add('card-title', 'd-flex', 'justify-content-between');
+    cardBody.classList.add('card-body', 'centered-text');
+    cardFooter.classList.add('card-footer');
+    avatar.classList.add('card-img-top');
+    timestampText.classList.add('text-muted', 'text-nowrap');
+
+    avatar.src = avatar_url;
+    username.textContent = user;
+    timestampText.textContent = time_ago;
+    cardSubTitle.appendChild(avatar);
+    cardSubTitle.appendChild(username);
+	cardTitle.appendChild(cardSubTitle);
+    cardTitle.appendChild(timestampText);
+    cardBody.appendChild(audio);
+    cardBody.appendChild(transcriptText);
+    card.appendChild(cardTitle);
+    card.appendChild(cardBody);
+    card.appendChild(cardFooter);
+
+    if (transcript) {
+		transcriptText.textContent = 'Transcript: ' + transcript;
+	} else {
+		transcriptText.textContent = 'No transcript available';
+	}
+    transcriptText.style.display = "none";
+    transcriptBtn.innerHTML = '<i class="fa fa-comment"></i>'
+    transcriptBtn.className = 'btn btn-info btn-custom';
+
+	if (is_resolved) {
+		resolveBtn.innerHTML = 'Resolved';
+        resolveBtn.disabled = true;
+        resolveBtn.className = 'btn btn-success btn-custom';
+	} else {
+		resolveBtn.innerHTML = '<i class="fa fa-check"></i> &nbsp;Resolve';
+        resolveBtn.className = 'btn btn-outline-success btn-custom';
+	}
+
+	cardFooter.appendChild(resolveBtn);
+    cardFooter.appendChild(transcriptBtn);
+    if (deleteBtn) {
+        cardFooter.appendChild(deleteBtn);
+    }
+
+    transcriptBtn.addEventListener('click', function() {
+        if (transcriptText.style.display == "none") {    
+            transcriptText.style.display = "block";
+        } else {
+            transcriptText.style.display = "none";
+        }
+    });
+
+	resolveBtn.addEventListener('click', function() {
+		markAsResolved(audio_url)
+			.then(accepted => {
+			if (accepted) {
+				resolveBtn.innerHTML = 'Resolved';
+				resolveBtn.disabled = true;
+				resolveBtn.className = 'btn btn-success btn-custom';
+				const commentToUpdate = listOfSavedComments[currentMarkId].find(comment => comment.audio_url == audio_url);
+				if (commentToUpdate) {
+					commentToUpdate.is_resolved = true;
+				}
+			}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+	});
+
+    return card;
 }
 
 // this code is only called after setup() function is completed
@@ -1052,7 +1067,7 @@ document.addEventListener('afterSetup', () => {
 		if (e.target.tagName === 'BUTTON' || e.target.classList.contains('markedSection')) {
 
 			// Do not update the voice comments when clicking buttons located in the voice-comment menu
-			if (!e.target.classList.contains('button-large')) {
+			if (!e.target.classList.contains('btn-custom')) {
 				updateVoiceComments();
 			}
 		}
@@ -1062,8 +1077,8 @@ document.addEventListener('afterSetup', () => {
 
 // function to call save PDF changes with correct flag
 saveButton.addEventListener('click' , () => {
-	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>'
-	savePdfChanges(true)
+	saveButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i>';
+	savePdfChanges(true);
 });
 
 const refreshContainer = document.getElementById('refreshContainer');

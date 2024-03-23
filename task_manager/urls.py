@@ -54,6 +54,5 @@ urlpatterns = [
     path('get_comments_json/<int:upload_id>/<int:mark_id>/', views.get_comments_json, name='get_comments_json'),
     path("update_comment/", views.update_comment, name="update_comment"),
     path("update_comment_status/", views.update_comment_status, name="update_comment_status"),
-
-
+    path("mark_as_resolved/", views.mark_as_resolved, name="mark_as_resolved")
 ]

@@ -3,8 +3,7 @@ from venv import logger
 
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-
-from django.utils import timezone
+from django.utils import timezone, timesince
 from tasks.models import Comment
 from django.shortcuts import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -45,12 +44,17 @@ def viewer(request):
                     listOfSavedComments = {}
                     if allVoiceComments:
                         for vc in allVoiceComments:
-                            if vc.mark_id not in listOfSavedComments:
-                                listOfSavedComments[vc.mark_id] = {}
-                            username = vc.user.username
-                            if username not in listOfSavedComments[vc.mark_id]:
-                                listOfSavedComments[vc.mark_id][username] = []
-                            listOfSavedComments[vc.mark_id][username].append(vc.audio.url)
+                            mark_id = vc.mark_id
+                            if mark_id not in listOfSavedComments:
+                                listOfSavedComments[mark_id] = []
+                            listOfSavedComments[mark_id].append({
+                                'username': vc.user.username,
+                                'avatar_url': vc.user.avatar_url,
+                                'audio_url': vc.audio.url,
+                                'transcript': vc.transcript,
+                                'time_ago': timesince(vc.timestamp) + ' ago',
+                                'is_resolved': vc.is_resolved
+                            })
                         context['listOfSavedComments'] = json.dumps(listOfSavedComments)
             except Upload.DoesNotExist:
                 messages.add_message(request, messages.ERROR, "Upload does not exist!")
@@ -99,28 +103,32 @@ def save_voice_comments(request):
         upload = Upload.objects.get(id=upload_id)
         user = request.user
         if upload and voice_comment_list:
+            saved_comments = {}
             for mark_id in voice_comment_list:
                 for voice_comment_data in voice_comment_list[mark_id]:
-                    print(voice_comment_data)
                     voice_comment = voice_comment_data.get("blob")
                     transcript = voice_comment_data.get("transcript", "")
                     filename = f"{uuid.uuid4()}.wav"
                     voice_comment_decode = base64.b64decode(voice_comment)
                     audio_file = ContentFile(voice_comment_decode, name=filename)
-                    VoiceComment.objects.create(
+                    saved_comment = VoiceComment.objects.create(
                         user=user,
                         upload=upload,
                         mark_id=mark_id,
                         audio=audio_file,
+                        transcript=transcript
                     )
-                    if transcript:
-                        Comment.objects.create(
-                            upload_id=upload_id,
-                            mark_id=mark_id,
-                            commenter=request.user,
-                            date=timezone.now(),
-                            text=transcript
-                        )
+                    if mark_id not in saved_comments:
+                        saved_comments[mark_id] = []
+                    saved_comments[mark_id].append({
+                        'username': saved_comment.user.username,
+                        'avatar_url': saved_comment.user.avatar_url,
+                        'audio_url': saved_comment.audio.url,
+                        'transcript': saved_comment.transcript,
+                        'time_ago': timesince(saved_comment.timestamp) + ' ago',
+                        'is_resolved': saved_comment.is_resolved
+                    })
+            return JsonResponse({'recentlySavedComments': saved_comments})
         else:
             return JsonResponse({}, status=404)
     return JsonResponse({})
@@ -146,6 +154,19 @@ def delete_voice_comment(request):
                 return JsonResponse({}, status=404)
     return JsonResponse({})
 
+def mark_as_resolved(request):
+    if request.method == "POST":
+        audio_url = request.POST.get('audio_url')
+        if audio_url is not None:
+            voice_comment = None
+            for vc in VoiceComment.objects.all():
+                if audio_url == vc.audio.url:
+                    voice_comment = vc
+                    break
+            if voice_comment is not None:
+                voice_comment.is_resolved = True
+                voice_comment.save()
+    return JsonResponse({})
 
 def save_comment(request):
     if request.method == "POST":

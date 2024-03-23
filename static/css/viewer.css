@@ -286,9 +286,18 @@ body {
     margin: auto;
 }
 
+.card.mb-3 {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.card-title {
+    margin: 0;
+}
+
 .card-img-top {
-    max-width: 10%;
-    height: auto;
+    width: 30px;
+    height: 30px;
 }
 
 .card-body {
