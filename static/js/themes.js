@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     var themes = {
         "themes": {
-          "dark-mode": "Dark Mode",
+          // "dark-mode": "Dark Mode",
           "default-mode": "Default Mode",
           "orange-mode": "Orange Mode",
           "forest-mode": "Forest Mode",
