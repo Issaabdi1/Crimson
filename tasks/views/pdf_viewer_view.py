@@ -3,7 +3,8 @@ from venv import logger
 
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone, timesince
+from django.utils import timezone
+from django.utils.timesince import timesince
 from tasks.models import Comment
 from django.shortcuts import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -126,7 +127,7 @@ def save_voice_comments(request):
                         'audio_url': saved_comment.audio.url,
                         'transcript': saved_comment.transcript,
                         'time_ago': timesince(saved_comment.timestamp) + ' ago',
-                        'is_resolved': saved_comment.is_resolved
+                        'is_resolved': saved_comment.is_resolved,
                     })
             return JsonResponse({'recentlySavedComments': saved_comments})
         else:

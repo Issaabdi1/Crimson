@@ -697,10 +697,10 @@ const savedCommentsJSON = savedRecordings.getAttribute('data-saved');
 const decodedJSONString = savedCommentsJSON.replace(/\\u[\dA-Fa-f]{4}/g, match =>
   String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16)) // Convert unicode into quotation marks
 );
+
 if (decodedJSONString) {
 	listOfSavedComments= JSON.parse(decodedJSONString);
 }
-
 
 let mediaRecorder;
 let chunks = [];
@@ -789,7 +789,6 @@ async function startRecording() {
 			const deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				transcriptDiv.remove();
 				var index = -1;
 				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
 					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
@@ -812,6 +811,7 @@ async function startRecording() {
 			// Check if save button needs to be visible
 			updateSaveButton();
 
+			
 			// Reset audio for the next recording
 			chunks = [];
 
@@ -851,7 +851,6 @@ function updateVoiceComments() {
 	// Displays audio recently recorded by the user
 	if (currentMarkId && listOfVoiceComments[currentMarkId]) {
 		listOfVoiceComments[currentMarkId].forEach(blobTuple => {
-
 			const [blob, transcript] = blobTuple;
 
 			// Call functions for audio + delete button
@@ -934,6 +933,7 @@ function updateVoiceComments() {
 	if (currentMarkId && listOfSavedComments[currentMarkId]) {
 		if (listOfSavedComments[currentMarkId].length > 0) {
 			voiceCommentLabel.style.display = 'flex';
+		}
 	}
 
 	// Check if save button needs to be visible
@@ -1040,15 +1040,15 @@ function createCard(vc, audio, deleteBtn) {
 	resolveBtn.addEventListener('click', function() {
 		markAsResolved(audio_url)
 			.then(accepted => {
-			if (accepted) {
-				resolveBtn.innerHTML = 'Resolved';
-				resolveBtn.disabled = true;
-				resolveBtn.className = 'btn btn-success btn-custom';
-				const commentToUpdate = listOfSavedComments[currentMarkId].find(comment => comment.audio_url == audio_url);
-				if (commentToUpdate) {
-					commentToUpdate.is_resolved = true;
+				if (accepted) {
+					resolveBtn.innerHTML = 'Resolved';
+					resolveBtn.disabled = true;
+					resolveBtn.className = 'btn btn-success btn-custom';
+					const commentToUpdate = listOfSavedComments[currentMarkId].find(comment => comment.audio_url == audio_url);
+					if (commentToUpdate) {
+						commentToUpdate.is_resolved = true;
+					}
 				}
-			}
 			})
 			.catch(error => {
 				console.error('Error:', error);
@@ -1255,3 +1255,6 @@ function simulateMarkedSectionClick(markId) {
 //     }
 // }
 //
+
+
+
