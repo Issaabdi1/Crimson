@@ -1,171 +1,278 @@
 {% extends 'base_content_without_message.html' %}
 {% load static %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static '/js/filelist.js' %}"></script>
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="{% static '/css/filelist.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static '/js/filelist.js' %}"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
 
-<body>
-{% include 'partials/messages.html'%}
-<div class="col-12 p-2">
-    <div class="row d-flex justify-content-between">
-        <div class="col-lg-4 col-sm-6">
-            <h1>My files:</h1>
-            <div class="delete-all" style="display: flex; align-items: center;">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Select All
-                </label>
-                <span style="margin-left: 20px;"></span>
-                <form action="{% url 'delete_all_upload_views' %}" method="post" class="d-all" id="delete-all" style="display: none; ">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i>Delete</button>
-                </form>
-            </div>
-            <div class="list-container custom-list-size">
-                <div class="list-group" id="fileList">
+    <body>
+    {% include 'partials/messages.html' %}
+    <div class="col-12">
+        <div class="row d-flex justify-content-center">
+            <div class="col-12">
+                <h1>My files:</h1>
+                <div class="row justify-content-between">
+                    <div class="delete-all col-3" style="display: flex; align-items: center;">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Select All
+                        </label>
+                        <span style="margin-left: 20px;"></span>
+
+                        <form action="{% url 'delete_all_upload_views' %}" method="post" class="d-all" id="delete-all"
+                              style="display: none; ">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i>Delete
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-3 justify-content-end">
+                        {% if paginator.num_pages > 1 %}
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <li class="page-item {% if not current_page.has_previous %}disabled{% endif %}">
+                                        <a class="page-link" aria-label="Previous"
+                                           {% if current_page.has_previous %}href="?page={{ current_page.previous_page_number }}"
+                                           {% else %}href="#"{% endif %}>
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% if paginator.num_pages <= 5 %}
+                                        <!--If total pages are less than or equal to 5, then make all page items (1,2,3,4,5)-->
+                                        {% for page_num in paginator.page_range %}
+                                            <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!--If total pages are greater than 5, then make some of the page items-->
+                                        {% if current_page.number == 1 %}
+                                            <!--If in first page, make first 4 items and omit the rest(1,2,3,4,...)-->
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num < 5 %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                        {% elif current_page.number >= last_three_page %}
+                                            <!--If in a page that greater than or equal the last three page, make last 4 items and omit the rest(...,l4,l3,l2,l1)-->
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num > last_few_pages %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <!--For other cases, only make the current, last one and next two (l,c,n1,n2,...), omit the rest-->
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ current_page.previous_page_number }}">{{ current_page.previous_page_number }}</a>
+                                            </li>
+                                            {% for page_num in paginator.page_range %}
+                                                {% if page_num >= current_page.number and page_num < next_few_page %}
+                                                    <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                        <a class="page-link"
+                                                           href="?page={{ page_num }}">{{ page_num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <li class="page-item disabled"><a class="page-link">...</a></li>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <li class="page-item {% if not current_page.has_next %}disabled{% endif %}">
+                                        <a class="page-link" aria-label="Next"
+                                           {% if current_page.has_next %}href="?page={{ current_page.next_page_number }}"
+                                           {% else %}href="#"{% endif %}>
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    </div>
+                </div>
+                {#            <div class="list-container custom-list-size">#}
+                <div class="list-group-file" id="fileList">
                     {% for upload in uploads %}
-                    <div class="flex-column flex-md-row list-item" aria-current="true">
-                        <div class="text-list-item p-3 gap-2 w-100">
-                            <form method="post" action="{%  url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm{{ upload.id }}">
-                                {% csrf_token %}
-                                <input type="hidden" name="upload_id" value="{{ upload.id }}">
-                                    <a href="#" class="a" onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;" style="text-decoration: none">
+                        <div class="flex-column flex-md-row list-item" aria-current="true">
+                            <div class="text-list-item p-3 gap-2 w-100">
+                                <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank"
+                                      id="viewerForm{{ upload.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="upload_id" value="{{ upload.id }}">
+                                    <a href="#" class="a"
+                                       onclick="document.getElementById('viewerForm{{ upload.id }}').submit();return false;"
+                                       style="text-decoration: none">
                                         <div class="item-content">
-                                        <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
-                                            <div class="mb-1">
-                                                <img src="{{ upload.owner.avatar_url }}" alt="pdf" width="32" height="32" class="rounded-circle flex-shrink-0">
-                                            </div>
-                                            <small class="opacity-50 justify-content-md-end" id="uploadTime">Uploaded {{ upload.upload_time_difference}}</small>
+                                            <div class="d-flex flex-wrap w-100 justify-content-between align-items-center">
+                                                <div class="mb-1">
+                                                    <img src="{{ upload.owner.avatar_url }}" alt="pdf" width="32"
+                                                         height="32" class="rounded-circle flex-shrink-0">
+                                                </div>
+                                                <small class="opacity-50 justify-content-md-end"
+                                                       id="uploadTime">Edited {{ upload.upload_time_difference }}</small>
 
-                                        </div>
-                                        <h6 class="mb-0"><strong>{{ upload.get_file_name_without_path }}</strong></h6>
-                                        <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span class="upload-time">{{ upload.uploaded_at }}</span></p>
-                                        <p class="mb-0 opacity-75"><strong>Comment:</strong>{{ upload.comments }}</p>
+                                            </div>
+                                            <h6 class="mb-0"><strong>{{ upload.get_file_name_without_path }}</strong>
+                                            </h6>
+                                            <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
+                                                    class="upload-time">{{ upload.uploaded_at }}</span></p>
+                                            <p class="mb-0 opacity-75">
+                                                <strong>Description:</strong>{{ upload.comments }}
+                                            </p>
 
                                         </div>
                                     </a>
-                            </form>
+                                </form>
+                            </div>
+
+
+                            <div class="button-container p-2">
+                                <!--Delete PDF-->
+                                <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger equal-size"><i
+                                            class="bi bi-trash-fill"></i></button>
+                                </form>
+                                <!-- Share PDF -->
+                                <a class="btn btn-warning equal-size" data-bs-toggle="offcanvas"
+                                   data-bs-target="#sharePDFPopup{{ upload.id }}"
+                                   aria-controls="sharePDFPopup{{ upload.id }}"
+                                   style="display: flex; justify-content: center; align-items: center;">
+                                    <svg t="1709341311392" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                         xmlns="http://www.w3.org/2000/svg" p-id="1661" width="30" height="30">
+                                        <path d="M601.6 699.733333l-200.533333-110.933333C375.466667 618.666667 341.333333 640 298.666667 640c-72.533333 0-128-55.466667-128-128s55.466667-128 128-128c42.666667 0 81.066667 21.333333 106.666666 55.466667L640 320V298.666667c0-72.533333 55.466667-128 128-128s128 55.466667 128 128-55.466667 128-128 128c-46.933333 0-89.6-25.6-110.933333-64l-234.666667 115.2c4.266667 8.533333 4.266667 21.333333 4.266667 34.133333 0 12.8-4.266667 29.866667-8.533334 42.666667l196.266667 106.666666c25.6-38.4 64-64 110.933333-64 72.533333 0 128 55.466667 128 128s-55.466667 128-128 128-128-55.466667-128-128c0-8.533333 0-17.066667 4.266667-25.6zM298.666667 597.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333333-85.333333 38.4-85.333334 85.333333 38.4 85.333333 85.333334 85.333333z m469.333333-213.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333334-85.333333 38.4-85.333333 85.333334 38.4 85.333333 85.333333 85.333333z m-42.666667 426.666667c46.933333 0 85.333333-38.4 85.333334-85.333334s-38.4-85.333333-85.333334-85.333333-85.333333 38.4-85.333333 85.333333 38.4 85.333333 85.333333 85.333334z"
+                                              fill="#333333" p-id="1662"></path>
+                                    </svg>
+                                </a>
+
+                                <!-- Comment PDF -->
+                                <button type="button" class="btn btn-success equal-size open-modal"
+                                        data-upload-id="{{ upload.id }}" data-bs-target="#commentModal_{{ upload.id }}"
+                                        data-bs-toggle="modal">
+                                    <i class="bi bi-chat-dots"></i>
+                                </button>
+
+                                <!-- Rename PDF   -->
+                                <button type="button" class="btn btn-info equal-size open-modal"
+                                        data-upload-id="{{ upload.id }}" data-bs-target="#renameModal_{{ upload.id }}"
+                                        data-bs-toggle="modal">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+
+                                <!-- Unshare PDF -->
+                                <button type="button" class="btn btn-primary equal-size open-modal"
+                                        data-upload-id="{{ upload.id }}" data-bs-toggle="modal"
+                                        data-bs-target="#unshareModal_{{ upload.id }}">
+                                    <i class="bi bi-person-dash-fill"></i>
+                                </button>
+                            </div>
                         </div>
-
-
-                        <div class="button-container p-2">
-                            <!--Delete PDF-->
-                            <form action="{% url 'delete_upload' upload.id %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger equal-size"><i class="bi bi-trash-fill"></i></button>
-                            </form>
-                            <!-- Share PDF -->
-                            <a class="btn btn-warning equal-size" data-bs-toggle="offcanvas" data-bs-target="#sharePDFPopup{{ upload.id }}" aria-controls="sharePDFPopup{{ upload.id }}" style="display: flex; justify-content: center; align-items: center;">
-                                <svg t="1709341311392" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1661" width="30" height="30">
-                                    <path d="M601.6 699.733333l-200.533333-110.933333C375.466667 618.666667 341.333333 640 298.666667 640c-72.533333 0-128-55.466667-128-128s55.466667-128 128-128c42.666667 0 81.066667 21.333333 106.666666 55.466667L640 320V298.666667c0-72.533333 55.466667-128 128-128s128 55.466667 128 128-55.466667 128-128 128c-46.933333 0-89.6-25.6-110.933333-64l-234.666667 115.2c4.266667 8.533333 4.266667 21.333333 4.266667 34.133333 0 12.8-4.266667 29.866667-8.533334 42.666667l196.266667 106.666666c25.6-38.4 64-64 110.933333-64 72.533333 0 128 55.466667 128 128s-55.466667 128-128 128-128-55.466667-128-128c0-8.533333 0-17.066667 4.266667-25.6zM298.666667 597.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333333-85.333333 38.4-85.333334 85.333333 38.4 85.333333 85.333334 85.333333z m469.333333-213.333333c46.933333 0 85.333333-38.4 85.333333-85.333333s-38.4-85.333333-85.333333-85.333334-85.333333 38.4-85.333333 85.333334 38.4 85.333333 85.333333 85.333333z m-42.666667 426.666667c46.933333 0 85.333333-38.4 85.333334-85.333334s-38.4-85.333333-85.333334-85.333333-85.333333 38.4-85.333333 85.333333 38.4 85.333333 85.333333 85.333334z" fill="#333333" p-id="1662"></path>
-                                </svg>
-                            </a>
-
-                            <!-- Comment PDF -->
-                            <button type="button" class="btn btn-success equal-size open-modal" data-upload-id="{{ upload.id }}" data-bs-target="#commentModal_{{ upload.id }}" data-bs-toggle="modal">
-                                <i class="bi bi-chat-dots"></i>
-                            </button>
-
-                            <!-- Rename PDF   -->
-                            <button type="button" class="btn btn-info equal-size open-modal" data-upload-id="{{ upload.id }}" data-bs-target="#renameModal_{{ upload.id }}" data-bs-toggle="modal">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-
-                            <!-- Unshare PDF -->
-                            <button type="button" class="btn btn-primary equal-size open-modal" data-upload-id="{{ upload.id }}" data-bs-toggle="modal" data-bs-target="#unshareModal_{{ upload.id }}">
-                                <i class="bi bi-person-dash-fill"></i>
-                            </button>
-                        </div>
-                    </div>
                     {% endfor %}
+                </div>
+                {#            </div>#}
+            </div>
+        </div>
+    </div>
+
+    <!-- comment modal fade -->
+    {% for upload in uploads %}
+        <div class="modal fade" id="commentModal_{{ upload.id }}" tabindex="-1" role="dialog"
+             aria-labelledby="commentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Description</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="commentForm_{{ upload.id }}" action="{% url 'outer_comment_views' upload.id %}"
+                              method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="upload_id" id="uploadIdField">
+                            <textarea name="comments" placeholder="This file is about..."></textarea>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary save-button" form="commentForm_{{ upload.id }}">
+                            Save
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- comment modal fade -->
-{% for upload in uploads %}
-<div class="modal fade" id="commentModal_{{ upload.id }}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="commentModalLabel" style="color: black">Description</h1>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="commentForm_{{ upload.id }}" action="{% url 'outer_comment_views' upload.id %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="upload_id" id="uploadIdField">
-                    <textarea name="comments" placeholder="This file is about..."></textarea>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary save-button" form="commentForm_{{ upload.id }}">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-<!-- rename modal fade -->
-{% for upload in uploads %}
-<div class="modal fade" id="renameModal_{{ upload.id }}" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" style="color: black">New File Name</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background: whitesmoke; color: black">X</button>
-          </div>
-            <div class="modal-body">
-                <form id="renameForm_{{ upload.id }}" action="{% url 'rename_upload' upload.id %}" method="post">
-                    {% csrf_token %}
-                    <label for="textInput" style="color: black">New File Name:</label>
-                    <input type="text" id="textInput" name="new_name">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary save-button" form="renameForm_{{ upload.id }}">Save</button>
+    {% endfor %}
+    <!-- rename modal fade -->
+    {% for upload in uploads %}
+        <div class="modal fade" id="renameModal_{{ upload.id }}" tabindex="-1" role="dialog"
+             aria-labelledby="renameModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">New File Name</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="renameForm_{{ upload.id }}" action="{% url 'rename_upload' upload.id %}"
+                              method="post">
+                            {% csrf_token %}
+                            <label for="textInput">New File Name:</label>
+                            <input type="text" id="textInput" name="new_name">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary save-button" form="renameForm_{{ upload.id }}">
+                            Save
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endfor %}
+    {% endfor %}
 
-{% for upload in uploads %}
-    <div style="background: whitesmoke; color: black">
-        {% include 'unshare_file.html' with upload=upload %}
-    </div>
-{% endfor %}
+    {% for upload in uploads %}
+        <div style="background: whitesmoke; color: black">
+            {% include 'partials/unshare_file.html' with upload=upload %}
+        </div>
+    {% endfor %}
 
 
-{% if uploads %}
-<div class="col-lg-7 col-sm-6" style="background: whitesmoke; color: black">
-    {% include 'unshare_file.html' with uploads=uploads %}
-</div>
-{% endif %}
+    {% if uploads %}
+        <div class="col-lg-7 col-sm-6" style="background: whitesmoke; color: black">
+            {% include 'partials/unshare_file.html' with uploads=uploads %}
+        </div>
+    {% endif %}
 
-<!--Really bad implementation of this-->
-{% for upload in uploads %}
-<div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}" aria-labelledby="sharePDFPopup{{ upload.id }}">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" style="background: whitesmoke; color: black">Share PDF</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        {% include 'partials/share_file_popup.html' with file_id=upload.id %}
-    </div>
-</div>
-{% endfor %}
-</body>
+    <!--Really bad implementation of this-->
+    {% for upload in uploads %}
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="sharePDFPopup{{ upload.id }}"
+             aria-labelledby="sharePDFPopup{{ upload.id }}">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title share-offcanvas-label">Share PDF</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                {% include 'partials/share_file_popup.html' with file_id=upload.id %}
+            </div>
+        </div>
+    {% endfor %}
+    </body>
 
 
 
-<script>
-  function submitForm(event) {
-    event.preventDefault();
-  }
-</script>
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+        }
+    </script>
 
 {% endblock %}

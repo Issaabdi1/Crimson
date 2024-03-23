@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
 from tasks.models import User, Team, Upload
@@ -68,14 +69,25 @@ def team_detail_view(request, team_id):
     else:
         form = AddUserToTeamForm()
 
+    page_number = request.GET.get('page', 1)
+    per_page = 4
+    paginator = Paginator(shared_uploads, per_page)
+    page_obj = paginator.get_page(page_number)
+
     upload_form =  FileForm()
     context = {'user': current_user,
                'team': team,
                'members': members,
-               'shared_uploads': shared_uploads,
+               'shared_uploads': page_obj.object_list,
                'form': form,
                'upload_form': upload_form,
-               'uploads': my_uploads}
+               'uploads': my_uploads,
+               "paginator": paginator,
+               "current_page": paginator.page(page_number),
+               "last_three_page": paginator.num_pages - 2,
+               "last_few_pages": paginator.num_pages - 4,
+               "next_few_page": int(page_number) + 3,
+               }
     return render(request, 'team_detail.html', context=context)
 
 

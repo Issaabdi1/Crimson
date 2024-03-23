@@ -28,12 +28,18 @@
 
 }
 
-.list-group{
+.list-group-file{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     padding: 20px;
     border: 10px;
+    min-height: 250px;
+    max-height: 880px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        background-color: transparent;
+    }
 }
 
 .list-item{

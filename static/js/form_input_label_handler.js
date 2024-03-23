@@ -17,7 +17,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (label && input.value) {
                 label.style.transform = 'translateY(-1.25rem)';
                 label.style.fontSize = '0.8125rem';
-                label.style.color = 'var(--gray-base)';
+                if (document.body.classList.contains("dark-mode")) {
+                    label.style.color = '#ACACAC';
+                } else {
+                    label.style.color = 'var(--gray-base)';
+                }
             }
 
             input.addEventListener('focus', () => {
@@ -25,7 +29,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log(label.textContent);
                     label.style.transform = 'translateY(-1.25rem)';
                     label.style.fontSize = '0.8125rem';
-                    label.style.color = 'var(--gray-base)';
+                    if (document.body.classList.contains("dark-mode")) {
+                        label.style.color = '#ACACAC';
+                    } else {
+                        label.style.color = 'var(--gray-base)';
+                    }
                 }
             });
 

@@ -88,8 +88,11 @@
 }
 
 .shareFileContent .list-group {
-    flex-direction:row;
-    height: 700px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    min-height: 250px;
+    max-height: 600px;
     overflow-y: auto;
     &::-webkit-scrollbar {
         background-color: transparent;

@@ -17,7 +17,8 @@
             <div class="p-3 pt-2 border rounded shading">
                 <div class="row d-flex align-items-center justify-content-between">
                     <div class="col-2">
-                        <a href="{% url 'team_list' %}" class="btn btn-sm team-text text-nowrap btn-outline-primary"><i
+                        <a href="{% url 'team_list' %}" id="teamBack"
+                           class="btn btn-sm team-text text-nowrap btn-outline-primary"><i
                                 class="bi bi-arrow-left backFont"></i>Back</a>
 
                     </div>
@@ -57,7 +58,7 @@
                                 {% csrf_token %}
                                 {% include 'partials/create_team_form.html' with form=form %}
                                 <input type="submit" class="btn btn-primary team-text mt-3d-block w-50"
-                                       style="height: 40px; border-radius: 70px;margin-top: 40px;background: #0d6efd;"
+                                       style="height: 40px; border-radius: 70px;margin-top: 30px;"
                                        value="Invite">
                             </form>
                         </div>
@@ -88,11 +89,84 @@
                     <div class="row">
                         <h1 class="text-center team-text">Shared Files in {{ team.name }}</h1>
                     </div>
+                    <div class="row justify-content-end">
+                        <div class="col-3">
+                            {% if paginator.num_pages > 1 %}
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination">
+                                        <li class="page-item {% if not current_page.has_previous %}disabled{% endif %}">
+                                            <a class="page-link" aria-label="Previous"
+                                               {% if current_page.has_previous %}href="?page={{ current_page.previous_page_number }}"
+                                               {% else %}href="#"{% endif %}>
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        {% if paginator.num_pages <= 5 %}
+                                            <!--If total pages are less than or equal to 5, then make all page items (1,2,3,4,5)-->
+                                            {% for page_num in paginator.page_range %}
+                                                <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <!--If total pages are greater than 5, then make some of the page items-->
+                                            {% if current_page.number == 1 %}
+                                                <!--If in first page, make first 4 items and omit the rest(1,2,3,4,...)-->
+                                                {% for page_num in paginator.page_range %}
+                                                    {% if page_num < 5 %}
+                                                        <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                            <a class="page-link"
+                                                               href="?page={{ page_num }}">{{ page_num }}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <li class="page-item disabled"><a class="page-link">...</a></li>
+                                            {% elif current_page.number >= last_three_page %}
+                                                <!--If in a page that greater than or equal the last three page, make last 4 items and omit the rest(...,l4,l3,l2,l1)-->
+                                                <li class="page-item disabled"><a class="page-link">...</a></li>
+                                                {% for page_num in paginator.page_range %}
+                                                    {% if page_num > last_few_pages %}
+                                                        <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                            <a class="page-link"
+                                                               href="?page={{ page_num }}">{{ page_num }}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <!--For other cases, only make the current, last one and next two (l,c,n1,n2,...), omit the rest-->
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ current_page.previous_page_number }}">{{ current_page.previous_page_number }}</a>
+                                                </li>
+                                                {% for page_num in paginator.page_range %}
+                                                    {% if page_num >= current_page.number and page_num < next_few_page %}
+                                                        <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
+                                                            <a class="page-link"
+                                                               href="?page={{ page_num }}">{{ page_num }}</a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <li class="page-item disabled"><a class="page-link">...</a></li>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        <li class="page-item {% if not current_page.has_next %}disabled{% endif %}">
+                                            <a class="page-link" aria-label="Next"
+                                               {% if current_page.has_next %}href="?page={{ current_page.next_page_number }}"
+                                               {% else %}href="#"{% endif %}>
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            {% endif %}
+                        </div>
+                    </div>
                     <div class="row justify-content-around">
                         {% if shared_uploads.count > 0 %}
                             <div class="list-group" id="fileList">
                                 {% for upload in shared_uploads %}
-                                    <div class="flex-md-row list-item" aria-current="true">
+                                    <div class="flex-column flex-md-row list-item" aria-current="true">
                                         <div class="text-list-item p-3 gap-2 w-100">
                                             <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline"
                                                   target="_blank" id="viewerForm{{ upload.id }}">
@@ -114,11 +188,12 @@
 
                                                         </div>
                                                         <h6 class="mb-0">
-                                                            <strong>{{ upload.get_file_name_without_path }}</strong></h6>
+                                                            <strong>{{ upload.get_file_name_without_path }}</strong>
+                                                        </h6>
                                                         <p class="mb-0 opacity-75"><strong>Uploaded on: </strong><span
                                                                 class="upload-time">{{ upload.uploaded_at }}</span></p>
                                                         <p class="mb-0 opacity-75">
-                                                            <strong>Comment:</strong>{{ upload.comments }}</p>
+                                                            <strong>Description:</strong>{{ upload.comments }}</p>
 
                                                     </div>
                                                 </a>
@@ -175,7 +250,7 @@
                     <div class="row row-width justify-content-center flex-nowrap mt-4">
                         <div class="col-auto px-1">
                             <button type="submit" name="share-file" class="share-btn-team btn btn-primary">
-                                <i class="bi bi-box-arrow-up"></i>  Upload
+                                <i class="bi bi-box-arrow-up"></i> Upload
                             </button>
                         </div>
                     </div>

@@ -33,7 +33,7 @@ def upload_file_view(request):
                     
                     # Share to given username / email
                     share_to = request.POST.get("share")
-                    if share_to is not None:
+                    if share_to != '':
                         try:
                             user = User.objects.get(username=share_to)
                             share_instance = SharedFiles.objects.create(
@@ -64,7 +64,7 @@ def upload_file_view(request):
 
     uploaded_file = Upload.objects.last()
     if uploaded_file:
-        simple_file_name = uploaded_file.get_simple_file_name()
+        simple_file_name = uploaded_file.get_file_name_without_path()
         context['simple_file_name'] = simple_file_name
 
     context['form'] = form

@@ -1,68 +1,95 @@
 {% block content %}
-  <form method="post" action="{% url 'share_file' %}">
-    {% csrf_token %}
-
-    <!--Lazy way of implementing it-->
-    <input type="hidden" name="file-id" value="{{file_id}}">
-
-    <div class="row">
-      <div class="col-12">
-        {% if uploads %}
-          <h2> Share to: </h2>
-          <input type="text" id="search{{file_id}}" class="col-md-6 form-control" placeholder="Search for username">
-        {% endif %}
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <table class="table mt-3">
-          <tbody id="filter{{file_id}}">
-            {% for user in all_users %}
-              <tr style="display: none">
-                <td class="align-middle">{{ user.username }}</td>
-                <td class="text-end">
-                  <button type="submit" name="user-id" value="{{ user.id }}" class="btn btn-primary">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/share_file.css' %}">
+    <form method="post" action="{% url 'share_file' %}" class="share-form-pop">
+        {% csrf_token %}
+        <input type="hidden" name="file-id" value="{{ file_id }}">
+        <div class="row justify-content-center flex-nowrap mb-4" style="width:85%; margin:auto">
+            <div class="col-10 px-1">
+                <input type="text" id="search{{ file_id }}" class="form-control search-bar"
+                       placeholder="Search for username">
+            </div>
+            <div class="col-auto px-1">
+                <button type="submit" name="user-ids" class="share-btn{{ file_id }} share-btn btn btn-primary">
                     <i class="bi bi-box-arrow-up"></i> Share
-                  </button>
-                </td>
-              </tr>
+                </button>
+            </div>
+        </div>
+        <div class="row mt-1" style="margin:auto;width:85%">
+            {% for user in all_users %}
+                <div class="col-4 d-none search-filter{{ file_id }} search-filter d-flex flex-column justify-content-center align-items-center"
+                     value="{{ user.id }}">
+                    <div class="text-center">
+                        <img src="{{ user.avatar_url }}" class="rounded-circle medium-small-image"
+                             alt="Avatar of {{ member.username }}">
+                    </div>
+                    <div class="text-center">
+                        <div class="username"><p class="mb-2">{{ user.username }}</p></div>
+                    </div>
+                </div>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </form>
+        </div>
+    </form>
 
 
 
-  <script>
-    // Temporary Fix for Now
-    document.getElementById("search{{file_id}}").addEventListener('input', function () {
-        const search = this.value.toLowerCase();
-        const table = document.getElementById('filter{{file_id}}');
-        console.log(table);
-        const rows = table.getElementsByTagName('tr');
-        for (const row of rows) {
-            const username = row.cells[0].textContent;
-            if (search.length >= 3) {
-                if (username.includes(search)) {
-                    row.style.display = 'table-row';
-                } else {
-                    row.style.display = 'none';
+    <script>
+        // Temporary Fix for Now
+        document.getElementById("search" + {{file_id}}).addEventListener('input', function () {
+            const search = this.value.toLowerCase();
+            const items = document.querySelectorAll('.search-filter' + {{ file_id }});
+            for (const item of items) {
+                const selected = item.classList.contains('selected');
+                const username = item.querySelector('.username').textContent;
+                if (search.length >= 3 && !selected) {
+                    if (username.includes(search)) {
+                        item.classList.remove('d-none');
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                } else if (!selected) {
+                    item.classList.add('d-none');
                 }
-                } 
-            else {
-                row.style.display = 'none';
             }
-        }
-        }); 
+        });
 
-    document.getElementById("search{{file_id}}").addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-        }
-    })
+        document.getElementById("search{{file_id}}").addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        })
 
-  </script>
+        // Each user selected updates the button's userID
+        let selectedUsers{{ file_id }} = [];
+        const users{{ file_id }} = document.querySelectorAll('.search-filter' + {{ file_id }});
+        if (users{{ file_id }}) {
+            users{{ file_id }}.forEach(user => {
+                user.addEventListener('click', function () {
+                    console.log('hello');
+                    // Update selected class (visual update)
+                    const selected = this.classList.contains('selected');
+                    console.log("Is select: "+selected);
+                    if (!selected) {
+                        this.classList.add('selected');
+                    } else {
+                        this.classList.remove('selected');
+                    }
+
+                    // Update selected array (data update)
+                    const userid = user.getAttribute('value');
+                    const index = selectedUsers{{ file_id }}.indexOf(userid);
+                    if (index === -1) {
+                        selectedUsers{{ file_id }}.push(userid);
+                    } else {
+                        selectedUsers{{ file_id }}.splice(index, 1);
+                    }
+                    // Update button with new array
+                    const sharebtn = document.querySelector('.share-btn' + {{file_id}});
+                    sharebtn.value = selectedUsers{{ file_id }}.join(',');
+                });
+            });
+        }
+
+    </script>
 
 {% endblock %}
