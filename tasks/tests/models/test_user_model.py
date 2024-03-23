@@ -2,6 +2,9 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tasks.models import User
+import urllib.parse
+from urllib.parse import quote
+
 
 class UserModelTestCase(TestCase):
     """Unit tests for the User model."""
@@ -157,3 +160,47 @@ class UserModelTestCase(TestCase):
     def _assert_user_is_invalid(self):
         with self.assertRaises(ValidationError):
             self.user.full_clean()
+
+    def test_generate_ui_avatar_url_with_full_name(self):
+        self.user.first_name = 'John'
+        self.user.last_name = 'Doe'
+        expected_initials = 'JD'
+        expected_url = self._generate_ui_avatar_expected_url(name=expected_initials)
+        actual_url = self.user.generate_ui_avatar_url()
+        self.assertEqual(actual_url, expected_url, "Avatar URL with full name does not match expected format.")
+
+    def test_generate_ui_avatar_url_with_first_name_only(self):
+        self.user.first_name = 'John'
+        self.user.last_name = ''
+        expected_initials = 'J'
+        expected_url = self._generate_ui_avatar_expected_url(name=expected_initials)
+        actual_url = self.user.generate_ui_avatar_url()
+        self.assertEqual(actual_url, expected_url, "Avatar URL with first name only does not match expected format.")
+
+    def test_generate_ui_avatar_url_with_last_name_only(self):
+        self.user.first_name = ''
+        self.user.last_name = 'Doe'
+        expected_initials = 'D'
+        expected_url = self._generate_ui_avatar_expected_url(name=expected_initials)
+        actual_url = self.user.generate_ui_avatar_url()
+        self.assertEqual(actual_url, expected_url, "Avatar URL with last name only does not match expected format.")
+
+    def test_generate_ui_avatar_url_with_no_name(self):
+        self.user.first_name = ''
+        self.user.last_name = ''
+        expected_initials = 'AD'
+        expected_url = self._generate_ui_avatar_expected_url(name=expected_initials)
+        actual_url = self.user.generate_ui_avatar_url()
+        self.assertEqual(actual_url, expected_url, "Avatar URL with no name does not match expected format.")
+
+    def _generate_ui_avatar_expected_url(self, name):
+        base_url = "https://ui-avatars.com/api/"
+        params = {
+            'name': name,
+            'size': '128',
+            'background': 'random',
+            'font-size': '0.5',
+            'length': '2'
+        }
+        url_params = quote(urllib.parse.urlencode(params), safe='=&')
+        return f"{base_url}?{url_params}"
