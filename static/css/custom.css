@@ -954,3 +954,7 @@ Pink mode
 .min-h-screen {
     min-height: 91vh !important;
 }
+
+body{
+    overflow: hidden; /* hide the main page scrollbar*/
+}
