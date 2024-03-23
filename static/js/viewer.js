@@ -82,142 +82,16 @@ function setup() {
 			str = str.replace(/"/g, '\\"');
 			listOfMarkedSpans.push({index:indexOfSpan, html: str});
 		})
-		//This adds a click event for all the highlighted spans. Do whatever is needed in the below function.
-		//the code currently changes the text of a test element
-		document.querySelectorAll('#markedSection').forEach(element => {
-			element.addEventListener('click', () => {
-				isMark = true;
-				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
-				console.log('current mark id is:' + currentMarkId);
-				$.ajax({
-					url: '/get_comments/',
-					type: 'GET',
-					data: {
-						'mark_id': currentMarkId,
-						'upload_id': upload_id,
-					},
-					success: function(response) {
-						console.log("Received JSON:", response);
-						try {
-							var comments = JSON.parse(response.comments);
-							console.log("Parsed comments:", comments);
-							var commentsHTML = '';
-							    comments.forEach(comment => {
-									var resolvedAttribute = comment.resolved ? 'disabled' : '';
-									currentCommentId = comment.comment_id;
-									commentsHTML += `
-										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-											<p>comment id: ${comment.comment_id}</p>
-
-											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
-												<div>
-													<div class="button-container">
-														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
-													</div>
-													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-													${comment.commenter}
-													<div class="updateTime">
-														<small style="color: #5c636a">${comment.date}</small>
-													</div>
-												</div>
-												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
-												</div>
-												<div class="card-footer text-body-secondary p-2 flex-column">
-													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-                        							<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
-												</div>
-											</div>
-										</div>`;
-								});
-							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
-							button.addEventListener('click', function() {
-								// Find the textarea associated with this button
-								var cardBody = button.closest('.card').querySelector('.card-body');
-								var textarea = cardBody.querySelector('textarea');
-								var commentText = textarea.value; // Get the current text from the textarea
-								currentMarkId = element.dataset.value;
-								var commentId = this.getAttribute('data-comment-id');
-
-								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
-
-								// AJAX request to update the comment
-								$.ajax({
-									url: '/update_comment/',
-									type: 'POST',
-									contentType: 'application/json',
-									data: JSON.stringify({
-										comment_id: commentId,
-										text: commentText,
-										mark_id: currentMarkId,
-										upload_id: upload_id
-									}),
-									beforeSend: function(xhr) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-									},
-									success: function(response) {
-										console.log('current comment id is:', currentCommentId)
-										console.log('current mark id is:', currentMarkId)
-										console.log("Comment updated successfully:", response);
-
-									},
-									error: function(xhr, status, error) {
-										console.error("Error updating comment:", error);
-									}
-								});
-							});
-						});
-						document.querySelectorAll('.resolveBtn').forEach((button, index) => {
-							button.addEventListener('click', function() {
-								var commentId = this.getAttribute('data-comment-id');
-
-								currentMarkId = element.dataset.value;
-								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
-
-								// AJAX request to update the comment
-								$.ajax({
-									url: '/update_comment_status/',
-									type: 'POST',
-									contentType: 'application/json',
-									data: JSON.stringify({
-										comment_id: commentId,
-										resolved: true
-									}),
-									beforeSend: function(xhr) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-									},
-									success: function(response) {
-										console.log("Comment marked as resolved successfully:", response);
-										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
-									},
-									error: function(xhr, status, error) {
-										console.error("Error marking comment as resolved:", error);
-										// Re-enable the button if there's an error, or handle errors appropriately
-										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
-									}
-								});
-							});
-						});
-						} catch (error) {
-							console.error("Error parsing JSON:", error);
-						}
-					},
-					error: function(xhr, status, error) {
-						console.error("Error saving current mark ID: " + xhr.status);
-						// Handle error if needed
-					},
-					beforeSend: function(xhr, settings) {
-						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-					}
-				});
-			});
+		
+		// This adds a click event for all the highlighted spans. 
+		document.querySelectorAll('#markedSection').forEach(span => {
+			setupSpanClickEvent(span);
 		});
 
 	}
 	document.dispatchEvent(setupEvent);
 }
+
 
 function renderAfterZoom() {
     // Render the marks after zooming without needing to load saved marks again
@@ -235,133 +109,8 @@ function renderAfterZoom() {
         });
 
         // Add click event listener for all highlighted spans to handle comment updates
-    		document.querySelectorAll('#markedSection').forEach(element => {
-			element.addEventListener('click', () => {
-				isMark = true;
-				currentMarkId = element.dataset.value;
-				document.getElementById('testComment').textContent = listOfComments[currentMarkId];
-				console.log('current mark id is:' + currentMarkId);
-				$.ajax({
-					url: '/get_comments/',
-					type: 'GET',
-					data: {
-						'mark_id': currentMarkId,
-						'upload_id': upload_id,
-					},
-					success: function(response) {
-						console.log("Received JSON:", response);
-						try {
-							var comments = JSON.parse(response.comments);
-							console.log("Parsed comments:", comments);
-							var commentsHTML = '';
-							    comments.forEach(comment => {
-									var resolvedAttribute = comment.resolved ? 'disabled' : '';
-									currentCommentId = comment.comment_id;
-									commentsHTML += `
-										<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-										<p>comment id: ${comment.comment_id}</p>
-											<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
-												<div>
-													<div class="button-container">
-														<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
-													</div>
-													<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-													${comment.commenter}
-													<div class="updateTime">
-														<small style="color: #5c636a">${comment.date}</small>
-													</div>
-												</div>
-												<div class="card-body">
-													<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
-												</div>
-												<div class="card-footer text-body-secondary p-2 flex-column">
-													<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-                        							<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
-												</div>
-											</div>
-										</div>`;
-								});
-							document.getElementById("commentsContainer").innerHTML = commentsHTML;
-							// save button
-							document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
-							button.addEventListener('click', function() {
-								// Find the textarea associated with this button
-								var cardBody = button.closest('.card').querySelector('.card-body');
-								var textarea = cardBody.querySelector('textarea');
-								var commentText = textarea.value; // Get the current text from the textarea
-								var commentId = this.getAttribute('data-comment-id');
-
-								currentMarkId = element.dataset.value;
-								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
-
-								// AJAX request to update the comment
-									$.ajax({
-										url: '/update_comment/',
-										type: 'POST',
-										contentType: 'application/json',
-										data: JSON.stringify({
-											comment_id: commentId,
-											text: commentText,
-											mark_id: currentMarkId,
-											upload_id: upload_id,
-										}),
-									beforeSend: function(xhr) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-									},
-									success: function(response) {
-										console.log("Comment updated successfully:", response);
-
-									},
-									error: function(xhr, status, error) {
-										console.error("Error updating comment:", error);
-									}
-								});
-							});
-						});
-
-						document.querySelectorAll('.resolveBtn').forEach((button, index) => {
-							button.addEventListener('click', function() {
-								var commentId = this.getAttribute('data-comment-id');
-
-								currentMarkId = element.dataset.value;
-								// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
-
-								// AJAX request to update the comment
-								$.ajax({
-									url: '/update_comment_status/',
-									type: 'POST',
-									contentType: 'application/json',
-									data: JSON.stringify({
-										comment_id: commentId,
-										resolved: true
-									}),
-									beforeSend: function(xhr) {
-										xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-									},
-									success: function(response) {
-										console.log("Comment marked as resolved successfully:", response);
-										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
-									},
-									error: function(xhr, status, error) {
-										console.error("Error marking comment as resolved:", error);
-										// Re-enable the button if there's an error, or handle errors appropriately
-										document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
-									}
-								});
-							});
-						});
-						} catch (error) {
-							console.error("Error parsing JSON:", error);
-						}
-					},
-					error: function(xhr, status, error) {
-						console.error("Error saving current mark ID: " + xhr.status);
-					},
-					beforeSend: function(xhr, settings) {
-						xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-					}
-				});
-			});
+    	document.querySelectorAll('#markedSection').forEach(span => {
+			setupSpanClickEvent(span);	
 		});
     }
 }
@@ -509,13 +258,11 @@ function highlightSelectedText(event){
 	selectedParts.forEach(part => {
 		var highlightedSpan = highlightSpan(part.start, part.end, part.span, count==0);
 		highlightedSpan.dataset.value = newMark.getId();
-		//add event listener
-		highlightedSpan.addEventListener('click', () => {
-			// Handle click event (e.g., open a modal, execute a function, etc.)
-			currentMarkId = highlightedSpan.dataset.value;
-			document.getElementById('testComment').textContent = "This comment was made by mark " + currentMarkId;
-		});
-		count+=1;
+		
+		// Add event listener
+		setupSpanClickEvent(highlightedSpan);	
+		
+		count += 1;
 	});
 
 	//add the span to the list of marked spans if it isn't already there
@@ -582,6 +329,142 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 	//This means the order is text node | highlight | text | span | text
 	//This allows them to be selected separately.
 	return highlightSpan;
+}
+
+
+// Adds all the relevant actions to the click event of highlight spans
+function setupSpanClickEvent(element)
+{
+	element.addEventListener('click', () => {
+		isMark = true;
+		currentMarkId = element.dataset.value;
+		
+		//document.getElementById('testComment').textContent = listOfComments[currentMarkId];
+		//console.log('current mark id is:' + currentMarkId);
+		
+		$.ajax({
+			url: '/get_comments/',
+			type: 'GET',
+			data: {
+				'mark_id': currentMarkId,
+				'upload_id': upload_id,
+			},
+			success: function(response) {
+				console.log("Received JSON:", response);
+				try {
+					var comments = JSON.parse(response.comments);
+					console.log("Parsed comments:", comments);
+					var commentsHTML = '';
+						comments.forEach(comment => {
+							var resolvedAttribute = comment.resolved ? 'disabled' : '';
+							currentCommentId = comment.comment_id;
+							commentsHTML += `
+								<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
+									<p>comment id: ${comment.comment_id}</p>
+
+									<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+										<div>
+											<div class="button-container">
+												<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+											</div>
+											<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
+											${comment.commenter}
+											<div class="updateTime">
+												<small style="color: #5c636a">${comment.date}</small>
+											</div>
+										</div>
+										<div class="card-body">
+											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
+										</div>
+										<div class="card-footer text-body-secondary p-2 flex-column">
+											<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
+											<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
+										</div>
+									</div>
+								</div>`;
+						});
+					document.getElementById("commentsContainer").innerHTML = commentsHTML;
+					document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
+					button.addEventListener('click', function() {
+						// Find the textarea associated with this button
+						var cardBody = button.closest('.card').querySelector('.card-body');
+						var textarea = cardBody.querySelector('textarea');
+						var commentText = textarea.value; // Get the current text from the textarea
+						currentMarkId = element.dataset.value;
+						var commentId = this.getAttribute('data-comment-id');
+
+						// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+						// AJAX request to update the comment
+						$.ajax({
+							url: '/update_comment/',
+							type: 'POST',
+							contentType: 'application/json',
+							data: JSON.stringify({
+								comment_id: commentId,
+								text: commentText,
+								mark_id: currentMarkId,
+								upload_id: upload_id
+							}),
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+							},
+							success: function(response) {
+								console.log('current comment id is:', currentCommentId)
+								console.log('current mark id is:', currentMarkId)
+								console.log("Comment updated successfully:", response);
+
+							},
+							error: function(xhr, status, error) {
+								console.error("Error updating comment:", error);
+							}
+						});
+					});
+				});
+				document.querySelectorAll('.resolveBtn').forEach((button, index) => {
+					button.addEventListener('click', function() {
+						var commentId = this.getAttribute('data-comment-id');
+
+						currentMarkId = element.dataset.value;
+						// Assuming each comment card has a data attribute 'data-comment-id' for unique identification
+
+						// AJAX request to update the comment
+						$.ajax({
+							url: '/update_comment_status/',
+							type: 'POST',
+							contentType: 'application/json',
+							data: JSON.stringify({
+								comment_id: commentId,
+								resolved: true
+							}),
+							beforeSend: function(xhr) {
+								xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+							},
+							success: function(response) {
+								console.log("Comment marked as resolved successfully:", response);
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+							},
+							error: function(xhr, status, error) {
+								console.error("Error marking comment as resolved:", error);
+								// Re-enable the button if there's an error, or handle errors appropriately
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
+							}
+						});
+					});
+				});
+				} catch (error) {
+					console.error("Error parsing JSON:", error);
+				}
+			},
+			error: function(xhr, status, error) {
+				console.error("Error saving current mark ID: " + xhr.status);
+				// Handle error if needed
+			},
+			beforeSend: function(xhr, settings) {
+				xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+			}
+		});
+	});
 }
 
 
