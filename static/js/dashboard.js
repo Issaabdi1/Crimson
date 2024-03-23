@@ -142,11 +142,15 @@ document.addEventListener('DOMContentLoaded', function () {
 $(document).ready(function () {
     // Function to submit forms of selected rows
     function submitSelectedForms() {
-        // Iterate over each checkbox
-        $('.row-checkbox:checked').each(function () {
-            // Find the closest 'tr' parent, then find the form within that row and submit it
-            $(this).closest('tr').find('form').submit();
-        });
+        if ($('.row-checkbox:checked').length < 1) {
+            alert('Please select at least one file to delete.');
+        } else {
+            // Iterate over each checkbox
+            $('.row-checkbox:checked').each(function () {
+                // Find the closest 'tr' parent, then find the form within that row and submit it
+                $(this).closest('tr').find('form').submit();
+            });
+        }
     }
 
     // Attach the function to the "View Selected" button click event
@@ -182,7 +186,7 @@ $(document).ready(function () {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCsrfToken(),
                 },
-                body: JSON.stringify({ upload_ids: uploadIds }),
+                body: JSON.stringify({upload_ids: uploadIds}),
             }).then(response => {
                 if (response.ok) return response.blob();
                 throw new Error('Network response was not ok.');
@@ -220,17 +224,17 @@ $(document).ready(function () {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCsrfToken(), // Ensure CSRF token is sent
                 },
-                body: JSON.stringify({ upload_ids: selectedUploadIds }),
+                body: JSON.stringify({upload_ids: selectedUploadIds}),
             })
-            .then(response => {
-                if (response.ok) {
-                    // Reload or update the page content
-                    location.reload();  // Simple way to update the page content
-                } else {
-                    throw new Error('Something went wrong');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => {
+                    if (response.ok) {
+                        // Reload or update the page content
+                        location.reload();  // Simple way to update the page content
+                    } else {
+                        throw new Error('Something went wrong');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         } else {
             alert('Please select at least one file to delete.');
         }

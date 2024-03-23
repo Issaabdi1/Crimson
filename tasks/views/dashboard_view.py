@@ -8,6 +8,8 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.views.decorators.http import require_POST
+import io
+import zipfile
 
 
 @login_required
@@ -42,6 +44,7 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
+@login_required
 def download_single(request, upload_id):
     # Retrieve the Upload object
     upload = get_object_or_404(Upload, id=upload_id, owner=request.user)
@@ -53,20 +56,27 @@ def download_single(request, upload_id):
     return response
 
 
+@login_required
 def download_multiple(request):
     if request.method != "POST":
         return JsonResponse({'error': 'This method is not allowed'}, status=405)
-    try:
-        data = json.loads(request.body)
-        upload_ids = data.get('upload_ids', [])
 
-        if not upload_ids:
-            return JsonResponse({'error': 'No upload IDs provided'}, status=400)
-        return HttpResponse("Success", content_type='text/plain')
+    data = json.loads(request.body)
+    upload_ids = data.get('upload_ids', [])
 
-    except Exception as e:
-        # Log the exception or handle it as needed
-        return JsonResponse({'error': 'Server error', 'details': str(e)}, status=500)
+    if not upload_ids:
+        return JsonResponse({'error': 'No upload IDs provided'}, status=400)
+
+    # Initialize an in-memory zip file
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        for upload_id in upload_ids:
+            upload = get_object_or_404(Upload, id=upload_id, owner=request.user)
+            zip_file.writestr(upload.file.name, upload.file.read())
+
+    response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="uploads.zip"'
+    return response
 
 
 @login_required
