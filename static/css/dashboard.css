@@ -275,12 +275,6 @@ table#dataTable {
     bottom: 400px;
 }
 
-/*#start-footer .start-btn{*/
-/*    color:#FFFFFF;*/
-/*    background-color:#29D685;*/
-/*    border-color: #29D685;*/
-/*    border-radius: 10px;*/
-/*}*/
 
 #start-footer .start-btn{
   position: relative;
@@ -353,7 +347,6 @@ table#dataTable {
 }
 
 
-
 #page-col{
     margin-right: auto;
 }
@@ -361,5 +354,3 @@ table#dataTable {
 #search-col{
     margin-left: auto;
 }
-
-/* For demonstration purposes only: */
