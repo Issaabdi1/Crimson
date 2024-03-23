@@ -686,7 +686,7 @@ Dark mode
     background-color: #919191;
 }
 
-.dark-mode .share-btn-team{
+.dark-mode .share-btn-team {
     border: rgb(210, 210, 210);
     background-color: #7A7A7A;
     color: rgb(211, 211, 211);
@@ -753,13 +753,15 @@ Dark mode
     color: #FFFFFF;
 }
 
-.dark-mode .thumbnail .file-name{
+.dark-mode .thumbnail .file-name {
     color: #FFFFFF;
 }
+
 .dark-mode .thumbnail:hover {
     border-color: #7A7A7A;
     box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3);
 }
+
 .dark-mode .thumbnail.selected {
     border-color: #7A7A7A;
     box-shadow: 5px 4px 0 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1000px #7A7A7A;
@@ -807,28 +809,52 @@ Dark mode
     border-color: #7A7A7A;
 }
 
-.dark-mode .list-table{
-    filter: brightness(80%);
+.dark-mode .list-table .table-light {
+    --bs-table-bg: #212529;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    border-color: #373b3e;
 }
 
-.dark-mode .button-bar .btn{
+.dark-mode .list-table .table-secondary {
+    --bs-table-bg: #181818;
+    --bs-table-striped-bg: #d7d8da;
+    --bs-table-striped-color: #000;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #000;
+    --bs-table-hover-bg: #373b3e;
+    --bs-table-hover-color: #000;
+    color: #fff;
+    border-color: #373b3e;
+}
+
+.dark-mode .list-table .btn-group-vertical {
+    filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(112deg) brightness(106%) contrast(101%);
+}
+
+.dark-mode .button-bar .btn {
     filter: brightness(90%);
 }
 
 /* File card */
-.dark-mode .text-list-item{
+.dark-mode .text-list-item {
     background-color: #7A7A7A;
 }
 
-.dark-mode .list-group-file .list-item{
+.dark-mode .list-group-file .list-item {
     background-color: #7A7A7A;
 }
 
-.dark-mode .list-group-file .btn{
+.dark-mode .list-group-file .btn {
     filter: brightness(90%);
 }
 
-.dark-mode .list-group .list-item{
+.dark-mode .list-group .list-item {
     background-color: #7A7A7A;
 }
 
