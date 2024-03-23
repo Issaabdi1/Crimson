@@ -47,7 +47,6 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         """Custom save method to update avatar_url before saving."""
-        # Only update the avatar URL if it's the default, or you might want to add additional logic
         if self.avatar_url == settings.DEFAULT_IMAGE_URL:
             self.avatar_url = self.generate_ui_avatar_url()
         super(User, self).save(*args, **kwargs)
@@ -55,14 +54,13 @@ class User(AbstractUser):
     def generate_ui_avatar_url(self):
         """Generate an avatar URL using the UI Avatars API."""
         initials = f"{self.first_name[0]}{self.last_name[0]}".upper()
-        # Construct the URL with desired options. Add or modify parameters as needed.
         base_url = "https://ui-avatars.com/api/"
         params = {
             'name': initials,
-            'size': '128',  # You can adjust the size
+            'size': '128',
             'background': 'random',
-            'font-size': '0.5',  # Adjust font size relative to the image size
-            'length': '2'  # Limit the generated text to 2 characters
+            'font-size': '0.5',
+            'length': '2'
         }
         url_params = urllib.parse.urlencode(params)
         avatar_url = f"{base_url}?{url_params}"

@@ -183,6 +183,21 @@ table#dataTable {
     display: flex;
     margin-right: auto; /* Push it to the left */
 }
+.button-bar button {
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+}
+
+.button-bar button svg,
+.button-bar button i {
+    width: 30px;
+    height: 30px;
+}
+
 
 .avatar {
     border-radius: 30px;

@@ -1,0 +1,6 @@
+.auto-size-image {
+  width: 55%;
+  height: auto;
+  max-width: 60px;
+  object-fit: cover;
+}
