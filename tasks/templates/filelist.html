@@ -39,13 +39,16 @@
                                         </a>
                                     </li>
                                     {% if paginator.num_pages <= 5 %}
+                                        <!--If total pages are less than or equal to 5, then make all page items (1,2,3,4,5)-->
                                         {% for page_num in paginator.page_range %}
                                             <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
                                                 <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
                                             </li>
                                         {% endfor %}
                                     {% else %}
+                                        <!--If total pages are greater than 5, then make some of the page items-->
                                         {% if current_page.number == 1 %}
+                                            <!--If in first page, make first 4 items and omit the rest(1,2,3,4,...)-->
                                             {% for page_num in paginator.page_range %}
                                                 {% if page_num < 5 %}
                                                     <li class="{% if page_num == current_page.number %}active{% endif %} page-item">
@@ -56,6 +59,7 @@
                                             {% endfor %}
                                             <li class="page-item disabled"><a class="page-link">...</a></li>
                                         {% elif current_page.number >= last_three_page %}
+                                            <!--If in a page that greater than or equal the last three page, make last 4 items and omit the rest(...,l4,l3,l2,l1)-->
                                             <li class="page-item disabled"><a class="page-link">...</a></li>
                                             {% for page_num in paginator.page_range %}
                                                 {% if page_num > last_few_pages %}
@@ -66,6 +70,7 @@
                                                 {% endif %}
                                             {% endfor %}
                                         {% else %}
+                                            <!--For other cases, only make the current, last one and next two (l,c,n1,n2,...), omit the rest-->
                                             <li class="page-item">
                                                 <a class="page-link"
                                                    href="?page={{ current_page.previous_page_number }}">{{ current_page.previous_page_number }}</a>
