@@ -45,7 +45,7 @@
     grid-template-columns: 80fr 1fr 19fr;
 }
 
-.shareFileContent{
+.shareFileContent {
     display: grid;
     padding-top: 30px;
 }
@@ -73,16 +73,16 @@
 }
 
 .action-link {
-  color: inherit; /* Use the color inherited from the parent element */
-  text-decoration: none; /* Remove underline */
+    color: inherit; /* Use the color inherited from the parent element */
+    text-decoration: none; /* Remove underline */
 }
 
 .action-link:hover {
-  color: inherit; /* Use the color inherited from the parent element on hover */
-  text-decoration: none; /* Remove underline on hover */
+    color: inherit; /* Use the color inherited from the parent element on hover */
+    text-decoration: none; /* Remove underline on hover */
 }
 
-.shareFileContent .list-group .text-list-item{
+.shareFileContent .list-group .text-list-item {
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
 }
@@ -94,16 +94,26 @@
     min-height: 250px;
     max-height: 600px;
     overflow-y: auto;
+
     &::-webkit-scrollbar {
         background-color: transparent;
     }
 }
 
-.shared-by-detail{
+.shared-by-detail {
     display: flex;
 }
 
-.shared-by-name{
+.shared-by-name {
     margin-left: 10px;
     margin-top: 5px;
+}
+
+.teams-list {
+    max-height: 78vh !important;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        background-color: transparent;
+    }
 }

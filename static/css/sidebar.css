@@ -4,7 +4,7 @@
 
 .avatar-name{
     position:absolute;
-    bottom: 90px;
+    bottom: 20px;
     display: flex;
     flex-direction: row;
 }

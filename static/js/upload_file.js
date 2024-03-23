@@ -60,6 +60,7 @@ function enableUploadButton() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    /*Drop and drag zone handler*/
     let dropArea = document.getElementById('drop_zone')
 
     dropArea.addEventListener('dragenter', preventDefaults, false)
@@ -105,37 +106,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         console.log(`File dropped: ${fileName}`);
     }
-});
 
-document.getElementById('upload-form').addEventListener('submit', function (event) {
-    var progressBar = document.getElementById("success-bar");
-    var status = document.getElementById("status");
+    /*Progress bar handler*/
+    document.getElementById('upload-form').addEventListener('submit', function (event) {
+        var progressBar = document.getElementById("success-bar");
+        var status = document.getElementById("status");
 
-    progressBar.style.width = "0%";
-    status.innerHTML = "0%";
+        progressBar.style.width = "0%";
+        status.innerHTML = "0%";
 
-    var duration = 800;
-    var interval = 20;
+        var duration = 800;
+        var interval = 20;
 
-    var startTime = new Date().getTime();
+        var startTime = new Date().getTime();
 
-    function updateProgress() {
-        var currentTime = new Date().getTime();
-        var elapsedTime = currentTime - startTime;
-        var percentComplete = (elapsedTime / duration) * 100;
+        function updateProgress() {
+            var currentTime = new Date().getTime();
+            var elapsedTime = currentTime - startTime;
+            var percentComplete = (elapsedTime / duration) * 100;
 
-        if (percentComplete > 100) {
-            percentComplete = 100;
+            if (percentComplete > 100) {
+                percentComplete = 100;
+            }
+
+            progressBar.style.width = Math.round(percentComplete) + "%";
+            status.innerHTML = Math.round(percentComplete) + "%";
+
+            if (percentComplete < 100) {
+                setTimeout(updateProgress, interval);
+            }
         }
 
-        progressBar.style.width = Math.round(percentComplete) + "%";
-        status.innerHTML = Math.round(percentComplete) + "%";
+        updateProgress();
 
-        if (percentComplete < 100) {
-            setTimeout(updateProgress, interval);
-        }
-    }
-
-    updateProgress();
-
+    });
 });
