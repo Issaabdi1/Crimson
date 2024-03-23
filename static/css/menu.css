@@ -4,3 +4,9 @@
   max-width: 60px;
   object-fit: cover;
 }
+
+#notification-bell{
+  position: relative;
+  top:4px;
+  font-size: 20px;
+}

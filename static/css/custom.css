@@ -838,7 +838,7 @@ Dark mode
 }
 
 .dark-mode .button-bar .btn {
-    filter: brightness(90%);
+    filter: invert(56%) sepia(3%) saturate(0%) hue-rotate(149deg) brightness(84%) contrast(80%);
 }
 
 /* File card */
@@ -953,4 +953,8 @@ Pink mode
 
 .min-h-screen {
     min-height: 91vh !important;
+}
+
+body{
+    overflow: hidden; /* hide the main page scrollbar*/
 }

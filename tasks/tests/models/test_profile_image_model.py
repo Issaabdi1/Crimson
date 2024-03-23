@@ -101,7 +101,7 @@ class ProfileImageModelTestCase(TestCase):
         self.images[3].delete()
         self.assertEqual(self.user.avatar_url, self.images[4].image.url)
         self.images[4].delete()
-        self.assertEqual(self.user.avatar_url, settings.DEFAULT_IMAGE_URL)
+        self.assertEqual(self.user.avatar_url, f'https://ui-avatars.com/api/?name=JD&size=128&background=random&font-size=0.5&length=2')
 
     def _assert_profile_image_is_valid(self, image):
         try:
