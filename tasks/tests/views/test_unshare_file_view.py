@@ -54,7 +54,7 @@ class UnshareFileViewTestCase(TestCase):
         response_url = reverse('filelist')
         self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, 'filelist.html')
-        self.assertTemplateUsed(response, 'unshare_file.html')
+        self.assertTemplateUsed(response, 'partials/unshare_file.html')
     
     def test_successful_unshare_file(self):
         self.client.login(username=self.user.username, password='Password123')

@@ -27,9 +27,17 @@ class ProfileImage(models.Model):
         """Override delete method to handle user's profile image"""
         is_using = self.user.avatar_url == self.image.url
         super().delete(*args, **kwargs)
+        if self.user.first_name and self.user.last_name:
+            initials = f"{self.user.first_name[0]}{self.user.last_name[0]}".upper()
+        elif self.user.first_name:
+            initials = f"{self.user.first_name[0]}".upper()
+        elif self.user.last_name:
+            initials = f"{self.user.last_name[0]}".upper()
+        else:
+            initials = "AD"
         if is_using:
             if self.user.profileimage_set.count() > 0:
                 self.user.avatar_url = self.user.profileimage_set.order_by('id').first().image.url
             else:
-                self.user.avatar_url = settings.DEFAULT_IMAGE_URL
+                self.user.avatar_url = f'https://ui-avatars.com/api/?name={initials}&size=128&background=random&font-size=0.5&length=2'
             self.user.save()
