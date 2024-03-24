@@ -99,6 +99,7 @@ function setup(){
 }
 
 function renderAfterZoom() {
+	console.log("REEE");
     // Render the marks after zooming without needing to load saved marks again
     if (listOfMarkedSpans.length > 0) {
         listOfMarkedSpans.forEach((entry) => {
@@ -118,6 +119,7 @@ function renderAfterZoom() {
 			setupSpanClickEvent(span);	
 		});
     }
+	document.dispatchEvent(setupEvent);
 }
 
 markButton.addEventListener("click", highlightSelectedText);
