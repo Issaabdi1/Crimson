@@ -728,6 +728,7 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 const deleteMarkButton = document.getElementById('deleteMarkButton');
 deleteMarkButton.addEventListener('click', deleteMark);
 
+/* CURRENTLY IT DOES NOT DELETE COMMENTS PROPERLY */
 function deleteMark() {
     // Ensure that a mark is selected
     if (currentMarkId !== undefined && currentMarkId !== null) {
