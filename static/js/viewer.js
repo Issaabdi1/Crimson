@@ -393,7 +393,7 @@ function setupSpanClickEvent(element)
 									<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 										<div>
 											<div class="button-container">
-												<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+												<button type="button" class="btn-close delete-btn" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
 											</div>
 											<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
 											${comment.commenter}
