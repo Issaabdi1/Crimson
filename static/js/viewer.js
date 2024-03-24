@@ -56,6 +56,7 @@ var currentMarkId;
 var currentCommentId;
 var originalState;
 let isMark = false;
+let deleteMarkClicked = false;
 
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
@@ -302,7 +303,7 @@ function highlightSelectedText(event) {
     // Associate the mark with a comment
     listOfComments[newMark.getId()] = "This comment is by mark " + newMark.getId();
     // Save changes
-    savePdfChanges();
+    savePdfChanges(false);
 }
 
 // Example function to highlight selected text within a span
@@ -734,6 +735,15 @@ deleteMarkButton.addEventListener('click', deleteMark);
 function deleteMark() {
     // Ensure that a mark is selected
     if (currentMarkId !== undefined && currentMarkId !== null) {
+		// Delete all voice comments by clicking each delete button
+		document.querySelectorAll('.delete-btn').forEach((button, index) => {
+			deleteMarkClicked = true;
+			setTimeout(() => {
+				button.click();
+				console.log("CLICK");
+			}, index * 10);
+		});
+
         // Remove the span from the DOM
         document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
 			var parentElement = e.parentElement;
@@ -750,6 +760,7 @@ function deleteMark() {
 
         // Optionally, remove the mark's voice comments from listOfVoiceComments
         delete listOfVoiceComments[currentMarkId];
+		delete listOfSavedComments[currentMarkId];
 
 		console.log('listOfMarkedSpans',listOfMarkedSpans);
 		console.log('listOfComments',listOfComments);
@@ -757,6 +768,7 @@ function deleteMark() {
         // Clear the current mark ID
         currentMarkId = null;
 		savePdfChanges(false);
+		updateVoiceComments();
     }
 }
 
@@ -843,7 +855,7 @@ function createAudioElement(audio_object, isBlob) {
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
 	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'
-	deleteBtn.className = 'btn btn-danger';
+	deleteBtn.className = 'btn btn-danger delete-btn';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -885,11 +897,13 @@ async function startRecording() {
 				audio.remove();
 				deleteBtn.remove();
 				var index = -1;
-				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
-					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
-					if (blobItem == blob) {
-						index = i;
-						break;
+				if (listOfVoiceComments[currentMarkId]) {
+					for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+						const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+						if (blobItem == blob) {
+							index = i;
+							break;
+						}
 					}
 				}
 				if (index !== -1) {
@@ -954,11 +968,13 @@ function updateVoiceComments() {
 				audio.remove();
 				deleteBtn.remove();
 				var index = -1;
-				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
-					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
-					if (blobItem == blob) {
-						index = i;
-						break;
+				if (listOfVoiceComments[currentMarkId]) {
+					for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+						const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+						if (blobItem == blob) {
+							index = i;
+							break;
+						}
 					}
 				}
 				if (index !== -1) {
@@ -984,7 +1000,7 @@ function updateVoiceComments() {
 			var deleteBtn;
 			if (currentUser === fileOwner) {
 				deleteBtn = createDeleteButton(() => {
-					if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+					if (deleteMarkClicked || confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
 						const csrftoken = getCookie('csrftoken');
 						const formData = new FormData();
 						formData.append('audio-url', audio_url);
@@ -1004,14 +1020,17 @@ function updateVoiceComments() {
 						})
 						.then(data => {
 							card.remove();
-							const index = listOfSavedComments[currentMarkId].findIndex(comment => comment.audio_url === audio_url);
-							if (index !== -1) {
-								listOfSavedComments[currentMarkId].splice(index, 1);
+							if (listOfSavedComments[currentMarkId]) {
+								const index = listOfSavedComments[currentMarkId].findIndex(comment => comment.audio_url === audio_url);
+								if (index !== -1) {
+									listOfSavedComments[currentMarkId].splice(index, 1);
+								}
+								if (listOfSavedComments[currentMarkId].length === 0) {
+									delete listOfSavedComments[currentMarkId];
+								}
+								updateVoiceComments();
 							}
-							if (listOfSavedComments[currentMarkId].length === 0) {
-								delete listOfSavedComments[currentMarkId];
-							}
-							updateVoiceComments();
+							deleteMarkClicked = false;
 						})
 						.catch(error => {
 							console.error('Error:', error);
@@ -1241,7 +1260,6 @@ function saveComment() {
             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
     });
-	savePdfChanges(true)
 }
 
 
