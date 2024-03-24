@@ -1,4 +1,3 @@
-// filelist.js
 function showRenameField(button) {
     if (button) {
         const renameForm = button.nextElementSibling;
@@ -16,36 +15,6 @@ function showRenameField(button) {
         }
     } else {
         console.error("Button element is null or undefined.");
-    }
-}
-
-function hideRenameField(button) {
-    const renameForm = button.parentElement;
-    const uploadId = renameForm.getAttribute('data-upload-id');
-    const renameButton = document.querySelector(`#renameButton_${uploadId}`);
-
-    if (renameButton) {
-        renameForm.style.display = 'none';
-        renameButton.style.display = 'inline-block';
-    } else {
-        console.error("Unable to find the Rename button.");
-    }
-}
-
-function confirmRename(form) {
-    const cardTitle = form.parentElement.querySelector('.card-title');
-    if (cardTitle) {
-        const currentName = cardTitle.textContent.trim();
-        const newName = form.new_name.value.trim();
-        if (newName && newName !== currentName) {
-            form.submit();
-        } else if (newName === currentName) {
-            alert("The new name must be different from the current name.");
-        } else {
-            alert("The new name cannot be empty.");
-        }
-    } else {
-        console.error("Unable to find .card-title element");
     }
 }
 
@@ -73,20 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         items[index].style.transform = "translateY(0)";
         index++;
     }, 200);
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    const selectAllCheckbox = document.getElementById('flexCheckDefault');
-    const deleteAllForm = document.getElementById('delete-all');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function () {
-            if (this.checked) {
-                deleteAllForm.style.display = 'block';
-            } else {
-                deleteAllForm.style.display = 'none';
-            }
-        });
-    }
 });
 
 /**

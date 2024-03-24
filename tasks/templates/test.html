@@ -7,6 +7,7 @@
 <body>
 <div id="qunit"></div>
 <div id="qunit-fixture">
+
     <!--Notification testing-->
     <div>
         <!--Notification popup button-->
@@ -120,7 +121,7 @@
     <!--Popup Window testing-->
     <div id="popupContainer">
         <div id="closePopup">
-            
+
         </div>
     </div>
 
@@ -130,6 +131,8 @@
     </div>
 </div>
 <script src="https://code.jquery.com/qunit/qunit-2.20.0.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.0.css">
 <script src="{% static 'js/process_notification_delete.js' %}"></script>
 <script src="{% static 'js/set_notifications_read.js' %}"></script>
 <script src="{% static 'js/test/test_notifications.js' %}"></script>
@@ -137,4 +140,7 @@
 <script src="{% static 'js/test/test_viewer_sidebar.js' %}"></script>
 <script src="{% static 'js/popup_window.js' %}"></script>
 <script src="{% static 'js/test/test_popup_window.js' %}"></script>
+<script src="{% static 'js/test/test_dashboard.js' %}"></script>
+<script src="{% static 'js/filelist.js' %}"></script>
+<script src="{% static 'js/test/test_filelist.js' %}"></script>
 </body>
