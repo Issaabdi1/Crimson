@@ -28,6 +28,7 @@ def shared_file_list(request):
                }
     return render(request, 'shared_file_list.html', context)
 
+
 @login_required
 def share_file(request):
     """Display view handling shared files"""
@@ -53,16 +54,16 @@ def share_file(request):
                 else:
                     # Create a new notification if the file has been newly shared
                     Notification.objects.create(
-                        shared_file_instance = entry,
-                        user = shared_user,
-                        time_of_notification = timezone.now(),
-                        notification_message = f'{request.user} shared a file with you'
+                        shared_file_instance=entry,
+                        user=shared_user,
+                        time_of_notification=timezone.now(),
+                        notification_message=f'{request.user} shared a file with you'
                     )
                 entry.shared_to.add(shared_user)
                 entry.save()
         elif file_id is None and user_ids:
             messages.error(request, 'Please select a file to share.')
-    
+
     context = {
         'uploads': uploads,
         'all_users': all_users,

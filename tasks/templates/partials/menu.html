@@ -11,7 +11,7 @@
   <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-3">
 
     <li class="nav-item dropdown">
-      <a class="nav-link" href = "#" onclick="set_notifications_as_read()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><span class="bi bi-bell">
+      <a class="nav-link" href = "#" onclick="set_notifications_as_read()" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><span class="bi bi-bell" id="notification-bell">
           {%if notifications|length > 0%}
             <span id= "notification-alert" class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem; top:10px">
               {%if notifications|length > 99%}
