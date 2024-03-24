@@ -45,6 +45,10 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
+					
+					<button id="deleteMarkButton" class="button-large" title="Delete Mark">
+						<i class= "fa solid fa-trash">Delete Mark</i>
+					</button>
 
 					<!-- Navigation pills for voice and text comments -->
 					<div class="nav nav-pills" id="comment-pills" role="tablist">
@@ -78,16 +82,6 @@
 								</div>
 								<br>
 
-								<!-- Refresh Section -->
-								<div id="refreshContainer" style="display: none;">
-									<div class="centered-text">Voice comments saved</div>
-									<div class="centered-text">
-										Refresh page to view:
-										<button id="refresh"><i class="fas fa-redo"></i></button>
-									</div>
-									<br>
-								</div>
-
 								<!-- Saved Voice Comments Section -->
 								<div id="voiceCommentLabel" class="centered-text">
 									<div id="collapseContainer">
@@ -104,12 +98,10 @@
 
 						<!-- Text Comment tab -->
 						<div class="tab-pane fade" id="text-pill" role="tabpanel" aria-labelledby="text-pill-tab">
-                            <button class="btn-primary p-2" id="addCommentBtn" onclick="addComment()" style="width: 100%;">+Add Note</button>
-                            <div class="input-group mb-3 p-2" id="inputText" style="display: none; margin-bottom: 10px">
-                                <textarea id="textArea" type="text" class="form-control" style="width: 100%; padding: 0; border-radius: 15px" placeholder="Add your text comment here..."></textarea>
-                                <div style="text-align: right;">
-                                    <button class="btn-primary p-2" onclick="saveComment()" style="margin-top: 10px;">save</button>
-                                </div>
+                            <button class="btn-primary" id="addCommentBtn" onclick="addComment()">+Add Note</button>
+                            <div class="input-group mb-3" id="inputText" style="display: none">
+                                <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>
+                                <button class="btn-primary" onclick="saveComment()">save</button>
                             </div>
                             <div id="commentsContainer"></div>
 						</div>
