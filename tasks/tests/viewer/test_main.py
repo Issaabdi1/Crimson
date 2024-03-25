@@ -3,7 +3,8 @@ import unittest
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 from .locator import MainPageLocators
 from .page import MainPage
 
@@ -14,6 +15,11 @@ class TestViewer(unittest.TestCase):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--use-fake-ui-for-media-stream")
         self.driver = webdriver.Chrome(options=chrome_options)
+        wait = WebDriverWait(self.driver, 5)
+        self.driver.get("http://localhost:8000/log_in/")
+        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
         self.driver.get("http://localhost:8000/test_viewer_1/")
 
     def test_title_must_correct(self):

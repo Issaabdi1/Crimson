@@ -1,17 +1,21 @@
+from .page import OutlinePage
 import time
 import unittest
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-
-from .locator import MainPageLocators
-from .page import MainPage, OutlinePage
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 class TestViewerOutline(unittest.TestCase):
 
     def setUp(self):
         self.driver = webdriver.Chrome()
+        wait = WebDriverWait(self.driver, 5)
+        self.driver.get("http://localhost:8000/log_in/")
+        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
         self.driver.get("http://localhost:8000/test_viewer_2/")
 
     def test_title_must_correct(self):
@@ -44,3 +48,6 @@ class TestViewerOutline(unittest.TestCase):
         first_subsection.click()
         self.assertEqual(outline_page.get_scroll_top(), 793.5)
         time.sleep(1)
+
+    def tearDown(self):
+        self.driver.close()

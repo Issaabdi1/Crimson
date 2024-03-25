@@ -286,14 +286,9 @@ table#dataTable {
     top: -80px;
 }
 
-#start-footer {
-    position: absolute;
-    bottom: 400px;
-}
-
-
-#start-footer .start-btn{
-  position: relative;
+.start-btn{
+  position: absolute;
+  bottom: 100px;
   transition: all 0.3s ease-in-out;
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
   padding-block: 0.5rem;
