@@ -14,6 +14,13 @@ class TestViewer(unittest.TestCase):
     def setUp(self):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--use-fake-ui-for-media-stream")
+        """
+        If you are not storing the path to the chromedriver to the system's PATH,
+        Uncomment code below, replace with the path to the driver 
+        and import this 'from selenium.webdriver.common.service import Service'
+        """
+        # service = Service(f"{path to driver}")
+        # self.driver = webdriver.Chrome(service=service,options=chrome_options)
         self.driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://localhost:8000/log_in/")

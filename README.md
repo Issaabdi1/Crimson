@@ -77,7 +77,7 @@ Seed the development database with:
 $ python3 manage.py seed
 ```
 
-Before running the tests, download chrome webdriver from  [here](https://chromedriver.storage.googleapis.com/index.html?path=114.0.5735.90/),and save it to a directory of your choice on your system, for example, /Users/username/Desktop/drivers. 
+Before running the tests, download chrome webdriver from  [here](https://googlechromelabs.github.io/chrome-for-testing/),and save it to a directory of your choice on your system, for example, /Users/username/Desktop/drivers. 
 
 
 Next, add the directory where you saved the Chrome WebDriver to the system's PATH by Opening the /etc/paths file using a text editor with administrative privileges. Add the full path to the directory where you saved the Chrome WebDriver (e.g., /Users/username/Desktop/drivers) as a new line in the /etc/paths file.
