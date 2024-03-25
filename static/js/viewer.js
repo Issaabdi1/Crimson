@@ -123,6 +123,8 @@ function renderAfterZoom() {
 }
 
 markButton.addEventListener("click", highlightSelectedText);
+newMarkButton.addEventListener("click", highlightSelectedText);
+
 
 var currentStartingElement;
 var endingElement;
@@ -229,6 +231,10 @@ function mouseMoveHandler(event) {
 
 }
 
+/**
+ * button group
+ * @param event
+ */
 function mouseUpHandler(event) {
 	// Remove mousemove event listener when mouse button is released
 	document.removeEventListener('mousemove', mouseMoveHandler);
@@ -236,7 +242,21 @@ function mouseUpHandler(event) {
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+	const selection = window.getSelection();
+    if (!selection.isCollapsed) { // Check if there's a selection
+        const range = selection.getRangeAt(0).getBoundingClientRect();
+        const buttonGroup = document.getElementById('buttonGroup');
+
+        // Position the button group near the selection
+        buttonGroup.style.top = (window.scrollY + range.bottom) + 'px';
+        buttonGroup.style.left = (window.scrollX + range.left + (range.width / 2)) + 'px';
+        buttonGroup.style.display = 'block';
+    }
+	else {
+        document.getElementById('buttonGroup').style.display = 'none';
+    }
 }
+
 
 function highlightSelectedText(event) {
     // Clear selection
@@ -389,23 +409,27 @@ function setupSpanClickEvent(element)
 							currentCommentId = comment.comment_id;
 							commentsHTML += `
 								<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-									<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+									<div class="card" style="border-radius: 35px; width: 350px; margin: 10px; padding: 2px; box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;">
 										<div>
 											<div class="button-container">
 												<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
 											</div>
-											<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-											${comment.commenter}
-											<div class="updateTime">
-												<small style="color: #5c636a">${comment.date}</small>
+											<div class="p-2" style="display: flex; margin-top: 10px">
+												<img src="${comment.avatar_url}" class="card-img-top" alt="avatar" style="margin-right: 10px;margin-top: 12px;width: 30px; height: 30px; border-radius: 30px">
+												<div style="margin-top: 10px">
+													<strong>${comment.commenter}</strong>
+												</div>
+											</div>
+											<div class="updateTime p-2">
+												<strong style="color: #5c636a">${comment.date}</strong>
 											</div>
 										</div>
 										<div class="card-body">
 											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 										</div>
-										<div class="card-footer text-body-secondary p-2 flex-column">
-											<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-											<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
+										<div class="card-footer text-body-secondary p-3 flex-column">
+											<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}">save</button>
+											<button class="resolveBtn btn-primary" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
 										</div>
 									</div>
 								</div>`;
@@ -470,6 +494,7 @@ function setupSpanClickEvent(element)
 							success: function(response) {
 								console.log("Comment marked as resolved successfully:", response);
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).style.backgroundColor = "#d3d3d3";
 							},
 							error: function(xhr, status, error) {
 								console.error("Error marking comment as resolved:", error);
@@ -729,6 +754,9 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 /* Deleting Marks Javascript */
 const deleteMarkButton = document.getElementById('deleteMarkButton');
 deleteMarkButton.addEventListener('click', deleteMark);
+
+// const newDeleteMarkButton = document.getElementById('newDeleteButton');
+// newDeleteMarkButton.addEventListener('click', deleteMark);
 
 /* CURRENTLY IT DOES NOT DELETE COMMENTS PROPERLY */
 function deleteMark() {
@@ -1191,11 +1219,11 @@ document.addEventListener('click', e => {
 		const thumbnailsView = document.getElementById("thumbnailView");
 		const outlineView = document.getElementById("outlineView");
 		const commentView = document.getElementById("commentView");
-		const bookmarksView = document.getElementById("bookmarksView");
+		// const bookmarksView = document.getElementById("bookmarksView");
 		thumbnailsView.style.display = "none";
         outlineView.style.display = "none";
         commentView.style.display = "block";
-        bookmarksView.style.display = "none";
+        // bookmarksView.style.display = "none";
 	}
 });
 

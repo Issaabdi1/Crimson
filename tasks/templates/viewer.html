@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/voice_comments.css'%}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf_viewer.min.css" />
 <link rel="stylesheet" href="{% static 'css/voice_comments.css'%}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 <script src="https://kit.fontawesome.com/176e8fa5da.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -22,13 +23,13 @@
 			<!-- Sidebar Toolbar -->
 			<div id="sidebarToolbar">
 				<!-- Sidebar Toolbar View Buttons -->
-				<button id="viewThumbnails" class="toolbarButton toggled" title="View Thumbnails">
+				<button id="viewThumbnails" class="toolbarButton toggled btn-light" title="View Thumbnails">
 					<i class="fa-solid fa-grip-vertical"></i>
 				</button>
-				<button id="viewOutline" class="toolbarButton toggled" title="View Outline">
+				<button id="viewOutline" class="toolbarButton toggled btn-light" title="View Outline">
 					<i class="fa-solid fa-bars-staggered"></i>
 				</button>
-				<button id="viewComments" class="toolbarButton toggled" title="View Comments">
+				<button id="viewComments" class="toolbarButton toggled btn-light" title="View Comments">
 					<i class="fa-regular fa-message"></i>
 				</button>
 {#				<button id="viewBookmarks" class="toolbarButton toggled" title="View Bookmarks">#}
@@ -45,10 +46,13 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
-					
-					<button id="deleteMarkButton" class="button-large" title="Delete Mark">
-						<i class= "fa solid fa-trash">Delete Mark</i>
+
+					<button id="deleteMarkButton" class="btn btn-danger">
+						<i class= "fa solid fa-trash"></i>
+                        Delete Mark
 					</button>
+
+
 
 					<!-- Navigation pills for voice and text comments -->
 					<div class="nav nav-pills" id="comment-pills" role="tablist">
@@ -99,16 +103,23 @@
 						<!-- Text Comment tab -->
 						<div class="tab-pane fade" id="text-pill" role="tabpanel" aria-labelledby="text-pill-tab">
                             <button class="btn-primary" id="addCommentBtn" onclick="addComment()">+Add Note</button>
-                            <div class="input-group mb-3" id="inputText" style="display: none">
-                                <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>
-                                <button class="btn-primary" onclick="saveComment()">save</button>
+                            <div class="input-group mb-3" id="inputText" style="display: none;">
+                                <div style="display: flex;">
+                                    <img src="{{ upload.owner.avatar_url }}" alt="gravatar" style="margin-right: 10px;margin-top: 12px;width: 30px; height: 30px; border-radius: 30px">
+                                    <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>
+                                     <div class="flex-column" style="justify-content: end; display: flex">
+                                        <button class="btn-primary" onclick="saveComment()">save</button>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div id="commentsContainer"></div>
+
+                            <div id="commentsContainer" style="justify-content: center"></div>
 						</div>
 					</div>
 
                 </div>
-				
+
 {#				<div id="bookmarksView">#}
 {#                    <h3>This is the bookmark view</h3>#}
 {#                </div>#}
@@ -126,31 +137,31 @@
 				
 					<!-- Left Toolbar Section -->
 					<div id="toolbarLeft" class="toolbarSection">
-						<button id="sidebarToggle" class="toolbarButton toggled" title="Toggle Sidebar">
+						<button id="sidebarToggle" class="toolbarButton toggled btn-light" title="Toggle Sidebar">
 							<i class="fa-solid fa-bars"></i>
-						</button>		
-						<button id="previousPage" class="toolbarButton" title="Previous Page">
+						</button>
+						<button id="previousPage" class="toolbarButton btn-light" title="Previous Page">
 							<i class="fa-solid fa-arrow-up"></i>
 						</button>
-						<button id="nextPage" class="toolbarButton" title="Next Page">
+						<button id="nextPage" class="toolbarButton btn-light" title="Next Page">
 							<i class="fa-solid fa-arrow-down"></i>
 						</button>
 						<input id="pageInput" class="toolbarField" title="Page" value="1"></input>
 						<span id="numberPages" class="toolbarLabel">of 0</span>
 					</div>
-					
+
 					<!-- Middle Toolbar Section -->
-					<div id="toolbarMiddle" class="toolbarSection">
-						<div id="titleContainer">
+{#					<div id="toolbarMiddle" class="toolbarSection">#}
+{#						<div id="titleContainer">#}
 							<!--Showing incomplete info right now-->
-							<div id="documentTitle"><h6 style=" color: #7c795d; justify-content: center; font-family: 'Trocchi', serif; font-weight: normal; line-height: 48px; margin: 0;">{{ upload.file.name }}</h6></div>
+{#							<div id="documentTitle"><h6 style=" color: #7c795d; justify-content: center; font-family: 'Trocchi', serif; font-weight: normal; line-height: 48px; margin: 0;">{{ upload.file.name }}</h6></div>#}
 {#							<div id="fileName">{{upload.file.name}}</div>#}
-						</div>
-					</div>
-					
+{#						</div>#}
+{#					</div>#}
+
 					<!-- Right Toolbar Section -->
 					<div id="toolbarRight" class="toolbarSection">	
-						<button id="markButton" type="button" hidden="True">
+						<button id="markButton" type="button" hidden="True" class="btn-light">
 							Mark
 						</button>		
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
@@ -168,21 +179,26 @@
 						
 						<!-- Search section -->
 						<div id="searchSection" style="display: none;"> <!-- Initially hidden -->
-							<button id="prevSearchResult" class="toolbarButton" title="Previous Search Result">
-								<i class="fa-solid fa-arrow-left"></i>
-							</button>
-							<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">
-							<button id="nextSearchResult" class="toolbarButton" title="Next Search Result">
-								<i class="fa-solid fa-arrow-right"></i>
-							</button>
+{#							<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">#}
+                            <div class="textInputWrapper">
+                                <input placeholder="Search term..." type="text" class="textInput" id="searchTermInput">
+                            </div>
+                            <div>
+                                <button id="prevSearchResult" class="toolbarButton btn-light" title="Previous Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
+                                    <i class="bi bi-arrow-up"></i>
+                                </button>
+                                <button id="nextSearchResult" class="toolbarButton btn-light" title="Next Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
+                                    <i class="bi bi-arrow-down"></i>
+                                </button>
+                            </div>
 						</div>
-						<button id="viewFindbar" class="toolbarButton" title="Find in Document">
+                        <button id="viewFindbar" class="toolbarButton" title="Find in Document">
 							<i class="fa-solid fa-magnifying-glass"></i>
 						</button>
-						
-						<a id="viewPrint" class="toolbarButton" title="Print" href="">
-							<i class="fa-solid fa-ellipsis"></i>
-						</a>
+
+                        <a id="viewPrint" class="toolbarButton" title="Print" href="">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </a>
 					</div>
 				</div>
 			</div>
@@ -195,8 +211,12 @@
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
+            <div id="buttonGroup" style="position: absolute; display: none;">
+                <button class="btn-primary" id="newMarkButton" style="border-radius: 10px; opacity: 0.7">Mark</button>
+{#                <button class="btn-danger" id="newDeleteButton">Delete</button>#}
+            </div>
+    </div>
+{#	</div>#}
 	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
@@ -241,9 +261,9 @@
 
 		// Print button link
 		printButton.setAttribute('href', pdfUrl);
-		
+
 		document.addEventListener("DOMContentLoaded", async function() {
-			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';	
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
 			const loadingTask = pdfjsLib.getDocument(pdfUrl);
 			pdf = await loadingTask.promise;
 			numPages = pdf.numPages;
