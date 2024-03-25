@@ -3,41 +3,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const thumbnailsView = document.getElementById("thumbnailView");
     const outlineView = document.getElementById("outlineView");
     const commentView = document.getElementById("commentView");
-    const bookmarksView = document.getElementById("bookmarksView");
+    // const bookmarksView = document.getElementById("bookmarksView");
 
     // Hide all views except the thumbnails view by default
     thumbnailsView.style.display = "block";
     outlineView.style.display = "none";
     commentView.style.display = "none";
-    bookmarksView.style.display = "none";
+    // bookmarksView.style.display = "none";
 
     document.getElementById("viewThumbnails").addEventListener("click", function() {
         thumbnailsView.style.display = "block";
         outlineView.style.display = "none";
         commentView.style.display = "none";
-        bookmarksView.style.display = "none";
+        // bookmarksView.style.display = "none";
     });
 
     document.getElementById("viewOutline").addEventListener("click", function() {
         thumbnailsView.style.display = "none";
         outlineView.style.display = "block";
         commentView.style.display = "none";
-        bookmarksView.style.display = "none";
+        // bookmarksView.style.display = "none";
     });
 
     document.getElementById("viewComments").addEventListener("click", function() {
         thumbnailsView.style.display = "none";
         outlineView.style.display = "none";
         commentView.style.display = "block";
-        bookmarksView.style.display = "none";
+        // bookmarksView.style.display = "none";
     });
 
-    document.getElementById("viewBookmarks").addEventListener("click", function() {
-        thumbnailsView.style.display = "none";
-        outlineView.style.display = "none";
-        commentView.style.display = "none";
-        bookmarksView.style.display = "block";
-    });
+    // document.getElementById("viewBookmarks").addEventListener("click", function() {
+    //     thumbnailsView.style.display = "none";
+    //     outlineView.style.display = "none";
+    //     commentView.style.display = "none";
+    //     bookmarksView.style.display = "block";
+    // });
 });
 
 // Handle the thumbnails aria selected effect

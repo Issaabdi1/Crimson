@@ -31,9 +31,9 @@
 				<button id="viewComments" class="toolbarButton toggled" title="View Comments">
 					<i class="fa-regular fa-message"></i>
 				</button>
-				<button id="viewBookmarks" class="toolbarButton toggled" title="View Bookmarks">
-					<i class="fa-regular fa-bookmark"></i>
-				</button>
+{#				<button id="viewBookmarks" class="toolbarButton toggled" title="View Bookmarks">#}
+{#					<i class="fa-regular fa-bookmark"></i>#}
+{#				</button>#}
 			</div>
 
 			<!-- Sidebar Views -->
@@ -109,9 +109,9 @@
 
                 </div>
 				
-				<div id="bookmarksView">
-                    <h3>This is the bookmark view</h3>
-                </div>
+{#				<div id="bookmarksView">#}
+{#                    <h3>This is the bookmark view</h3>#}
+{#                </div>#}
 			</div>
 		</div>
 
@@ -143,8 +143,8 @@
 					<div id="toolbarMiddle" class="toolbarSection">
 						<div id="titleContainer">
 							<!--Showing incomplete info right now-->
-							<div id="documentTitle">{{upload.file.name}}</div>
-							<div id="fileName">{{upload.file.name}}</div>
+							<div id="documentTitle"><h6 style=" color: #7c795d; justify-content: center; font-family: 'Trocchi', serif; font-weight: normal; line-height: 48px; margin: 0;">{{ upload.file.name }}</h6></div>
+{#							<div id="fileName">{{upload.file.name}}</div>#}
 						</div>
 					</div>
 					
