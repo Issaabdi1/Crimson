@@ -30,6 +30,8 @@ class MainPageLocators(object):
     THUMBNAIL_6 = (By.XPATH, '//*[@id="thumbnailsContainer"]/div[6]')
     # Text Span
     FIRST_PAGE_SECOND_SPAN = (By.XPATH, '//*[@id="textlayer-1"]/span[2]')
+    FIRST_PAGE_THIRD_SPAN = (By.XPATH, '//*[@id="textlayer-1"]/span[3]')
+    FIRST_PAGE_FOURTH_SPAN = (By.XPATH, '//*[@id="textlayer-1"]/span[4]')
     MARKED_SECTION = (By.ID, "markedSection")
     # Tabs
     VOICE_TAB = (By.ID, "voice-pill-tab")
@@ -46,6 +48,9 @@ class MainPageLocators(object):
     BOOKMARK_VIEW = (By.ID, "bookmarksView")
     # Recording
     RECORDINGS = (By.ID, "recordings")
+    SAVED_RECORDINGS = (By.ID, "savedRecordings")
+    SAVED_RECORDINGS_LABEL = (By.ID, "voiceCommentLabel")
+    TEXT_COMMENTS_CONTAINER = (By.ID, "commentsContainer")
 
 
 class OutlinePageLocator(object):
