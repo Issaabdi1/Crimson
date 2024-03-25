@@ -14,6 +14,8 @@ class MainPageLocators(object):
     DELETE_MARK = (By.ID, "deleteMarkButton")
     ADD_COMMENT = (By.ID, "addCommentBtn")
     SAVE_COMMENT = (By.XPATH, '//*[@id="inputText"]/button')
+    RECORD_BTN = (By.ID, 'recordButton')
+    SAVE_RECORD = (By.ID, 'save')
     # INPUTS
     PAGE_INPUT = (By.ID, "pageInput")
     SCALE_INPUT = (By.ID, "selectScale")
@@ -42,6 +44,8 @@ class MainPageLocators(object):
     OUTLINE_VIEW = (By.ID, "outlineView")
     COMMENT_VIEW = (By.ID, "commentView")
     BOOKMARK_VIEW = (By.ID, "bookmarksView")
+    # Recording
+    RECORDINGS = (By.ID, "recordings")
 
 
 class OutlinePageLocator(object):

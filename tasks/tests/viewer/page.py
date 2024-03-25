@@ -125,6 +125,14 @@ class MainPage(BasePage):
         bookmark_button = self.driver.find_element(*MainPageLocators.BOOKMARK_BTN)
         bookmark_button.click()
 
+    def click_record_button(self):
+        record_button = self.driver.find_element(*MainPageLocators.RECORD_BTN)
+        record_button.click()
+
+    def click_record_save_button(self):
+        record_save_button = self.driver.find_element(*MainPageLocators.SAVE_RECORD)
+        record_save_button.click()
+
     def select_scale_input(self, input):
         scale_input = self.driver.find_element(*MainPageLocators.SCALE_INPUT)
         dropdown = Select(scale_input)

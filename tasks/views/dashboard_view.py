@@ -17,7 +17,7 @@ def dashboard(request):
     current_user = request.user
     uploads = Upload.objects.filter(owner=current_user)
     all_users = User.objects.exclude(username=current_user.username)
-    shared_files = SharedFiles.objects.filter(shared_to=current_user)
+    shared_files = SharedFiles.objects.filter(shared_to=current_user).order_by('shared_date')
 
     page_number = request.GET.get('page', 1)
     per_page = 7

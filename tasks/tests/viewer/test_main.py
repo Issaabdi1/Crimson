@@ -11,7 +11,9 @@ from .page import MainPage
 class TestViewer(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Chrome()
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--use-fake-ui-for-media-stream")
+        self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.get("http://localhost:8000/test_viewer_1/")
 
     def test_title_must_correct(self):
@@ -117,6 +119,28 @@ class TestViewer(unittest.TestCase):
             return
         else:
             raise AssertionError("Mark is not correctly deleted")
+
+    def test_recording_functionality_works_correctly(self):
+        """
+        Tests that recording functionality should generate the audio file correctly
+        """
+        main_page = MainPage(self.driver)
+        main_page.select_text()
+        time.sleep(1)
+        main_page.click_mark_button()
+        marked_section = self.driver.find_element(*MainPageLocators.MARKED_SECTION)
+        marked_section.click()
+        main_page.click_record_button()
+        time.sleep(3)
+        main_page.click_record_button()
+        time.sleep(1)
+        recordings = self.driver.find_element(*MainPageLocators.RECORDINGS)
+        self.assertEqual(len(recordings.find_elements(By.TAG_NAME, "audio")), 1)
+        main_page.click_record_button()
+        time.sleep(3)
+        main_page.click_record_button()
+        time.sleep(1)
+        self.assertEqual(len(recordings.find_elements(By.TAG_NAME, "audio")), 2)
 
     def test_find_in_page_should_work_correctly(self):
         """
