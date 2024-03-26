@@ -997,9 +997,7 @@ function updateVoiceComments() {
 			var audio = createAudioElement(audio_url, false);
 			var card;
 	
-			var deleteBtn;
-			if (currentUser === fileOwner) {
-				deleteBtn = createDeleteButton(() => {
+			var deleteBtn = createDeleteButton(() => {
 					if (deleteMarkClicked || confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
 						const csrftoken = getCookie('csrftoken');
 						const formData = new FormData();
@@ -1037,7 +1035,6 @@ function updateVoiceComments() {
 						});
 					}
 				});
-			}
 	
 			card = createCard(vc, audio, deleteBtn);
 			savedRecordings.appendChild(card);
