@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification, PDFInfo, VoiceComment
+from .models import User, Upload, Team, ProfileImage, SharedFiles, Notification, PDFInfo, VoiceComment, Comment
 # Register your models here.
 
 
@@ -59,4 +59,11 @@ class VoiceCommentAdmin(admin.ModelAdmin):
     """Configuration of the admin interface for VoiceComment"""
     list_display = [
         'user', 'upload', 'mark_id'
+    ]
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """Configuration of the admin interface for Comment"""
+    list_display = [
+        'commenter', 'upload', 'mark_id'
     ]

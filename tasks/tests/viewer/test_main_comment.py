@@ -32,11 +32,11 @@ class TestViewer2(unittest.TestCase):
         time.sleep(2)
         self.assertTrue(main_page.is_num_pages_matches())
 
-    def test_insert_text_comments_correctly(self):
+    def test_insert_and_delete_text_comments_correctly(self):
         """
         Tests that text comments should be inserted correctly into marked text
         # Select Text, click mark, click marked section, click text tab, click add note, write first,
-         save first, click add note, write second, save second
+         save first, click add note, write second, save second, delete first, delete second
         """
         main_page = MainPageComment(self.driver)
         main_page.select_text_text()
@@ -59,12 +59,21 @@ class TestViewer2(unittest.TestCase):
         self.assertEqual(len(comment_cards), 2)
         self.assertEqual(self.find_card_text(comment_cards[0]), "Hello World!\n")
         self.assertEqual(self.find_card_text(comment_cards[1]), "Testing!\n")
+        self.close_card(comment_cards[0])
+        time.sleep(1)
+        comment_cards = comments.find_elements(By.CLASS_NAME, "card")
+        self.assertEqual(len(comment_cards), 1)
+        self.close_card(comment_cards[0])
+        time.sleep(1)
+        comment_cards = comments.find_elements(By.CLASS_NAME, "card")
+        self.assertEqual(len(comment_cards), 0)
         main_page.click_delete_mark_button()  # Delete the mark
 
-    def test_insert_voice_comments_correctly(self):
+    def test_insert_and_delete_voice_comments_correctly(self):
         """
         Tests that voice comments should be inserted correctly into marked text
-        # Select Text, click mark, click marked section, record first, record second, click save
+        # Select Text, click mark, click marked section, record first, record second,
+        click save, delete first, delete second, delete mark
         """
         main_page = MainPageComment(self.driver)
         main_page.select_text_voice()
@@ -87,29 +96,6 @@ class TestViewer2(unittest.TestCase):
         saved_recordings = self.driver.find_element(*MainPageLocators.SAVED_RECORDINGS)
         voice_comment_cards = saved_recordings.find_elements(By.CLASS_NAME, "card")
         self.assertEqual(len(voice_comment_cards), 2)
-        main_page.click_delete_mark_button()  # Delete the mark
-
-    def test_delete_comments_correctly(self):
-        main_page = MainPageComment(self.driver)
-        main_page.select_text_voice()
-        time.sleep(1)
-        main_page.click_mark_button()
-        time.sleep(1)
-        marked_section = self.driver.find_element(*MainPageLocators.MARKED_SECTION)
-        marked_section.click()
-        main_page.click_record_button()  # Recording twice
-        time.sleep(3)
-        main_page.click_record_button()
-        time.sleep(1)
-        main_page.click_record_button()
-        time.sleep(3)
-        main_page.click_record_button()
-        time.sleep(1)
-        main_page.click_record_save_button()
-        time.sleep(2)
-        main_page.click_voice_comment_label()
-        saved_recordings = self.driver.find_element(*MainPageLocators.SAVED_RECORDINGS)
-        time.sleep(2)
         delete_button = self.get_voice_comment_cards_delete_button()
         delete_button.click()
         time.sleep(1)
@@ -131,6 +117,9 @@ class TestViewer2(unittest.TestCase):
     def find_card_text(self, card):
         return card.find_element(By.CLASS_NAME, "card-body").find_element(By.CLASS_NAME, "card-text").find_element(
             By.TAG_NAME, "textarea").get_attribute("value")
+
+    def close_card(self, card):
+        return card.find_element(By.CLASS_NAME, "button-container").find_element(By.TAG_NAME, "button").click()
 
     def get_voice_comment_cards_delete_button(self):
         return self.driver.find_element(By.XPATH, '//*[@id="savedRecordings"]/div[1]/div[3]/button[3]')

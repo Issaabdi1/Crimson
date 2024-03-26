@@ -113,6 +113,7 @@ class TestViewer(unittest.TestCase):
         time.sleep(1)
         self.assertEqual(marked_section.value_of_css_property("background-color"), 'rgba(255, 165, 0, 1)')
         main_page.click_text_tab()
+        main_page.click_delete_mark_button()
 
     def test_must_correctly_delete_mark_on_text(self):
         """
