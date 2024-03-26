@@ -123,7 +123,7 @@ function renderAfterZoom() {
 }
 
 markButton.addEventListener("click", highlightSelectedText);
-newMarkButton.addEventListener("click", highlightSelectedText);
+// newMarkButton.addEventListener("click", highlightSelectedText);
 
 
 var currentStartingElement;
@@ -243,43 +243,43 @@ function mouseUpHandler(event) {
 	seenSpan = false;
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
 
-	popUpMark(event)
+	// popUpMark(event)
 }
 
 /**
  * pop up the window with the mark and delete button
  */
-function popUpMark(event){
-	setTimeout(() => {
-        const selection = window.getSelection();
-        if (!selection.isCollapsed) {
-            	const selection = window.getSelection();
-				if (!selection.isCollapsed) { // Check if there's a selection
-					const range = selection.getRangeAt(0).getBoundingClientRect();
-					const buttonGroup = document.getElementById('buttonGroup');
-					buttonGroup.style.top = (event.clientY + window.scrollY) + 'px';
-					buttonGroup.style.left = (event.clientX + window.scrollX) + 'px';
-					buttonGroup.style.display = 'flex';
-				}
-				else {
-					document.getElementById('buttonGroup').style.display = 'none';
-				}
-        } else {
-            document.getElementById('buttonGroup').style.display = 'none';
-        }
-    }, 10);
-}
+// function popUpMark(event){
+// 	setTimeout(() => {
+//         const selection = window.getSelection();
+//         if (!selection.isCollapsed) {
+//             	const selection = window.getSelection();
+// 				if (!selection.isCollapsed) { // Check if there's a selection
+// 					const range = selection.getRangeAt(0).getBoundingClientRect();
+// 					const buttonGroup = document.getElementById('buttonGroup');
+// 					buttonGroup.style.top = (event.clientY + window.scrollY) + 'px';
+// 					buttonGroup.style.left = (event.clientX + window.scrollX) + 'px';
+// 					buttonGroup.style.display = 'flex';
+// 				}
+// 				else {
+// 					document.getElementById('buttonGroup').style.display = 'none';
+// 				}
+//         } else {
+//             document.getElementById('buttonGroup').style.display = 'none';
+//         }
+//     }, 10);
+// }
 
-function popUpMarkWhenClick(event) {
-    var buttonGroup = document.getElementById("buttonGroup");
-
-    var posX = event.clientX + 10;
-    var posY = event.clientY + 10;
-
-    buttonGroup.style.left = posX + 'px';
-    buttonGroup.style.top = posY + 'px';
-    buttonGroup.style.display = 'flex';
-}
+// function popUpMarkWhenClick(event) {
+//     var buttonGroup = document.getElementById("buttonGroup");
+//
+//     var posX = event.clientX + 10;
+//     var posY = event.clientY + 10;
+//
+//     buttonGroup.style.left = posX + 'px';
+//     buttonGroup.style.top = posY + 'px';
+//     buttonGroup.style.display = 'flex';
+// }
 
 
 
@@ -428,8 +428,9 @@ function setupSpanClickEvent(element)
 			success: function(response) {
 				document.getElementById('addCommentBtn').style.display = 'block';
 				console.log("Received JSON:", response);
-				const selectedText = element.textContent;
-				popUpMarkWhenClick(event)
+				const selectedText = element.parentElement.textContent;
+				// const selectedText = element.textContent;
+				// popUpMarkWhenClick(event)
 				console.log(event.clientX, event.clientY);
 
 				try {
@@ -832,11 +833,11 @@ function deleteMark() {
         // Clear the current mark ID
         currentMarkId = null;
 		savePdfChanges(false);
+		reloadComments()
     }
 }
 
 // Search Bar
-
 document.addEventListener('DOMContentLoaded', () => {
     const viewFindbarButton = document.getElementById('viewFindbar');
     const searchSection = document.getElementById('searchSection');
@@ -1381,40 +1382,22 @@ function simulateMarkedSectionClick(markId) {
     }
 }
 
-// function markAsResolved(commentId) {
-//     // Confirm with the user
-//     if (confirm('Are you sure you want to mark this as resolved?')) {
-//         // Disable the button
-//         document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
-// 		const resolveButton = document.querySelector(`#textComment-${commentId} .resolveBtn`);
-//
-//
-//         $.ajax({
-//             url: '/update_comment_status/',
-//             type: 'POST',
-//             contentType: 'application/json',
-//             data: JSON.stringify({
-//                 comment_id: commentId,
-//                 resolved: true
-//             }),
-//             beforeSend: function(xhr) {
-//                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-//             },
-//             success: function(response) {
-//                 console.log("Comment marked as resolved successfully:", response);
-// 				document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
-// 				if (resolveButton) {
-//                     resolveButton.disabled = true;
-//                     resolveButton.textContent = 'Resolved';
-//                 }
-//
-//             },
-//             error: function(xhr, status, error) {
-//                 console.error("Error marking comment as resolved:", error);
-//                 // Re-enable the button if there's an error, or handle errors appropriately
-//                 document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = false;
-//             }
-//         });
-//     }
-// }
-//
+/**
+ * reload the comment pill
+ */
+function reloadComments() {
+  fetch('/update_comment/')
+    .then(response => response.text()) // Parse the response as text
+    .then(data => {
+      // Replace existing content
+      document.getElementById('commentsContainer').innerHTML = data;
+    })
+	.catch(error => {
+	  if (error.name === 'NetworkError') {
+		document.getElementById('commentsContainer').innerHTML = 'Network Error. Check your connection and try again.';
+	  } else {
+		document.getElementById('commentsContainer').innerHTML = 'Error loading comments. Please try again later.';
+	  }
+	  console.error(error);
+	});
+}

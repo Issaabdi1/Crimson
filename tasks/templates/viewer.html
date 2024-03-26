@@ -99,11 +99,19 @@
 
 						<!-- Text Comment tab -->
 						<div class="tab-pane fade" id="text-pill" role="tabpanel" aria-labelledby="text-pill-tab">
+                            <div class="p-2 flex" style="margin-top: 10px">
+                                <button class="btn-danger" id="deleteMarkButton">
+                                    <i class="bi bi-trash"></i> Delete this mark
+                                </button>
+                            </div>
                             <button class="btn-primary" id="addCommentBtn" onclick="addComment()" style="display: none">+Add Note</button>
                             <div class="input-group mb-3" id="inputText" style="display: none;">
                                 <div style="display: flex;">
                                     <img src="{{ upload.owner.avatar_url }}" alt="gravatar" style="margin-right: 10px;margin-top: 12px;width: 30px; height: 30px; border-radius: 30px">
-                                    <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>
+{#                                    <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..."></textarea>#}
+                                       <textarea id="textArea" type="text" class="form-control" style="width: auto; padding: 0; border-radius: 10px" placeholder="Add your text comment here..." data-comment-id="${commentId}"></textarea>
+
+
                                      <div class="flex-column" style="justify-content: end; display: flex">
                                         <button class="btn-primary" onclick="saveComment()">save</button>
                                     </div>
@@ -208,14 +216,12 @@
 					</div>
 				</div>
 			</div>
-            <div id="buttonGroup" class="btn-group" style="position: absolute; display: none;">
-                <button class="btn-primary btn-custom" id="newMarkButton">Mark</button>
-                <div class="deleteBtnContainer" id="delete-mark-button-container">
-                    <button class="btn-danger btn-custom" id="deleteMarkButton">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </div>
+{#            <div id="buttonGroup" class="btn-group" style="position: absolute; display: none;">#}
+{#                <button class="btn-primary btn-custom" id="newMarkButton">Mark</button>#}
+{#                <div class="deleteBtnContainer" id="delete-mark-button-container">#}
+{##}
+{#                </div>#}
+{#            </div>#}
 
     </div>
 {#	</div>#}
