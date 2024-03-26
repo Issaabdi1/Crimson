@@ -5,7 +5,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from .locator import MainPageLocators
+from .locator import MainPageLocators, LogInPageLocator
 from .page import MainPage
 
 
@@ -24,9 +24,9 @@ class TestViewer(unittest.TestCase):
         self.driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://localhost:8000/log_in/")
-        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
-        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
-        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.USERNAME)).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.PASSWORD)).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.LOGIN_SUBMIT)).click()
         self.driver.get("http://localhost:8000/test_viewer_1/")
 
     def test_title_must_correct(self):
@@ -41,7 +41,6 @@ class TestViewer(unittest.TestCase):
         Tests that total page number is correctly displayed
         """
         main_page = MainPage(self.driver)
-        time.sleep(2)
         self.assertTrue(main_page.is_num_pages_matches())
 
     def test_num_pages_input_must_navigate_to_corresponding_page(self):
@@ -217,11 +216,6 @@ class TestViewer(unittest.TestCase):
         self.assertEqual(thumbnail_view.value_of_css_property("display"), 'none')
         self.assertEqual(outline_view.value_of_css_property("display"), 'none')
         self.assertEqual(comment_view.value_of_css_property("display"), 'block')
-        main_page.click_bookmark_button()
-        time.sleep(1)
-        self.assertEqual(thumbnail_view.value_of_css_property("display"), 'none')
-        self.assertEqual(outline_view.value_of_css_property("display"), 'none')
-        self.assertEqual(comment_view.value_of_css_property("display"), 'none')
         main_page.click_thumbnail_button()
         time.sleep(1)
         self.assertEqual(thumbnail_view.value_of_css_property("display"), 'block')

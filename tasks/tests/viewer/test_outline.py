@@ -1,4 +1,5 @@
 from .page import OutlinePage
+from .locator import LogInPageLocator
 import time
 import unittest
 from selenium import webdriver
@@ -13,9 +14,9 @@ class TestViewerOutline(unittest.TestCase):
         self.driver = webdriver.Chrome()
         wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://localhost:8000/log_in/")
-        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
-        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
-        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.USERNAME)).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.PASSWORD)).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.LOGIN_SUBMIT)).click()
         self.driver.get("http://localhost:8000/test_viewer_2/")
 
     def test_title_must_correct(self):

@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from .locator import MainPageLocators
+from .locator import MainPageLocators, LogInPageLocator
 from .page import MainPageComment
 from selenium.webdriver.common.alert import Alert
 
@@ -17,11 +17,11 @@ class TestViewer2(unittest.TestCase):
         self.driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://localhost:8000/log_in/")
-        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
-        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
-        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.USERNAME)).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.PASSWORD)).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.LOGIN_SUBMIT)).click()
         self.driver.get("http://localhost:8000/filelist/")
-        wait.until(EC.element_to_be_clickable((By.ID, "viewerForm1"))).click()
+        wait.until(EC.element_to_be_clickable(MainPageLocators.VIEWER_FORM_1)).click()
         self.driver.switch_to.window(self.driver.window_handles[-1])
 
     def test_num_pages_must_correct(self):

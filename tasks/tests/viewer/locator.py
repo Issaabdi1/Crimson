@@ -12,7 +12,7 @@ class MainPageLocators(object):
     MARK_BTN = (By.ID, "markButton")
     DELETE_MARK = (By.ID, "deleteMarkButton")
     ADD_COMMENT = (By.ID, "addCommentBtn")
-    SAVE_COMMENT = (By.XPATH, '//*[@id="inputText"]/button')
+    SAVE_COMMENT = (By.XPATH, '//*[@id="inputText"]/div/div/button')
     RECORD_BTN = (By.ID, 'recordButton')
     SAVE_RECORD = (By.ID, 'save')
     # INPUTS
@@ -49,6 +49,8 @@ class MainPageLocators(object):
     SAVED_RECORDINGS = (By.ID, "savedRecordings")
     SAVED_RECORDINGS_LABEL = (By.ID, "voiceCommentLabel")
     TEXT_COMMENTS_CONTAINER = (By.ID, "commentsContainer")
+    # ViewerForm
+    VIEWER_FORM_1 = (By.XPATH, '//*[@id="fileList"]/div[1]/div[1]/form')
 
 
 class OutlinePageLocator(object):
@@ -56,3 +58,9 @@ class OutlinePageLocator(object):
     OUTLINE_VIEW = (By.ID, "outlineView")
     VIEWER = (By.ID, "viewer")
     NUM_PAGE = (By.ID, "numberPages")
+
+
+class LogInPageLocator(object):
+    USERNAME = (By.NAME, "username")
+    PASSWORD = (By.NAME, "password")
+    LOGIN_SUBMIT = (By.ID, "btn-submit")
