@@ -12,7 +12,7 @@ The members of the team are:
 - *KAM HING HANSON ZHUANG*
 
 ## Project structure
-The project is called `task_manager`.  It currently consists of a single app `tasks`.
+The project is called `TBD`.  It currently consists of a single app `TBD`.
 
 ## Deployed version of the application
 The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](https://teamcrimson.pythonanywhere.com/).
@@ -38,17 +38,6 @@ People can inspect the bucket via [here](https://aws.amazon.com)
 ## Installation instructions
 To install the software and use it in your local development environment, you must first set up and activate a local development environment.  From the root of the project:
 
-```
-$ virtualenv venv
-$ source venv/bin/activate
-```
-
-Install all required packages:
-
-```
-$ pip3 install -r requirements.txt
-```
-
 Create and open .env file:
 
 ```
@@ -64,6 +53,19 @@ AWS_ACCESS_KEY_ID=AKIA6GBMCKWKVMOCFXG4
 AWS_SECRET_ACCESS_KEY=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
 AWS_STORAGE_BUCKET_NAME=mypdfbucket01
 ```
+Set up and activate a local development environment:
+
+```
+$ virtualenv venv
+$ source venv/bin/activate
+```
+
+Install all required packages:
+
+```
+$ pip3 install -r requirements.txt
+```
+
 
 Migrate the database:
 
@@ -94,4 +96,4 @@ $ python3 manage.py test
 ## Sources
 The packages used by this application are specified in `requirements.txt`
 
-*Declare are other sources here, and remove this line*
+Chromedriver is used by this application for testing purpose, and can be downloaded via [here](https://googlechromelabs.github.io/chrome-for-testing/)
