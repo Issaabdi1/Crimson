@@ -67,7 +67,7 @@ body {
     position: absolute;
     height: 32px;
     width: 100%;
-    padding: 4px;
+    padding: 0px;
     display: flex;
     justify-content: space-between;
 }
@@ -586,6 +586,12 @@ blockquote{
   -moz-box-shadow: 2px 2px 15px #ccc;
   -webkit-box-shadow: 2px 2px 15px #ccc;
   box-shadow: 2px 2px 15px #ccc;
+
+    /* Prevent text selection */
+    user-select: none;
+    -moz-user-select: none; /* Firefox */
+    -webkit-user-select: none; /* Safari and Chrome */
+    -ms-user-select: none; /* IE 10+/Edge */
 }
 
 blockquote::before{
