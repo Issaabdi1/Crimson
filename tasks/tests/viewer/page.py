@@ -121,10 +121,6 @@ class MainPage(BasePage):
         outline_button = self.driver.find_element(*MainPageLocators.OUTLINE_BTN)
         outline_button.click()
 
-    def click_bookmark_button(self):
-        bookmark_button = self.driver.find_element(*MainPageLocators.BOOKMARK_BTN)
-        bookmark_button.click()
-
     def click_record_button(self):
         record_button = self.driver.find_element(*MainPageLocators.RECORD_BTN)
         record_button.click()

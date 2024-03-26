@@ -9,7 +9,6 @@ class MainPageLocators(object):
     THUMBNAIL_BTN = (By.ID, "viewThumbnails")
     OUTLINE_BTN = (By.ID, "viewOutline")
     COMMENT_BTN = (By.ID, "viewComments")
-    BOOKMARK_BTN = (By.ID, "viewBookmarks")
     MARK_BTN = (By.ID, "markButton")
     DELETE_MARK = (By.ID, "deleteMarkButton")
     ADD_COMMENT = (By.ID, "addCommentBtn")
@@ -45,7 +44,6 @@ class MainPageLocators(object):
     THUMBNAIL_VIEW = (By.ID, "thumbnailView")
     OUTLINE_VIEW = (By.ID, "outlineView")
     COMMENT_VIEW = (By.ID, "commentView")
-    BOOKMARK_VIEW = (By.ID, "bookmarksView")
     # Recording
     RECORDINGS = (By.ID, "recordings")
     SAVED_RECORDINGS = (By.ID, "savedRecordings")
