@@ -426,6 +426,7 @@ function setupSpanClickEvent(element)
 				'upload_id': upload_id,
 			},
 			success: function(response) {
+				document.getElementById('addCommentBtn').style.display = 'block';
 				console.log("Received JSON:", response);
 				const selectedText = element.textContent;
 				popUpMarkWhenClick(event)
@@ -461,7 +462,7 @@ function setupSpanClickEvent(element)
 											</div>
 										</div>
 										<div class="card-body">
-											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
+											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}"  ${resolvedAttribute}>${comment.text}</textarea></p>
 										</div>
 										<div class="card-footer text-body-secondary p-3 flex-column">
 											<div class="flex-column">
@@ -540,6 +541,8 @@ function setupSpanClickEvent(element)
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).style.backgroundColor = "#d3d3d3";
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).textContent = "Resolved  ✅";
+								document.querySelector(`#commentInputBox-${commentId}`).disabled = true;
+
 
 							},
 							error: function(xhr, status, error) {
