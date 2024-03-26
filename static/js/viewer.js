@@ -242,20 +242,46 @@ function mouseUpHandler(event) {
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
-	const selection = window.getSelection();
-    if (!selection.isCollapsed) { // Check if there's a selection
-        const range = selection.getRangeAt(0).getBoundingClientRect();
-        const buttonGroup = document.getElementById('buttonGroup');
 
-        // Position the button group near the selection
-        buttonGroup.style.top = (window.scrollY + range.bottom) + 'px';
-        buttonGroup.style.left = (window.scrollX + range.left + (range.width / 2)) + 'px';
-        buttonGroup.style.display = 'block';
-    }
-	else {
-        document.getElementById('buttonGroup').style.display = 'none';
-    }
+	popUpMark(event)
 }
+
+/**
+ * pop up the window with the mark and delete button
+ */
+function popUpMark(event){
+	setTimeout(() => {
+        const selection = window.getSelection();
+        if (!selection.isCollapsed) {
+            	const selection = window.getSelection();
+				if (!selection.isCollapsed) { // Check if there's a selection
+					const range = selection.getRangeAt(0).getBoundingClientRect();
+					const buttonGroup = document.getElementById('buttonGroup');
+					buttonGroup.style.top = (event.clientY + window.scrollY) + 'px';
+					buttonGroup.style.left = (event.clientX + window.scrollX) + 'px';
+					buttonGroup.style.display = 'flex';
+				}
+				else {
+					document.getElementById('buttonGroup').style.display = 'none';
+				}
+        } else {
+            document.getElementById('buttonGroup').style.display = 'none';
+        }
+    }, 10);
+}
+
+function popUpMarkWhenClick(event) {
+    var buttonGroup = document.getElementById("buttonGroup");
+
+    var posX = event.clientX + 10;
+    var posY = event.clientY + 10;
+
+    buttonGroup.style.left = posX + 'px';
+    buttonGroup.style.top = posY + 'px';
+    buttonGroup.style.display = 'flex';
+}
+
+
 
 
 function highlightSelectedText(event) {
@@ -377,8 +403,9 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 // Adds all the relevant actions to the general click event of highlight spans
 function setupSpanClickEvent(element)
 {
-	element.addEventListener('click', () => {
+	element.addEventListener('click', (event) => {
 		isMark = true;
+		// document.getElementById("delete-mark-button-container").style.display = 'block';
 
 		// This changes the previous selected mark back to yellow
 		if(currentMarkId && currentMarkId !== element.dataset.value){
@@ -400,9 +427,18 @@ function setupSpanClickEvent(element)
 			},
 			success: function(response) {
 				console.log("Received JSON:", response);
+				const selectedText = element.textContent;
+				popUpMarkWhenClick(event)
+				console.log(event.clientX, event.clientY);
+
 				try {
 					var comments = JSON.parse(response.comments);
 					console.log("Parsed comments:", comments);
+					const quotationHTML = `
+						<blockquote>
+							<strong><em>${selectedText}</em></strong>
+						</blockquote>
+					`;
 					var commentsHTML = '';
 						comments.forEach(comment => {
 							var resolvedAttribute = comment.resolved ? 'disabled' : '';
@@ -428,13 +464,16 @@ function setupSpanClickEvent(element)
 											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
 										</div>
 										<div class="card-footer text-body-secondary p-3 flex-column">
-											<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}">save</button>
-											<button class="resolveBtn btn-primary" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
+											<div class="flex-column">
+												<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}">save</button>
+												<button class="resolveBtn btn-primary btn-outline-success" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>Mark Resolved</button>
+											</div>
 										</div>
 									</div>
 								</div>`;
 						});
 					document.getElementById("commentsContainer").innerHTML = commentsHTML;
+					document.getElementById("quotationContainer").innerHTML = quotationHTML;
 					document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 					button.addEventListener('click', function() {
 						// Find the textarea associated with this button
@@ -464,6 +503,11 @@ function setupSpanClickEvent(element)
 								console.log('current comment id is:', currentCommentId)
 								console.log('current mark id is:', currentMarkId)
 								console.log("Comment updated successfully:", response);
+								document.querySelector(`#textComment-${commentId} .saveBtn`).textContent = "✅ Successfully Saved!";
+								setTimeout(() => {
+									document.querySelector(`#textComment-${commentId} .saveBtn`).textContent = "save";
+								}, 2000);
+
 
 							},
 							error: function(xhr, status, error) {
@@ -495,6 +539,8 @@ function setupSpanClickEvent(element)
 								console.log("Comment marked as resolved successfully:", response);
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).style.backgroundColor = "#d3d3d3";
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).textContent = "Resolved  ✅";
+
 							},
 							error: function(xhr, status, error) {
 								console.error("Error marking comment as resolved:", error);
@@ -755,8 +801,6 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 const deleteMarkButton = document.getElementById('deleteMarkButton');
 deleteMarkButton.addEventListener('click', deleteMark);
 
-// const newDeleteMarkButton = document.getElementById('newDeleteButton');
-// newDeleteMarkButton.addEventListener('click', deleteMark);
 
 /* CURRENTLY IT DOES NOT DELETE COMMENTS PROPERLY */
 function deleteMark() {

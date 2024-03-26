@@ -46,15 +46,7 @@
 				<div id="outlineView"></div>
 
 				<div id="commentView">
-
-					<button id="deleteMarkButton" class="btn btn-danger">
-						<i class= "fa solid fa-trash"></i>
-                        Delete Mark
-					</button>
-
-
-
-					<!-- Navigation pills for voice and text comments -->
+                    <!-- Navigation pills for voice and text comments -->
 					<div class="nav nav-pills" id="comment-pills" role="tablist">
 						<a class="nav-link active navigation" id="voice-pill-tab" data-bs-toggle="pill" href="#voice-pill" role="tab" aria-controls="voice-pill" aria-selected="true">
 							Voice
@@ -68,12 +60,17 @@
 					<div class="tab-content" id="comment-pills-tabContent">
 						<!-- Voice Comment tab -->
 						<div class="tab-pane fade show active" id="voice-pill" role="tabpanel" aria-labelledby="voice-pill-tab">
+
+                            <div class="container p-2" id="quotationContainer"></div>
+
+
 							<div id="testComment" class="centered-text">Select a mark to leave a comment</div>
+
 							<div id="voiceRecordContainer">
 
 								<!-- Voice Recording Section -->
 								<div id="voiceRecord">
-									<button class="btn btn-primary" id="recordButton">
+									<button class="recordBtn btn-primary" id="recordButton">
 										<i id="play" class="fas fa-microphone" title="Start Recording"></i>
 										&nbspRecord
 									</button>
@@ -163,7 +160,7 @@
 					<div id="toolbarRight" class="toolbarSection">	
 						<button id="markButton" type="button" hidden="True" class="btn-light">
 							Mark
-						</button>		
+						</button>
 						<select id="selectScale" class="toolbarSelect" title="Zoom">
 							<option id="pageFit" value="fit">Fit Page</option>
 							<option id="pageWidth" value="width">Fit Width</option>
@@ -184,10 +181,10 @@
                                 <input placeholder="Search term..." type="text" class="textInput" id="searchTermInput">
                             </div>
                             <div>
-                                <button id="prevSearchResult" class="toolbarButton btn-light" title="Previous Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
+                                <button id="prevSearchResult" class="toolbarButton btn-dark" title="Previous Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
                                     <i class="bi bi-arrow-up"></i>
                                 </button>
-                                <button id="nextSearchResult" class="toolbarButton btn-light" title="Next Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
+                                <button id="nextSearchResult" class="toolbarButton btn-dark" title="Next Search Result" style="border-radius: 20px; background-color: #222; color: #fff">
                                     <i class="bi bi-arrow-down"></i>
                                 </button>
                             </div>
@@ -211,10 +208,15 @@
 					</div>
 				</div>
 			</div>
-            <div id="buttonGroup" style="position: absolute; display: none;">
-                <button class="btn-primary" id="newMarkButton" style="border-radius: 10px; opacity: 0.7">Mark</button>
-{#                <button class="btn-danger" id="newDeleteButton">Delete</button>#}
+            <div id="buttonGroup" class="btn-group" style="position: absolute; display: none;">
+                <button class="btn-primary btn-custom" id="newMarkButton">Mark</button>
+                <div class="deleteBtnContainer" id="delete-mark-button-container">
+                    <button class="btn-danger btn-custom" id="deleteMarkButton">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </div>
+
     </div>
 {#	</div>#}
 	
