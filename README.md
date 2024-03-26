@@ -85,12 +85,11 @@ Next, add the directory where you saved the Chrome WebDriver to the system's PAT
 sudo nano /etc/paths
 ```
 
-Run all tests with:
+Create a superuser and run all tests with:
 ```
+$ python3 manage.py create_debug_superuser
 $ python3 manage.py test
 ```
-
-*The above instructions should work in your version of the application.  If there are deviations, declare those here in bold.  Otherwise, remove this line.*
 
 ## Sources
 The packages used by this application are specified in `requirements.txt`
