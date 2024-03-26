@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from .locator import MainPageLocators
 from .page import MainPageComment
+from selenium.webdriver.common.alert import Alert
 
 
 class TestViewer2(unittest.TestCase):
@@ -88,9 +89,51 @@ class TestViewer2(unittest.TestCase):
         self.assertEqual(len(voice_comment_cards), 2)
         main_page.click_delete_mark_button()  # Delete the mark
 
+    def test_delete_comments_correctly(self):
+        main_page = MainPageComment(self.driver)
+        main_page.select_text_voice()
+        time.sleep(1)
+        main_page.click_mark_button()
+        time.sleep(1)
+        marked_section = self.driver.find_element(*MainPageLocators.MARKED_SECTION)
+        marked_section.click()
+        main_page.click_record_button()  # Recording twice
+        time.sleep(3)
+        main_page.click_record_button()
+        time.sleep(1)
+        main_page.click_record_button()
+        time.sleep(3)
+        main_page.click_record_button()
+        time.sleep(1)
+        main_page.click_record_save_button()
+        time.sleep(2)
+        main_page.click_voice_comment_label()
+        saved_recordings = self.driver.find_element(*MainPageLocators.SAVED_RECORDINGS)
+        time.sleep(2)
+        delete_button = self.get_voice_comment_cards_delete_button()
+        delete_button.click()
+        time.sleep(1)
+        alert = Alert(self.driver)
+        alert.accept()
+        time.sleep(1)
+        voice_comment_cards = saved_recordings.find_elements(By.CLASS_NAME, "card")
+        self.assertEqual(len(voice_comment_cards), 1)
+        delete_button = self.get_voice_comment_cards_delete_button()
+        delete_button.click()
+        time.sleep(1)
+        alert = Alert(self.driver)
+        alert.accept()
+        time.sleep(1)
+        voice_comment_cards = saved_recordings.find_elements(By.CLASS_NAME, "card")
+        self.assertEqual(len(voice_comment_cards), 0)
+        main_page.click_delete_mark_button()  # Delete the mark
+
     def find_card_text(self, card):
         return card.find_element(By.CLASS_NAME, "card-body").find_element(By.CLASS_NAME, "card-text").find_element(
             By.TAG_NAME, "textarea").get_attribute("value")
+
+    def get_voice_comment_cards_delete_button(self):
+        return self.driver.find_element(By.XPATH, '//*[@id="savedRecordings"]/div[1]/div[3]/button[3]')
 
     def tearDown(self):
         self.driver.close()
