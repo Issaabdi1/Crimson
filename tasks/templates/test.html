@@ -123,7 +123,22 @@
             
         </div>
     </div>
+    
+    <!--Find functionality testing-->
+    <div id="testArea">
+        <span class="clonedFindSpans">Highlight 1</span>
+        <span class="clonedFindSpans">Highlight 2</span>
+        <span>Non-highlighted Text</span>
+    </div>
 
+    <!-- Mock elements for testing deleteMark function -->
+    <div id="marksContainer">
+        <span data-value="mark1" class="mark">Mark 1</span>
+        <span data-value="mark2" class="mark">Mark 2</span>
+    </div>
+
+    <div id="textLayerContainer"></div>
+    
     <!--Other testing-->
     <div>
 
@@ -137,4 +152,6 @@
 <script src="{% static 'js/test/test_viewer_sidebar.js' %}"></script>
 <script src="{% static 'js/popup_window.js' %}"></script>
 <script src="{% static 'js/test/test_popup_window.js' %}"></script>
+<script src="{% static 'js/viewer.js' %}"></script>
+<script src="{% static 'js/test/test_pdf_search.js' %}"></script>
 </body>
