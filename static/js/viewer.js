@@ -56,6 +56,7 @@ var currentMarkId;
 var currentCommentId;
 var originalState;
 let isMark = false;
+let deleteMarkClicked = false;
 
 const setupEvent = new Event('afterSetup')
 const saveChanges = new Event('saveChanges');
@@ -345,10 +346,8 @@ function highlightSelectedText(event) {
 		})
     });
 
-    // Associate the mark with a comment
-    listOfComments[newMark.getId()] = "This comment is by mark " + newMark.getId();
     // Save changes
-    savePdfChanges();
+    savePdfChanges(false);
 }
 
 // Example function to highlight selected text within a span
@@ -449,7 +448,7 @@ function setupSpanClickEvent(element)
 									<div class="card" style="border-radius: 35px; width: 350px; margin: 10px; padding: 2px; box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;">
 										<div>
 											<div class="button-container">
-												<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
+												<button type="button" class="btn-close delete-btn" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
 											</div>
 											<div class="p-2" style="display: flex; margin-top: 10px">
 												<img src="${comment.avatar_url}" class="card-img-top" alt="avatar" style="margin-right: 10px;margin-top: 12px;width: 30px; height: 30px; border-radius: 30px">
@@ -805,10 +804,18 @@ const deleteMarkButton = document.getElementById('deleteMarkButton');
 deleteMarkButton.addEventListener('click', deleteMark);
 
 
-/* CURRENTLY IT DOES NOT DELETE COMMENTS PROPERLY */
 function deleteMark() {
     // Ensure that a mark is selected
     if (currentMarkId !== undefined && currentMarkId !== null) {
+
+		// Delete all voice comments by clicking each delete button
+		document.querySelectorAll('.delete-btn').forEach((button, index) => {
+			deleteMarkClicked = true;
+			setTimeout(() => {
+				button.click();
+			}, index * 10);
+		});
+
         // Remove the span from the DOM
         document.querySelectorAll(`span[data-value="${currentMarkId}"]`).forEach(e =>{
 			var parentElement = e.parentElement;
@@ -819,17 +826,12 @@ function deleteMark() {
         // Remove the mark's data from listOfMarkedSpans
 		listOfMarkedSpans = listOfMarkedSpans.filter(mark => !mark.html.includes(`data-value=\\"${currentMarkId}\\"`));//1
 
-
-        // Remove the mark's comment from listOfComments
+        // Remove the mark's comment lists from listOfComments
         delete listOfComments[currentMarkId];
-
-        // Optionally, remove the mark's voice comments from listOfVoiceComments
         delete listOfVoiceComments[currentMarkId];
-
-		console.log('listOfMarkedSpans',listOfMarkedSpans);
-		console.log('listOfComments',listOfComments);
-		console.log('listOfVoiceComments',listOfVoiceComments);
-        // Clear the current mark ID
+		delete listOfSavedComments[currentMarkId];
+        
+		// Clear the current mark ID
         currentMarkId = null;
 		savePdfChanges(false);
 		reloadComments()
@@ -919,7 +921,7 @@ function createAudioElement(audio_object, isBlob) {
 function createDeleteButton(deleteFunction) {
     const deleteBtn = document.createElement('button');
 	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'
-	deleteBtn.className = 'btn btn-danger';
+	deleteBtn.className = 'btn btn-danger delete-btn';
     deleteBtn.addEventListener('click', deleteFunction);
     return deleteBtn;
 }
@@ -960,12 +962,13 @@ async function startRecording() {
 			const deleteBtn = createDeleteButton(() => {
 				audio.remove();
 				deleteBtn.remove();
-				var index = -1;
-				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
-					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
-					if (blobItem == blob) {
-						index = i;
-						break;
+				if (listOfVoiceComments[currentMarkId]) {
+					for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+						const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+						if (blobItem == blob) {
+							index = i;
+							break;
+						}
 					}
 				}
 				if (index !== -1) {
@@ -1030,11 +1033,13 @@ function updateVoiceComments() {
 				audio.remove();
 				deleteBtn.remove();
 				var index = -1;
-				for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
-					const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
-					if (blobItem == blob) {
-						index = i;
-						break;
+				if (listOfVoiceComments[currentMarkId]) {
+					for (let i = 0; i < listOfVoiceComments[currentMarkId].length; i++) {
+						const [blobItem, transcriptItem] = listOfVoiceComments[currentMarkId][i];
+						if (blobItem == blob) {
+							index = i;
+							break;
+						}
 					}
 				}
 				if (index !== -1) {
@@ -1057,29 +1062,28 @@ function updateVoiceComments() {
 			var audio = createAudioElement(audio_url, false);
 			var card;
 	
-			var deleteBtn;
-			if (currentUser === fileOwner) {
-				deleteBtn = createDeleteButton(() => {
-					if (confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
-						const csrftoken = getCookie('csrftoken');
-						const formData = new FormData();
-						formData.append('audio-url', audio_url);
-	
-						fetch('/delete_voice_comment/', {
-							method: 'POST',
-							headers: {
-								'X-CSRFToken': csrftoken
-							},
-							body: formData
-						})
-						.then(response => {
-							if (!response.ok) {
-								throw new Error('Error when returning response');
-							}
-							return response.json();
-						})
-						.then(data => {
-							card.remove();
+			var deleteBtn = createDeleteButton(() => {
+				if (deleteMarkClicked || confirm("Are you sure you want to delete this voice comment? This action is irreversible.")) {
+					const csrftoken = getCookie('csrftoken');
+					const formData = new FormData();
+					formData.append('audio-url', audio_url);
+
+					fetch('/delete_voice_comment/', {
+						method: 'POST',
+						headers: {
+							'X-CSRFToken': csrftoken
+						},
+						body: formData
+					})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Error when returning response');
+						}
+						return response.json();
+					})
+					.then(data => {
+						card.remove();
+						if (listOfSavedComments[currentMarkId]) {
 							const index = listOfSavedComments[currentMarkId].findIndex(comment => comment.audio_url === audio_url);
 							if (index !== -1) {
 								listOfSavedComments[currentMarkId].splice(index, 1);
@@ -1088,13 +1092,14 @@ function updateVoiceComments() {
 								delete listOfSavedComments[currentMarkId];
 							}
 							updateVoiceComments();
-						})
-						.catch(error => {
-							console.error('Error:', error);
-						});
-					}
-				});
-			}
+						}
+						deleteMarkClicked = false;
+					})
+					.catch(error => {
+						console.error('Error:', error);
+					});
+				}
+			});
 	
 			card = createCard(vc, audio, deleteBtn);
 			savedRecordings.appendChild(card);
