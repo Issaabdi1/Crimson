@@ -22,7 +22,7 @@ class NotificationModelTestCase(TestCase):
         self.upload = Upload.objects.create(owner=self.user, file=mock_file)
         shared_file = SharedFiles.objects.create(shared_file= self.upload, shared_by = second_user)
         shared_file.shared_to.add(self.user)
-        self.notification = Notification.objects.create(shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user, notification_message="Hello")
+        self.notification = Notification.objects.create(upload=self.upload, shared_file_instance=shared_file, time_of_notification=timezone.now(), user=self.user, notification_message="Hello")
 
     def tearDown(self):
         self.upload.delete()
@@ -30,9 +30,13 @@ class NotificationModelTestCase(TestCase):
     def test_valid_notification(self):
         self._assert_notification_is_valid()
 
-    def test_shared_file_cannot_be_none(self):
-        self.notification.shared_file_instance = None
+    def test_upload_cannot_be_none(self):
+        self.notification.upload = None
         self._assert_notification_is_invalid()
+
+    def test_shared_file_can_be_none(self):
+        self.notification.shared_file_instance = None
+        self._assert_notification_is_valid()
 
     def test_user_cannot_be_none(self):
         self.notification.user = None

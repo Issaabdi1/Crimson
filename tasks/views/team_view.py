@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
-from tasks.models import User, Team, Upload
-
+from tasks.models import User, Team, Upload, Notification
+from django.utils import timezone
 
 @login_required
 def list_team_view(request):
@@ -64,6 +64,15 @@ def team_detail_view(request, team_id):
                 else:
                     team.shared_uploads.add(shared_file)
                     team.save()
+                    for member in members:
+                        if member!=current_user:
+                            Notification.objects.create(
+                                upload=shared_file,
+                                shared_file_instance=None,
+                                user=member,
+                                time_of_notification=timezone.now(),
+                                notification_message=f'{request.user} added a file to team {team.name}'
+                            )
             else:
                 messages.add_message(request, messages.ERROR, f'Please select a file to share.')
     else:

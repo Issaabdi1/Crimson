@@ -10,7 +10,7 @@ from django.shortcuts import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render
-from tasks.models import Upload, PDFInfo, VoiceComment
+from tasks.models import Upload, PDFInfo, VoiceComment, Notification, SharedFiles, Team
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 from django.core.files.base import ContentFile
@@ -129,6 +129,35 @@ def save_voice_comments(request):
                         'time_ago': timesince(saved_comment.timestamp) + ' ago',
                         'is_resolved': saved_comment.is_resolved,
                     })
+                    teams = upload.get_teams()#get all teams
+                    for team in teams:
+                        for member in team.members.all():
+                            if(member!=user):
+                                Notification.objects.create(
+                                    upload=saved_comment.upload,
+                                    shared_file_instance=None,
+                                    user=user,
+                                    time_of_notification=timezone.now(),
+                                    notification_message=f'{request.user} recorded a voice comment'
+                                )
+                    #If this file has been shared to a user or a team
+                    #currentTeam = Team.objects.filter(shared_uploads=shared_file in shared_uploads)
+                    #Check for a team
+                    if SharedFiles.objects.filter(shared_file=saved_comment.upload).exists():
+                        # Create a notification for everyone else who was shared this file
+                        shared_file = SharedFiles.objects.get(shared_file=saved_comment.upload)
+                        list_of_users= list(shared_file.shared_to.all())
+                        list_of_users.append(shared_file.shared_by)
+                        for user in list_of_users:
+                            if user!=request.user:
+                                # Create a new notification to tell them the comment was created
+                                Notification.objects.create(
+                                    upload=saved_comment.upload,
+                                    shared_file_instance=shared_file,
+                                    user=user,
+                                    time_of_notification=timezone.now(),
+                                    notification_message=f'{request.user} recorded a voice comment'
+                                )
             return JsonResponse({'recentlySavedComments': saved_comments})
         else:
             return JsonResponse({}, status=404)
@@ -167,6 +196,34 @@ def mark_as_resolved(request):
             if voice_comment is not None:
                 voice_comment.is_resolved = True
                 voice_comment.save()
+                teams = voice_comment.upload.get_teams()#get all teams
+                for team in teams:
+                    for member in team.members.all():
+                        if(member!=user):
+                            Notification.objects.create(
+                                upload=voice_comment.upload,
+                                shared_file_instance=None,
+                                user=user,
+                                time_of_notification=timezone.now(),
+                                notification_message=f'{request.user} resolved a comment'
+                            )
+                #If this file has been shared to a user or a team
+                #Check for a team
+                if SharedFiles.objects.filter(shared_file=voice_comment.upload).exists():
+                    # Create a notification for everyone else who was shared this file (and the owner)
+                    shared_file = SharedFiles.objects.get(shared_file=voice_comment.upload)
+                    list_of_users= list(shared_file.shared_to.all())
+                    list_of_users.append(shared_file.shared_by)
+                    for user in list_of_users:
+                        if user!=request.user:
+                            # Create a new notification to tell them the comment was resolved
+                            Notification.objects.create(
+                                upload=voice_comment.upload,
+                                shared_file_instance=shared_file,
+                                user=user,
+                                time_of_notification=timezone.now(),
+                                notification_message=f'{request.user} resolved a comment'
+                            )
     return JsonResponse({})
 
 def save_comment(request):
@@ -176,15 +233,42 @@ def save_comment(request):
         commenter = request.user
         text = request.POST.get('text')
         now = timezone.now()
-        Comment.objects.create(
-            upload_id=upload_id,
+
+        upload = Upload.objects.get(id=upload_id)
+        comment = Comment.objects.create(
+            upload=upload,
             mark_id=mark_id,
             commenter=commenter,
             date=now,
             text=text,
         )
-        comments = Comment.objects.filter(mark_id=mark_id, upload_id=upload_id)
-
+        comments = Comment.objects.filter(mark_id=mark_id, upload=upload)
+        teams = upload.get_teams()#get all teams
+        for team in teams:
+            for member in team.members.all():
+                if(member!=user):
+                    Notification.objects.create(
+                        upload=upload,
+                        shared_file_instance=None,
+                        user=user,
+                        time_of_notification=timezone.now(),
+                        notification_message=f'{request.user} added a comment'
+                    )
+        if SharedFiles.objects.filter(shared_file=upload).exists():
+            # Create a notification for everyone else who was shared this file
+            shared_file = SharedFiles.objects.get(shared_file=upload)
+            list_of_users= list(shared_file.shared_to.all())
+            list_of_users.append(shared_file.shared_by)
+            for user in list_of_users:
+                if user!=request.user:
+                    # Create a new notification to tell them the comment was resolved
+                    Notification.objects.create(
+                        upload=upload,
+                        shared_file_instance=shared_file,
+                        user=user,
+                        time_of_notification=timezone.now(),
+                        notification_message=f'{request.user} added a comment'
+                    )
         return render(request, 'viewer.html', {'comments': comments, 'current_mark_id': mark_id})
     else:
         return JsonResponse({"success": False, "error": "Only POST requests are allowed"})
@@ -200,21 +284,18 @@ def get_comments(request):
     if request.method == "GET":
         upload_id = request.GET.get('upload_id')
         mark_id = request.GET.get('mark_id')
-        comments = Comment.objects.filter(upload_id=upload_id, mark_id=mark_id)
-        comments_json = json.dumps([{
-            'commenter': comment.commenter.username,
-            'avatar_url': comment.commenter.avatar_url,
-            'text': comment.text,
-            'comment_id': comment.id,
-            'date': comment.formatted_date(),
-            'resolved': comment.resolved,
-        } for comment in comments])
-        print(comments_json)
-
         if upload_id is not None and mark_id is not None:
             try:
                 upload = get_object_or_404(Upload, pk=upload_id)
                 comments = Comment.objects.filter(upload=upload, mark_id=mark_id)
+                comments_json = json.dumps([{
+                    'commenter': comment.commenter.username,
+                    'avatar_url': comment.commenter.avatar_url,
+                    'text': comment.text,
+                    'comment_id': comment.id,
+                    'date': comment.formatted_date(),
+                    'resolved': comment.resolved,
+                } for comment in comments])
                 return JsonResponse({"comments": comments_json})
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=500)
@@ -278,10 +359,38 @@ def update_comment_status(request):
     try:
         data = json.loads(request.body)
         comment_id = data.get('comment_id')
+        upload_id = data.get('upload_id')
         resolved = data.get('resolved')
         comment = Comment.objects.get(id=comment_id)
         comment.resolved = resolved
         comment.save()
+        upload = get_object_or_404(Upload, pk=upload_id)
+        #Create notifications for teams
+        teams = upload.get_teams()#get all teams
+        for team in teams:
+            for member in team.members.all():
+                if(member!=user):
+                    Notification.objects.create(
+                        upload=upload,
+                        shared_file_instance=None,
+                        user=user,
+                        time_of_notification=timezone.now(),
+                        notification_message=f'{request.user} added a comment'
+                    )
+        # Create a notification for everyone else who was shared this file, including the owner
+        shared_file = SharedFiles.objects.get(shared_file=upload)
+        list_of_users= list(shared_file.shared_to.all())
+        list_of_users.append(shared_file.shared_by)
+        for user in list_of_users:
+            if user!=request.user:
+                # Create a new notification to tell them the comment was resolved
+                Notification.objects.create(
+                    upload=upload,
+                    shared_file_instance=shared_file,
+                    user=user,
+                    time_of_notification=timezone.now(),
+                    notification_message=f'{request.user} resolved a comment'
+                )
 
         return JsonResponse({"success": True, "message": "Comment status updated successfully."})
     except json.JSONDecodeError as e:
