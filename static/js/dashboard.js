@@ -129,10 +129,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const storedState = localStorage.getItem('collapseState') === 'true';
 
-    if (storedState) {
-        collapseSection.classList.add('show');
-    } else {
-        collapseSection.classList.remove('show');
+    if (collapseSection) {
+        if (storedState) {
+            collapseSection.classList.add('show');
+        } else {
+            collapseSection.classList.remove('show');
+        }
     }
 });
 
