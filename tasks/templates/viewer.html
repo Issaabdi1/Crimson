@@ -32,9 +32,6 @@
 				<button id="viewComments" class="toolbarButton toggled btn-light" title="View Comments">
 					<i class="fa-regular fa-message"></i>
 				</button>
-{#				<button id="viewBookmarks" class="toolbarButton toggled" title="View Bookmarks">#}
-{#					<i class="fa-regular fa-bookmark"></i>#}
-{#				</button>#}
 			</div>
 
 			<!-- Sidebar Views -->
@@ -116,10 +113,6 @@
 					</div>
 
                 </div>
-
-{#				<div id="bookmarksView">#}
-{#                    <h3>This is the bookmark view</h3>#}
-{#                </div>#}
 			</div>
 		</div>
 
@@ -147,14 +140,14 @@
 						<span id="numberPages" class="toolbarLabel">of 0</span>
 					</div>
 
-					<!-- Middle Toolbar Section -->
-{#					<div id="toolbarMiddle" class="toolbarSection">#}
-{#						<div id="titleContainer">#}
-							<!--Showing incomplete info right now-->
-{#							<div id="documentTitle"><h6 style=" color: #7c795d; justify-content: center; font-family: 'Trocchi', serif; font-weight: normal; line-height: 48px; margin: 0;">{{ upload.file.name }}</h6></div>#}
-{#							<div id="fileName">{{upload.file.name}}</div>#}
-{#						</div>#}
-{#					</div>#}
+					<!-- Middle Toolbar Section 
+					<div id="toolbarMiddle" class="toolbarSection">
+						<div id="titleContainer">
+							<div id="documentTitle"><h6 style=" color: #7c795d; justify-content: center; font-family: 'Trocchi', serif; font-weight: normal; line-height: 48px; margin: 0;">{{ upload.file.name }}</h6></div>
+							<div id="fileName">{{upload.file.name}}</div>
+						</div>
+					</div>
+					-->
 
 					<!-- Right Toolbar Section -->
 					<div id="toolbarRight" class="toolbarSection">	
@@ -176,7 +169,7 @@
 						
 						<!-- Search section -->
 						<div id="searchSection" style="display: none;"> <!-- Initially hidden -->
-{#							<input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField">#}
+							<!-- <input id="searchTermInput" type="text" placeholder="Search term..." class="toolbarField"> -->
                             <div class="textInputWrapper">
                                 <input placeholder="Search term..." type="text" class="textInput" id="searchTermInput">
                             </div>
@@ -218,7 +211,6 @@
             </div>
 
     </div>
-{#	</div>#}
 	
 	<script type="module">
 		import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
