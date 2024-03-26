@@ -123,6 +123,8 @@ function renderAfterZoom() {
 }
 
 markButton.addEventListener("click", highlightSelectedText);
+newMarkButton.addEventListener("click", highlightSelectedText);
+
 
 var currentStartingElement;
 var endingElement;
@@ -229,6 +231,10 @@ function mouseMoveHandler(event) {
 
 }
 
+/**
+ * button group
+ * @param event
+ */
 function mouseUpHandler(event) {
 	// Remove mousemove event listener when mouse button is released
 	document.removeEventListener('mousemove', mouseMoveHandler);
@@ -236,7 +242,47 @@ function mouseUpHandler(event) {
 	document.removeEventListener('mouseup', mouseUpHandler);
 	seenSpan = false;
 	textLayerContainer.style.cssText +=';'+  "-webkit-touch-callout :text; -webkit-user-select: text; -khtml-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text";
+
+	popUpMark(event)
 }
+
+/**
+ * pop up the window with the mark and delete button
+ */
+function popUpMark(event){
+	setTimeout(() => {
+        const selection = window.getSelection();
+        if (!selection.isCollapsed) {
+            	const selection = window.getSelection();
+				if (!selection.isCollapsed) { // Check if there's a selection
+					const range = selection.getRangeAt(0).getBoundingClientRect();
+					const buttonGroup = document.getElementById('buttonGroup');
+					buttonGroup.style.top = (event.clientY + window.scrollY) + 'px';
+					buttonGroup.style.left = (event.clientX + window.scrollX) + 'px';
+					buttonGroup.style.display = 'flex';
+				}
+				else {
+					document.getElementById('buttonGroup').style.display = 'none';
+				}
+        } else {
+            document.getElementById('buttonGroup').style.display = 'none';
+        }
+    }, 10);
+}
+
+function popUpMarkWhenClick(event) {
+    var buttonGroup = document.getElementById("buttonGroup");
+
+    var posX = event.clientX + 10;
+    var posY = event.clientY + 10;
+
+    buttonGroup.style.left = posX + 'px';
+    buttonGroup.style.top = posY + 'px';
+    buttonGroup.style.display = 'flex';
+}
+
+
+
 
 function highlightSelectedText(event) {
     // Clear selection
@@ -357,8 +403,9 @@ function highlightSpan(startOffset, endOffset, setSpan, firstElement) {
 // Adds all the relevant actions to the general click event of highlight spans
 function setupSpanClickEvent(element)
 {
-	element.addEventListener('click', () => {
+	element.addEventListener('click', (event) => {
 		isMark = true;
+		// document.getElementById("delete-mark-button-container").style.display = 'block';
 
 		// This changes the previous selected mark back to yellow
 		if(currentMarkId && currentMarkId !== element.dataset.value){
@@ -379,38 +426,55 @@ function setupSpanClickEvent(element)
 				'upload_id': upload_id,
 			},
 			success: function(response) {
+				document.getElementById('addCommentBtn').style.display = 'block';
 				console.log("Received JSON:", response);
+				const selectedText = element.textContent;
+				popUpMarkWhenClick(event)
+				console.log(event.clientX, event.clientY);
+
 				try {
 					var comments = JSON.parse(response.comments);
 					console.log("Parsed comments:", comments);
+					const quotationHTML = `
+						<blockquote>
+							<strong><em>${selectedText}</em></strong>
+						</blockquote>
+					`;
 					var commentsHTML = '';
 						comments.forEach(comment => {
 							var resolvedAttribute = comment.resolved ? 'disabled' : '';
 							currentCommentId = comment.comment_id;
 							commentsHTML += `
 								<div id="textComment-${comment.comment_id}" class="textComment" data-comment-id="${comment.comment_id}">
-									<div class="card" style="border-radius: 35px; width: auto; margin: 10px; padding: 5px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+									<div class="card" style="border-radius: 35px; width: 350px; margin: 10px; padding: 2px; box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;">
 										<div>
 											<div class="button-container">
 												<button type="button" class="btn-close" aria-label="Close" onclick="deleteComment(${comment.comment_id})"></button>
 											</div>
-											<img src="${comment.avatar_url}" class="card-img-top" alt="avatar">
-											${comment.commenter}
-											<div class="updateTime">
-												<small style="color: #5c636a">${comment.date}</small>
+											<div class="p-2" style="display: flex; margin-top: 10px">
+												<img src="${comment.avatar_url}" class="card-img-top" alt="avatar" style="margin-right: 10px;margin-top: 12px;width: 30px; height: 30px; border-radius: 30px">
+												<div style="margin-top: 10px">
+													<strong>${comment.commenter}</strong>
+												</div>
+											</div>
+											<div class="updateTime p-2">
+												<strong style="color: #5c636a">${comment.date}</strong>
 											</div>
 										</div>
 										<div class="card-body">
-											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}">${comment.text}</textarea></p>
+											<p class="card-text"><textarea id="commentInputBox-${comment.comment_id}"  ${resolvedAttribute}>${comment.text}</textarea></p>
 										</div>
-										<div class="card-footer text-body-secondary p-2 flex-column">
-											<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}" style="display: flex; justify-content: flex-end;">save</button>
-											<button class="resolveBtn" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>resolved</button>
+										<div class="card-footer text-body-secondary p-3 flex-column">
+											<div class="flex-column">
+												<button class="btn-primary saveBtn" data-comment-id="${comment.comment_id}">save</button>
+												<button class="resolveBtn btn-primary btn-outline-success" data-comment-id="${comment.comment_id}" ${resolvedAttribute}>Mark Resolved</button>
+											</div>
 										</div>
 									</div>
 								</div>`;
 						});
 					document.getElementById("commentsContainer").innerHTML = commentsHTML;
+					document.getElementById("quotationContainer").innerHTML = quotationHTML;
 					document.querySelectorAll('.card-footer .btn-primary').forEach((button, index) => {
 					button.addEventListener('click', function() {
 						// Find the textarea associated with this button
@@ -440,6 +504,11 @@ function setupSpanClickEvent(element)
 								console.log('current comment id is:', currentCommentId)
 								console.log('current mark id is:', currentMarkId)
 								console.log("Comment updated successfully:", response);
+								document.querySelector(`#textComment-${commentId} .saveBtn`).textContent = "✅ Successfully Saved!";
+								setTimeout(() => {
+									document.querySelector(`#textComment-${commentId} .saveBtn`).textContent = "save";
+								}, 2000);
+
 
 							},
 							error: function(xhr, status, error) {
@@ -470,6 +539,11 @@ function setupSpanClickEvent(element)
 							success: function(response) {
 								console.log("Comment marked as resolved successfully:", response);
 								document.querySelector(`#textComment-${commentId} .resolveBtn`).disabled = true;
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).style.backgroundColor = "#d3d3d3";
+								document.querySelector(`#textComment-${commentId} .resolveBtn`).textContent = "Resolved  ✅";
+								document.querySelector(`#commentInputBox-${commentId}`).disabled = true;
+
+
 							},
 							error: function(xhr, status, error) {
 								console.error("Error marking comment as resolved:", error);
@@ -729,6 +803,7 @@ document.getElementById('prevSearchResult').addEventListener('click', () => {
 /* Deleting Marks Javascript */
 const deleteMarkButton = document.getElementById('deleteMarkButton');
 deleteMarkButton.addEventListener('click', deleteMark);
+
 
 /* CURRENTLY IT DOES NOT DELETE COMMENTS PROPERLY */
 function deleteMark() {
@@ -1191,11 +1266,11 @@ document.addEventListener('click', e => {
 		const thumbnailsView = document.getElementById("thumbnailView");
 		const outlineView = document.getElementById("outlineView");
 		const commentView = document.getElementById("commentView");
-		const bookmarksView = document.getElementById("bookmarksView");
+		// const bookmarksView = document.getElementById("bookmarksView");
 		thumbnailsView.style.display = "none";
         outlineView.style.display = "none";
         commentView.style.display = "block";
-        bookmarksView.style.display = "none";
+        // bookmarksView.style.display = "none";
 	}
 });
 
