@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var successAlert = document.getElementById('success-alert');
     var fileName = document.getElementById('file-name')
     var fileInput = document.querySelector('input[type="file"]');
-    var uploadButton = document.querySelector('button[type="submit"]');
+    var uploadButton = document.getElementById('upload-btn');
 
     successIcon.style.display = 'none';
     successAlert.style.display = 'none';
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.querySelector('form').addEventListener('submit', function () {
+    document.getElementById('upload-form').addEventListener('submit', function (event) {
         if (fileInput.files.length === 0) {
             alert('Please select a file!');
             event.preventDefault();
