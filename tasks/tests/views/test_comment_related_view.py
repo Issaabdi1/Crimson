@@ -15,10 +15,13 @@ class CommentViewTestCase(TestCase):
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
         self.mark = PDFInfo.objects.create(upload=self.upload, mark_id=1, listOfSpans='test_comment_view',
                                            listOfComments='test_comment_view')
-        self.url_comment_delete = reverse('clear_comment')
+        self.url_comment_clear = reverse('clear_comment')
         self.url_comment_save = reverse('save_comment')
         self.url_comment_get = reverse('get_comments')
         self.url_comment_update = reverse('update_comment')
+        self.url_comment_delete = reverse('delete_text_comment')
+        self.url_comment_get_json = reverse('get_comments_json', kwargs={'upload_id': 1, 'mark_id': 1})
+
         self.url_comment_update_status = reverse('update_comment_status')
         self.comment = Comment.objects.create(upload=self.upload, commenter=self.user, mark_id=1,
                                               text='test_comment_view')
@@ -35,7 +38,7 @@ class CommentViewTestCase(TestCase):
     def test_post_clear_comment(self):
         self.login(self.user)
         before_count = Comment.objects.count()
-        response = self.client.post(self.url_comment_delete, follow=True)
+        response = self.client.post(self.url_comment_clear, follow=True)
         after_count = Comment.objects.count()
         self.assertEqual(before_count - 1, after_count)
         self.assertEqual(response.status_code, 204)
@@ -165,3 +168,25 @@ class CommentViewTestCase(TestCase):
         response = self.client.post(self.url_comment_update_status, data=post_data, content_type='application/json')
         self.assertEqual(response.status_code, 404)
         self.assertJSONEqual(response.content.decode(), {'error': 'Comment not found'})
+
+    def test_get_comment_get_json(self):
+        self.login(self.user)
+        response = self.client.get(self.url_comment_get_json)
+        self.assertEqual(response.status_code, 200)
+        expected_response = "{" + f'"comments": ' + "[{" + f'"id": {self.comment.mark_id}, "text": "{self.comment.text}", "commenter_id": {self.comment.id}, "commenter": 1, "resolved": false' + "}]}"
+        self.assertEqual(expected_response, response.content.decode())
+
+    def test_post_comment_delete(self):
+        self.login(self.user)
+        post_data = {
+            'id': 1,
+        }
+        before_count = Comment.objects.count()
+        response = self.client.post(self.url_comment_delete, data=post_data, content_type='application/json')
+        after_count = Comment.objects.count()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(before_count-1, after_count)
+        self.assertFalse(Comment.objects.filter(id=1).exists())
+        expected_response = {'status': 'success', 'message': 'Comment deleted successfully'}
+        self.assertJSONEqual(response.content.decode(), expected_response)
+

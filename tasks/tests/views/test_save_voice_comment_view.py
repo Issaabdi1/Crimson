@@ -49,7 +49,10 @@ class SaveVoiceCommentViewTestCase(TestCase):
             for vc in vcs:
                 default_storage.delete(vc.audio.name)
                 vc.delete()
-        self.upload.delete()
+        if Upload.objects.all():
+            Upload.objects.all().delete()
+        if VoiceComment.objects.all():
+            VoiceComment.objects.all().delete()
         super().tearDown()
 
     def test_save_voice_comments_url(self):
@@ -91,3 +94,46 @@ class SaveVoiceCommentViewTestCase(TestCase):
         self.assertEqual(before_text_count + 2, after_text_count) # Only 2 transcripts were saved as comments
         self.assertEqual(response.status_code, 200)
         self.successful_save = True
+
+    def test_post_mark_as_resolved(self):
+        url = reverse('mark_as_resolved')
+        self.client.login(username=self.user.username, password='Password123')
+        self.mock_audio = SimpleUploadedFile('test_voice_comment_model_audio.wav', '')
+        other_voice_comment = VoiceComment.objects.create(
+            user=self.user,
+            upload=self.upload,
+            mark_id=1,
+            audio=self.mock_audio,
+        )
+        post_data = {
+            'audio_url': other_voice_comment.audio.url
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 200)
+        other_voice_comment.refresh_from_db()
+        self.assertTrue(other_voice_comment.is_resolved)
+
+    def test_post_mark_as_resolved_with_wrong_url(self):
+        url = reverse('mark_as_resolved')
+        self.client.login(username=self.user.username, password='Password123')
+        self.mock_audio = SimpleUploadedFile('test_voice_comment_model_audio.wav', '')
+        other_voice_comment = VoiceComment.objects.create(
+            user=self.user,
+            upload=self.upload,
+            mark_id=1,
+            audio=self.mock_audio,
+        )
+        post_data = {
+            'audio_url': other_voice_comment.audio.url + '111'
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 200)
+        other_voice_comment.refresh_from_db()
+        self.assertFalse(other_voice_comment.is_resolved)
+
+    def test_get_mark_as_resolved(self):
+        url = reverse('mark_as_resolved')
+        self.client.login(username=self.user.username, password='Password123')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), '{}')
