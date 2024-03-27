@@ -1401,7 +1401,9 @@ function reloadComments() {
 		if (error.name === 'NetworkError') {
 		  document.getElementById('commentsContainer').innerHTML = 'Network Error. Check your connection and try again.';
 		} else {
-		  document.getElementById('commentsContainer').innerHTML = 'Error loading comments. Please try again later.';
+          if(document.getElementById('commentsContainer')){
+            document.getElementById('commentsContainer').innerHTML = 'Error loading comments. Please try again later.';
+          }
 		}
 		console.error(error);
 	  });

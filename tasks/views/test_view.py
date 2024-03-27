@@ -5,7 +5,12 @@ from tasks.models import Upload, User
 from django.contrib.auth.decorators import user_passes_test
 
 
+def superuser_required(user):
+    return user.is_superuser
+
+
 @login_required
+@user_passes_test(superuser_required)
 def test(request):
     """Displays the test file for the javascript tests."""
     return render(request, 'test.html')
@@ -13,10 +18,6 @@ def test(request):
 
 """Before testing, make sure run the command 'create_debug_superuser' 
 to create the superuser @admin with two default test files """
-
-
-def superuser_required(user):
-    return user.is_superuser
 
 
 @login_required()

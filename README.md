@@ -17,6 +17,12 @@ The project is called `TBD`.  It currently consists of a single app `TBD`.
 ## Deployed version of the application
 The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](https://teamcrimson.pythonanywhere.com/).
 
+## Supported Browser
+
+✅： Chrome (recommended), Edge, Firefox 
+
+❎： Safari
+
 ## Instructions To access the python anywhere account
 *delete section when submitting*
 

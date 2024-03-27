@@ -84,6 +84,8 @@ class MainPage(BasePage):
         mark_button.click()
 
     def click_delete_mark_button(self):
+        self.click_text_tab()
+        time.sleep(0.8)
         delete_mark_button = self.driver.find_element(*MainPageLocators.DELETE_MARK)
         delete_mark_button.click()
 
@@ -120,10 +122,6 @@ class MainPage(BasePage):
     def click_outline_button(self):
         outline_button = self.driver.find_element(*MainPageLocators.OUTLINE_BTN)
         outline_button.click()
-
-    def click_bookmark_button(self):
-        bookmark_button = self.driver.find_element(*MainPageLocators.BOOKMARK_BTN)
-        bookmark_button.click()
 
     def click_record_button(self):
         record_button = self.driver.find_element(*MainPageLocators.RECORD_BTN)
@@ -239,6 +237,8 @@ class MainPageComment(BasePage):
         mark_button.click()
 
     def click_delete_mark_button(self):
+        self.click_text_tab()
+        time.sleep(0.8)
         delete_mark_button = self.driver.find_element(*MainPageLocators.DELETE_MARK)
         delete_mark_button.click()
 

@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from .locator import MainPageLocators
+from .locator import MainPageLocators, LogInPageLocator
 from .page import MainPageComment
 
 
@@ -16,11 +16,11 @@ class TestMarks(unittest.TestCase):
         self.driver = webdriver.Chrome(options=chrome_options)
         wait = WebDriverWait(self.driver, 5)
         self.driver.get("http://localhost:8000/log_in/")
-        wait.until(EC.element_to_be_clickable((By.NAME, "username"))).send_keys("@admin")
-        wait.until(EC.element_to_be_clickable((By.NAME, "password"))).send_keys("Password123")
-        wait.until(EC.element_to_be_clickable((By.ID, "btn-submit"))).click()
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.USERNAME)).send_keys("@admin")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.PASSWORD)).send_keys("Password123")
+        wait.until(EC.element_to_be_clickable(LogInPageLocator.LOGIN_SUBMIT)).click()
         self.driver.get("http://localhost:8000/filelist/")
-        wait.until(EC.element_to_be_clickable((By.ID, "viewerForm1"))).click()
+        wait.until(EC.element_to_be_clickable(MainPageLocators.VIEWER_FORM_1)).click()
         self.driver.switch_to.window(self.driver.window_handles[-1])
 
     def test_create_mark(self):
@@ -29,6 +29,7 @@ class TestMarks(unittest.TestCase):
         # Select Text, click mark, click marked section,
         """
         main_page = MainPageComment(self.driver)
+        time.sleep(0.5)
         main_page.select_text_voice()
         time.sleep(0.5)
         main_page.click_mark_button()
@@ -78,7 +79,7 @@ class TestMarks(unittest.TestCase):
         main_page.click_delete_mark_button()
         time.sleep(0.5)
 
-        self.driver.navigate().refresh() 
+        self.driver.refresh()
         marked_sections = self.driver.find_elements(*MainPageLocators.MARKED_SECTION)
         self.assertEqual(len(marked_sections), 0)
 
@@ -89,13 +90,13 @@ class TestMarks(unittest.TestCase):
         main_page.click_mark_button()
         time.sleep(0.5)
         marked_section = self.driver.find_element(*MainPageLocators.MARKED_SECTION)
-        marked_section_colour = marked_section.get_attribute("background-color") #
-        self.assertEqual(marked_section_colour, "yellow")
+        marked_section_colour = marked_section.value_of_css_property("background-color") #
+        self.assertEqual(marked_section_colour, "rgba(255, 255, 0, 1)") # yellow
         marked_section.click()
 
         marked_section = self.driver.find_element(*MainPageLocators.MARKED_SECTION) #may be redundant
-        marked_section_colour = marked_section.get_attribute("background-color") #
-        self.assertEqual(marked_section_colour, "orange")
+        marked_section_colour = marked_section.value_of_css_property("background-color")
+        self.assertEqual(marked_section_colour, "rgba(255, 165, 0, 1)") # orange
 
         main_page.click_delete_mark_button()
 
@@ -114,17 +115,17 @@ class TestMarks(unittest.TestCase):
         marked_sections = self.driver.find_elements(*MainPageLocators.MARKED_SECTION)
 
         for section in marked_sections:
-            self.assertEquals(section.get_attribute("background-color"),"yellow")
+            self.assertEqual(section.value_of_css_property("background-color"),"rgba(255, 255, 0, 1)")
 
         marked_sections[0].click()
         time.sleep(0.5)
-        self.assertEqual(marked_sections[0].get_attribute("background-color"), "orange")
-        self.assertEqual(marked_sections[1].get_attribute("background-color"), "yellow")
+        self.assertEqual(marked_sections[0].value_of_css_property("background-color"), "rgba(255, 165, 0, 1)")
+        self.assertEqual(marked_sections[1].value_of_css_property("background-color"), "rgba(255, 255, 0, 1)")
 
         marked_sections[1].click()
         time.sleep(0.5)
-        self.assertEqual(marked_sections[0].get_attribute("background-color"), "yellow")
-        self.assertEqual(marked_sections[1].get_attribute("background-color"), "orange")
+        self.assertEqual(marked_sections[0].value_of_css_property("background-color"), "rgba(255, 255, 0, 1)")
+        self.assertEqual(marked_sections[1].value_of_css_property("background-color"), "rgba(255, 165, 0, 1)")
 
         time.sleep(0.5)
         main_page.click_delete_mark_button()
