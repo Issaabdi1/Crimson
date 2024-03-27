@@ -1,18 +1,11 @@
 """PDF Viewer view"""
-from venv import logger
-
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.utils.timesince import timesince
 from tasks.models import Comment
 from django.shortcuts import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render
 from tasks.models import Upload, PDFInfo, VoiceComment
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 import base64, json, uuid
@@ -38,7 +31,7 @@ def viewer(request):
                     # get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload=upload)
                     mark = PDFInfo.objects.get(upload=upload)
-                    print("List of omments is ", mark.listOfComments)
+                    # print("List of omments is ", mark.listOfComments)
                     # Generate saved comments dictionary (2D Dictionary)
                     # outer key is mark ID inner key is user)
                     allVoiceComments = VoiceComment.objects.filter(upload=upload)
@@ -209,7 +202,7 @@ def get_comments(request):
             'date': comment.formatted_date(),
             'resolved': comment.resolved,
         } for comment in comments])
-        print(comments_json)
+        # print(comments_json)
 
         if upload_id is not None and mark_id is not None:
             try:
@@ -236,7 +229,7 @@ def save_current_mark_id(request):
 @require_POST
 def update_comment(request):
     data = json.loads(request.body)
-    print('data is:', data)
+    #print('data is:', data)
     comment_id = data.get('comment_id')
     new_text = data.get('text')
     try:
@@ -246,8 +239,6 @@ def update_comment(request):
         return JsonResponse({'success': True, 'message': 'Comment updated successfully'})
     except Comment.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Comment not found'}, status=404)
-    except Comment.MultipleObjectsReturned:
-        return JsonResponse({'success': False, 'message': 'Multiple comments found'}, status=400)
 
 
 @require_POST
