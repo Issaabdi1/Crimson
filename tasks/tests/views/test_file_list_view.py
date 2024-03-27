@@ -6,7 +6,7 @@ from django.utils import timezone
 from tasks.models import User, Upload
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-class PDFViewerViewTest(TestCase):
+class FileListViewTest(TestCase):
     """Tests of the file list view."""
 
     fixtures = ['tasks/tests/fixtures/default_user.json']
