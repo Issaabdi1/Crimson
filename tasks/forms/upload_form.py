@@ -7,7 +7,8 @@ class FileForm(forms.Form):
     file = forms.FileField(
         label='Select a File',
         help_text='only files with the extension .pdf are supported, maximum file size allowed is 100 MB.',
-        label_suffix=''
+        label_suffix='',
+        required=False
     )
     user = None
 
