@@ -7,7 +7,6 @@ from django.urls import reverse
 
 
 class SavePdfInfoTestCase(TestCase):
-
     fixtures = ['tasks/tests/fixtures/default_user.json']
 
     def setUp(self):
@@ -15,6 +14,7 @@ class SavePdfInfoTestCase(TestCase):
         self.uploaded_file = SimpleUploadedFile("test.pdf", b"file_content", content_type="application/pdf")
         self.upload = Upload.objects.create(file=self.uploaded_file, owner=self.user)
         self.url = reverse('save_pdf_marks')
+        self.url_save_current = reverse('save_current_mark_id')
 
     def tearDown(self):
         if Upload.objects.all():
@@ -58,7 +58,7 @@ class SavePdfInfoTestCase(TestCase):
         self.assertEqual(pdf_info.mark_id, 2)
         self.assertEqual(pdf_info.listOfComments, 'test_comments')
         mark.refresh_from_db()
-        self.assertEqual(mark.mark_id,2)
+        self.assertEqual(mark.mark_id, 2)
         self.assertEqual(mark.listOfSpans, 'test_spans')
         self.assertEqual(mark.listOfComments, 'test_comments')
 
@@ -78,3 +78,16 @@ class SavePdfInfoTestCase(TestCase):
     def test_save_pdf_info_get(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+
+    def test_save_current_mark_id_get(self):
+        self.login(self.user)
+        response = self.client.get(self.url_save_current)
+        self.assertEqual(response.json()["message"], "Invalid request method")
+        self.assertEqual(response.json()["status"], "error")
+
+    def test_save_current_mark_id_post(self):
+        self.login(self.user)
+        response = self.client.post(self.url_save_current, {'mark_id': 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('current_mark_id', response.context)
+        self.assertEqual(response.context['current_mark_id'], "1")

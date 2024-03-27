@@ -18,6 +18,8 @@ class CommentViewTestCase(TestCase):
         self.url_comment_delete = reverse('clear_comment')
         self.url_comment_save = reverse('save_comment')
         self.url_comment_get = reverse('get_comments')
+        self.url_comment_update = reverse('update_comment')
+        self.url_comment_update_status = reverse('update_comment_status')
         self.comment = Comment.objects.create(upload=self.upload, commenter=self.user, mark_id=1,
                                               text='test_comment_view')
 
@@ -94,3 +96,72 @@ class CommentViewTestCase(TestCase):
         response = self.client.post(self.url_comment_get)
         self.assertEqual(response.status_code, 405)
         self.assertEqual(response.json()["error"], "Only GET requests are allowed")
+
+    def test_get_comment_update(self):
+        self.login(self.user)
+        response = self.client.get(self.url_comment_update)
+        self.assertEqual(response.status_code, 405)
+
+    def test_post_comment_update(self):
+        self.login(self.user)
+        post_data = {
+            'comment_id': 1,
+            'text': "test comment update"
+        }
+        response = self.client.post(self.url_comment_update, data=post_data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.comment.refresh_from_db()
+        self.assertEqual(self.comment.text, "test comment update")
+        self.assertTrue(response.json()["success"])
+        self.assertEqual(response.json()["message"], "Comment updated successfully")
+
+    def test_post_update_comment_comment_not_found(self):
+        self.login(self.user)
+        post_data = {
+            'comment_id': 999,
+            'text': "test comment update"
+        }
+        response = self.client.post(self.url_comment_update, data=post_data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        self.assertJSONEqual(response.content.decode(), {'success': False, 'message': 'Comment not found'})
+
+    def test_get_comment_update_status(self):
+        self.login(self.user)
+        response = self.client.get(self.url_comment_update_status)
+        self.assertEqual(response.status_code, 405)
+
+    def test_update_comment_status_invalid_content_type(self):
+        self.login(self.user)
+        response = self.client.post(self.url_comment_update_status, content_type='text/plain')
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content.decode(), {'error': 'Invalid content type'})
+
+    def test_update_comment_status_post(self):
+        self.login(self.user)
+        post_data = {
+            'comment_id': self.comment.id,
+            'resolved': True
+        }
+        response = self.client.post(self.url_comment_update_status, data=post_data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        updated_comment = Comment.objects.get(id=self.comment.id)
+        self.assertEqual(updated_comment.resolved, True)
+        expected_response = {'success': True, 'message': 'Comment status updated successfully.'}
+        self.assertJSONEqual(response.content.decode(), expected_response)
+
+    def test_update_comment_status_invalid_json(self):
+        self.login(self.user)
+        post_data = 'invalid json'
+        response = self.client.post(self.url_comment_update_status, data=post_data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content.decode(), {'error': 'Invalid JSON or empty payload'})
+
+    def test_update_comment_status_comment_not_found(self):
+        self.login(self.user)
+        post_data = {
+            'comment_id': 999,
+            'resolved': True
+        }
+        response = self.client.post(self.url_comment_update_status, data=post_data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        self.assertJSONEqual(response.content.decode(), {'error': 'Comment not found'})
