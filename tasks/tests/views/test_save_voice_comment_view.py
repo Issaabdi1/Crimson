@@ -82,16 +82,18 @@ class SaveVoiceCommentViewTestCase(TestCase):
     def test_successful_save(self):
         voice_comment_str = json.dumps(self.voice_comment_list)
         self.client.login(username=self.user.username, password='Password123')
-        before_voice_count = VoiceComment.objects.count()
-        before_text_count = Comment.objects.count()
+        before_count = VoiceComment.objects.count()
         response = self.client.post(self.url, {
             'upload_id': self.upload.id, 
             'voice-comment-list': voice_comment_str,
         })
-        after_voice_count = VoiceComment.objects.count()
-        after_text_count = Comment.objects.count()
-        self.assertEqual(before_voice_count + 3, after_voice_count)
-        self.assertEqual(before_text_count + 2, after_text_count) # Only 2 transcripts were saved as comments
+        after_count = VoiceComment.objects.count()
+        self.assertEqual(before_count + 3, after_count)
+
+        # Check that audio on the second mark has no transcript
+        audio_with_no_transcript = VoiceComment.objects.get(mark_id=2)
+        self.assertFalse(audio_with_no_transcript.transcript) # None and '' evaluate to False
+
         self.assertEqual(response.status_code, 200)
         self.successful_save = True
 

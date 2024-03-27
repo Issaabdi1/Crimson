@@ -17,46 +17,47 @@ def upload_file_view(request):
     if request.method == 'POST':
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            media_file = request.FILES['file']
-            if settings.USE_S3:
-                upload = Upload(file=media_file, owner=current_user)
-                try:
-                    upload.full_clean()
-                    upload.save()
-                    file_url = upload.file.url
+            if 'file' in request.FILES:
+                media_file = request.FILES['file']
+                if settings.USE_S3:
+                    upload = Upload(file=media_file, owner=current_user)
+                    try:
+                        upload.full_clean()
+                        upload.save()
+                        file_url = upload.file.url
 
-                    # Add upload to team files
-                    team_id = request.POST.get("team_id")
-                    if team_id is not None:
-                        team = Team.objects.get(id=team_id)
-                        team.add_upload(upload)
-                    
-                    # Share to given username / email
-                    share_to = request.POST.get("share")
-                    if share_to != '':
-                        try:
-                            user = User.objects.get(username=share_to)
-                            share_instance = SharedFiles.objects.create(
-                                shared_file=upload,
-                                shared_by=request.user
-                            )
-                            share_instance.shared_to.add(user)
-                        except User.DoesNotExist:
+                        # Add upload to team files
+                        team_id = request.POST.get("team_id")
+                        if team_id is not None:
+                            team = Team.objects.get(id=team_id)
+                            team.add_upload(upload)
+                        
+                        # Share to given username / email
+                        share_to = request.POST.get("share")
+                        if share_to != '':
                             try:
-                                user = User.objects.get(email=share_to)
+                                user = User.objects.get(username=share_to)
                                 share_instance = SharedFiles.objects.create(
                                     shared_file=upload,
                                     shared_by=request.user
                                 )
                                 share_instance.shared_to.add(user)
                             except User.DoesNotExist:
-                                messages.add_message(request, messages.WARNING, f'File has been uploaded but not shared. Provided username or email does not exist.')
+                                try:
+                                    user = User.objects.get(email=share_to)
+                                    share_instance = SharedFiles.objects.create(
+                                        shared_file=upload,
+                                        shared_by=request.user
+                                    )
+                                    share_instance.shared_to.add(user)
+                                except User.DoesNotExist:
+                                    messages.add_message(request, messages.WARNING, f'File has been uploaded but not shared. Provided username or email does not exist.')
 
 
-                except ValidationError as e:
-                    messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
-            else:
-                messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
+                    except ValidationError as e:
+                        messages.add_message(request, messages.ERROR, e.message_dict['file'][0])
+                else:
+                    messages.add_message(request, messages.ERROR, f'The Amazon S3 service is not connected.')
         else:
             form = FileForm()
     if file_url:
