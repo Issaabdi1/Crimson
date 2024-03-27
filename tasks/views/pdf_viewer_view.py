@@ -1,18 +1,11 @@
 """PDF Viewer view"""
-from venv import logger
-
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.utils.timesince import timesince
 from tasks.models import Comment
 from django.shortcuts import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render
 from tasks.models import Upload, PDFInfo, VoiceComment
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 import base64, json, uuid
@@ -209,7 +202,7 @@ def get_comments(request):
             'date': comment.formatted_date(),
             'resolved': comment.resolved,
         } for comment in comments])
-        print(comments_json)
+        # print(comments_json)
 
         if upload_id is not None and mark_id is not None:
             try:

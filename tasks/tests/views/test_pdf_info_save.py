@@ -1,7 +1,8 @@
+"""Unit tests for the mark saving"""
+
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from tasks.models import Upload, PDFInfo, User
-from tasks.views import save_pdf_info
 from django.urls import reverse
 
 

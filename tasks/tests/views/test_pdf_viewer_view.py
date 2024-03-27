@@ -3,10 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from tasks.models import User, Upload, PDFInfo, VoiceComment
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.messages.storage.fallback import FallbackStorage
 from tasks.tests.helpers import reverse_with_next
-from tasks.views import viewer
 
 
 class PDFViewerViewTest(TestCase):
