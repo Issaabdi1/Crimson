@@ -3,4 +3,4 @@
 
 [run]
 branch = True
-omit = *__init__.py,manage.py,*/migrations/*.py,*settings.py,*test*,admin.py,apps.py,seed.py,unseed.py
+omit = *__init__.py,manage.py,*/migrations/*.py,*settings.py,*test*,admin.py,apps.py,seed.py,unseed.py,*/viewer/*.py

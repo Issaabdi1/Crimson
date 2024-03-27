@@ -103,6 +103,58 @@ class ProfileImageModelTestCase(TestCase):
         self.images[4].delete()
         self.assertEqual(self.user.avatar_url, f'https://ui-avatars.com/api/?name=JD&size=128&background=random&font-size=0.5&length=2')
 
+    def test_change_to_default_avatar_without_firstname(self):
+        self.user.first_name = ''
+        self.user.save()
+        self.user.avatar_url = self.images[0].image.url
+        self.user.save()
+        self.images[0].delete()
+        self.assertEqual(self.user.avatar_url, self.images[1].image.url)
+        self.images[1].delete()
+        self.assertEqual(self.user.avatar_url, self.images[2].image.url)
+        self.images[2].delete()
+        self.assertEqual(self.user.avatar_url, self.images[3].image.url)
+        self.images[3].delete()
+        self.assertEqual(self.user.avatar_url, self.images[4].image.url)
+        self.images[4].delete()
+        self.assertEqual(self.user.avatar_url,
+                         f'https://ui-avatars.com/api/?name=D&size=128&background=random&font-size=0.5&length=2')
+
+    def test_change_to_default_avatar_without_lastname(self):
+        self.user.last_name = ''
+        self.user.save()
+        self.user.avatar_url = self.images[0].image.url
+        self.user.save()
+        self.images[0].delete()
+        self.assertEqual(self.user.avatar_url, self.images[1].image.url)
+        self.images[1].delete()
+        self.assertEqual(self.user.avatar_url, self.images[2].image.url)
+        self.images[2].delete()
+        self.assertEqual(self.user.avatar_url, self.images[3].image.url)
+        self.images[3].delete()
+        self.assertEqual(self.user.avatar_url, self.images[4].image.url)
+        self.images[4].delete()
+        self.assertEqual(self.user.avatar_url,
+                         f'https://ui-avatars.com/api/?name=J&size=128&background=random&font-size=0.5&length=2')
+
+    def test_change_to_default_avatar_without_firstname_and_lastname(self):
+        self.user.first_name = ''
+        self.user.last_name = ''
+        self.user.save()
+        self.user.avatar_url = self.images[0].image.url
+        self.user.save()
+        self.images[0].delete()
+        self.assertEqual(self.user.avatar_url, self.images[1].image.url)
+        self.images[1].delete()
+        self.assertEqual(self.user.avatar_url, self.images[2].image.url)
+        self.images[2].delete()
+        self.assertEqual(self.user.avatar_url, self.images[3].image.url)
+        self.images[3].delete()
+        self.assertEqual(self.user.avatar_url, self.images[4].image.url)
+        self.images[4].delete()
+        self.assertEqual(self.user.avatar_url,
+                         f'https://ui-avatars.com/api/?name=AD&size=128&background=random&font-size=0.5&length=2')
+
     def _assert_profile_image_is_valid(self, image):
         try:
             image.full_clean()

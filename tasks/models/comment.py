@@ -25,11 +25,14 @@ class Comment(models.Model):
 
         if delta.days == 0:
             return f"today {self.date.strftime('%H:%M')}"
-        elif delta.days == 1:
-            return f"yesterday {self.date.strftime('%H:%M')}"
-        elif delta.days > 1 and delta.months == 0:
-            return f"{delta.days} days ago"
-        elif delta.months == 1:
-            return "1 month ago"
-        elif delta.months > 1:
-            return f"{delta.months} months ago"
+        else:
+            if delta.months < 1:
+                if delta.days == 1:
+                    return f"yesterday {self.date.strftime('%H:%M')}"
+                else:
+                    return f"{delta.days} days ago"
+            else:
+                if delta.months == 1:
+                    return "1 month ago"
+                else:
+                    return f"{delta.months} months ago"
