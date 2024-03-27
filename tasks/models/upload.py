@@ -82,3 +82,5 @@ class Upload(models.Model):
             return file_name_without_path
         else:
             return ""
+    def get_teams(self):
+        return self.team_set.all()

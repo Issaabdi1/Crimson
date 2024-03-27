@@ -1,11 +1,11 @@
 <style>
-    .notification-card .col-md-1 .delete-button .btn-close {
+    .delete-button .btn-close {
         visibility: hidden;
         opacity: 0;
         transition: visibility 0s, opacity 0.1s linear;
     }
 
-    .notification-card :hover > .col-md-1 .delete-button .btn-close {
+    .delete-button .btn-close {
         visibility: visible;
         opacity: 1;
     }
@@ -36,32 +36,27 @@
         {% endif %}
         <!--List of notifications-->
         <div class="all-notifications mt-3" id="notis">
-            <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px; display:none"
-                 data-id="99999">
-            </div>
             {% for notification in notifications %}
-                <div class="card card-body mb-3 notification-card" id="closeable-card" style="width: 350px;"
+                <div class="card card-body mb-3 notification-card" id="closeable-card{{notification.id}}" style="width: 350px;"
                      data-id="{{ notification.id }}">
                     <div class="row g-0">
                         <div class="col-12">
                             <div class="delete-button">
                                 <button type="button" id="remove-notification" name="delete"
                                         value="{{ notification.id }}" class="btn btn-close" data-bs-dismiss="alert"
-                                        data-bs-target="#closeable-card" aria-label="Close">
+                                        data-bs-target="#closeable-card{{notification.id}}" aria-label="Close">
                                 </button>
                             </div>
                         </div>
                         <div class="col-12 mt-2" style="overflow-x: hidden;">
-                            <h5 class="card-title fs-6"
-                                style="margin:10px">{{ notification.notification_message }} {{ notification.id }}</h5>
-                            {% if user in notification.shared_file_instance.shared_to.all %}
+                            <h5 class="card-title fs-6" style="margin:10px">{{ notification.notification_message }}</h5>
+                            {% if notification.shared_file_instance and user in notification.shared_file_instance.shared_to.all or user == notification.shared_file_instance.shared_by %}
                                 <form method="post" action="{% url 'pdf_viewer' %}" target="_blank">
                                     {% csrf_token %}
                                     <input type="hidden" name="upload_id"
                                            value="{{ notification.shared_file_instance.shared_file.id }}">
-                                    <button type="submit"
-                                            class="btn file-link">{{ notification.shared_file_instance.shared_file.file.name }}</button>
-                                </form>
+                                    <button type="submit" 
+                                            class="btn file-link">{{ notification.upload.file.name }}</button>                                </form>
                             {% else %}
                                 {{ notification.shared_file_instance.shared_file.file.name }}
                             {% endif %}

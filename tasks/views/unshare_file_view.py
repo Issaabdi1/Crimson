@@ -13,6 +13,7 @@ def unshare_file(request, upload_id, user_id):
         shared_file.shared_to.remove(user)
         #Create a new notification when a file is unshared
         Notification.objects.create(
+            upload=shared_file.shared_file,
             shared_file_instance = shared_file,
             user = user,
             time_of_notification = timezone.now(),

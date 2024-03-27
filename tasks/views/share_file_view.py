@@ -54,6 +54,7 @@ def share_file(request):
                 else:
                     # Create a new notification if the file has been newly shared
                     Notification.objects.create(
+                        upload=entry.shared_file,
                         shared_file_instance=entry,
                         user=shared_user,
                         time_of_notification=timezone.now(),
@@ -61,8 +62,10 @@ def share_file(request):
                     )
                 entry.shared_to.add(shared_user)
                 entry.save()
-        elif file_id is None and user_ids:
+        elif file_id is None:
             messages.error(request, 'Please select a file to share.')
+        elif file_id is not None and len(user_ids)<=0:
+            messages.error(request, 'Please select a user to share this file to.')
 
     context = {
         'uploads': uploads,
