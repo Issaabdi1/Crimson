@@ -64,6 +64,19 @@ class ListTeamViewTest(TestCase):
         self.assertTrue(group in self.user.team_set.all())
         self.assertRedirects(response, self.url, status_code=302, target_status_code=200)
 
+    def test_unsuccessful_team_joined_invalid_code(self):
+        self.login(self.user)
+        group = Team.objects.create(name="team join")
+        self.form_input_join['invitation_code'] = "abc"
+        before_count = self.user.team_set.count()
+        response = self.client.post(self.url, self.form_input_join, follow=True)
+        after_count = self.user.team_set.count()
+        self.assertEqual(after_count, before_count)
+        self.assertFalse(group in self.user.team_set.all())
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), f'Invitation code is invalid')
+
     def test_unsuccessful_team_joined_with_empty_form_input(self):
         self.login(self.user)
         group = Team.objects.create(name="team join")

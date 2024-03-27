@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from tasks.forms import CreateTeamForm, AddUserToTeamForm, FileForm, JoinTeamForm
@@ -23,10 +24,15 @@ def list_team_view(request):
         elif 'join_group' in request.POST:
             join_form = JoinTeamForm(request.POST)
             if join_form.is_valid():
-                team = Team.objects.all().filter(invitation_code=join_form.cleaned_data['invitation_code'])[0]
-                team.members.add(current_user)
-                team.save()
-                return redirect('team_list')
+                try:
+                    team = Team.objects.all().filter(invitation_code=join_form.cleaned_data['invitation_code'])[0]
+                    team.members.add(current_user)
+                    team.save()
+                    return redirect('team_list')
+                except ValidationError:
+                    messages.add_message(request, messages.ERROR, f'Invitation code is invalid')
+
+
 
     context = {'user': current_user,
                'team_joined': team_joined,
