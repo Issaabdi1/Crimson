@@ -38,7 +38,7 @@ def viewer(request):
                     # get the mark instance
                     context['marks'] = PDFInfo.objects.get(upload=upload)
                     mark = PDFInfo.objects.get(upload=upload)
-                    print("List of omments is ", mark.listOfComments)
+                    # print("List of omments is ", mark.listOfComments)
                     # Generate saved comments dictionary (2D Dictionary)
                     # outer key is mark ID inner key is user)
                     allVoiceComments = VoiceComment.objects.filter(upload=upload)
