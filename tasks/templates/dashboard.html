@@ -242,6 +242,35 @@
                                     </form>
                                 </tr>
                             {% endfor %}
+                            
+                            {% for sharedFile in sharedFiles %}
+                                <tr data-upload-id="{{ sharedFile.shared_file.id }}">
+                                     <td scope="row">
+                                        <input class="form-check-input row-checkbox" type="checkbox">
+                                    </td>
+                                    <td scope="row">{{ sharedFile.row_id }}</td>
+                                    <td>{{ sharedFile.shared_file.get_file_name_without_path }}</td>
+                                    <td>
+                                        <img src="{{ sharedFile.shared_by.avatar_url }}" alt="Mini Gravatar" class="avatar">
+                                        {{ sharedFile.shared_by }}
+                                    </td>
+                                    <td>{{ sharedFile.shared_date }}</td>
+                                    {% if sharedFile.shared_file.comments %}
+                                        <td>{{ sharedFile.shared_file.comments}}</td>
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                    <td>{{ sharedFile.shared_file.get_file_size_mb }} Mb</td>
+                                    <form method="post" action="{% url 'pdf_viewer' %}" class="d-inline" target="_blank" id="viewerForm{{  sharedFile.shared_file.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="upload_id" value="{{ sharedFile.shared_file.id }}">
+                                        <a href="#" class="a"
+                                           onclick="document.getElementById('viewerForm{{ sharedFile.shared_file.id }}').submit();return false;"
+                                           style="text-decoration: none">
+                                        </a>
+                                    </form>
+                                </tr>
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
