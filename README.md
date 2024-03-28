@@ -12,25 +12,19 @@ The members of the team are:
 - *KAM HING HANSON ZHUANG*
 
 ## Project structure
-The project is called `TBD`.  It currently consists of a single app `TBD`.
+The project is called `task_manager`.  It currently consists of a single app `tasks`.
 
 ## Deployed version of the application
 The deployed version of the application can be found at [*https://teamcrimson.pythonanywhere.com/*](https://teamcrimson.pythonanywhere.com/).
 
+The Deployed version is seeded with 201 users, 1002uploads, 400 teams, 400 profile images and 600 shared files (associated with 2400 notifications)
+
+Do not  use the @admin account since it is for testing purpose only.
 ## Supported Browser
 
 ✅： Chrome (recommended), Edge, Firefox 
 
 ❎： Safari
-
-## Instructions To access the python anywhere account
-*delete section when submitting*
-
-Login to PythonAnywhere
-```
-Username: TeamCrimson
-Password: UfbnDsjntpo
-```
 
 ## Amazon S3 Bucket
 
