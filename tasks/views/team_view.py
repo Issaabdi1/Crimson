@@ -9,6 +9,7 @@ from django.utils import timezone
 
 @login_required
 def list_team_view(request):
+    """List all teams, create teams and join team"""
     current_user = request.user
     team_joined = current_user.team_set.all()
     create_form = CreateTeamForm()
