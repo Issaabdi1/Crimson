@@ -199,11 +199,11 @@ def mark_as_resolved(request):
                 teams = voice_comment.upload.get_teams()#get all teams
                 for team in teams:
                     for member in team.members.all():
-                        if(member!=user):
+                        if(member!=request.user):
                             Notification.objects.create(
                                 upload=voice_comment.upload,
                                 shared_file_instance=None,
-                                user=user,
+                                user=member,
                                 time_of_notification=timezone.now(),
                                 notification_message=f'{request.user} resolved a comment'
                             )
@@ -246,11 +246,11 @@ def save_comment(request):
         teams = upload.get_teams()#get all teams
         for team in teams:
             for member in team.members.all():
-                if(member!=user):
+                if(member!=request.user):
                     Notification.objects.create(
                         upload=upload,
                         shared_file_instance=None,
-                        user=user,
+                        user=member,
                         time_of_notification=timezone.now(),
                         notification_message=f'{request.user} added a comment'
                     )
@@ -317,7 +317,6 @@ def save_current_mark_id(request):
 @require_POST
 def update_comment(request):
     data = json.loads(request.body)
-    print('data is:', data)
     comment_id = data.get('comment_id')
     new_text = data.get('text')
     try:
@@ -369,29 +368,29 @@ def update_comment_status(request):
         teams = upload.get_teams()#get all teams
         for team in teams:
             for member in team.members.all():
-                if(member!=user):
+                if(member!=request.user):
                     Notification.objects.create(
                         upload=upload,
                         shared_file_instance=None,
-                        user=user,
+                        user=member,
                         time_of_notification=timezone.now(),
                         notification_message=f'{request.user} added a comment'
                     )
         # Create a notification for everyone else who was shared this file, including the owner
-        shared_file = SharedFiles.objects.get(shared_file=upload)
-        list_of_users= list(shared_file.shared_to.all())
-        list_of_users.append(shared_file.shared_by)
-        for user in list_of_users:
-            if user!=request.user:
-                # Create a new notification to tell them the comment was resolved
-                Notification.objects.create(
-                    upload=upload,
-                    shared_file_instance=shared_file,
-                    user=user,
-                    time_of_notification=timezone.now(),
-                    notification_message=f'{request.user} resolved a comment'
-                )
-
+        if upload.sharedfiles_set.count() > 0:
+            shared_file = SharedFiles.objects.get(shared_file=upload)
+            list_of_users= list(shared_file.shared_to.all())
+            list_of_users.append(shared_file.shared_by)
+            for user in list_of_users:
+                if user!=request.user:
+                    # Create a new notification to tell them the comment was resolved
+                    Notification.objects.create(
+                        upload=upload,
+                        shared_file_instance=shared_file,
+                        user=user,
+                        time_of_notification=timezone.now(),
+                        notification_message=f'{request.user} resolved a comment'
+                    )
         return JsonResponse({"success": True, "message": "Comment status updated successfully."})
     except json.JSONDecodeError as e:
         return JsonResponse({'error': 'Invalid JSON or empty payload'}, status=400)

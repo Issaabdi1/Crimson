@@ -143,6 +143,7 @@ class CommentViewTestCase(TestCase):
         self.login(self.user)
         post_data = {
             'comment_id': self.comment.id,
+            'upload_id': self.upload.id,
             'resolved': True
         }
         response = self.client.post(self.url_comment_update_status, data=post_data, content_type='application/json')
